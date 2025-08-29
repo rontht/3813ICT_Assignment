@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
-import { Home } from './components/home/home';
+import { Dashboard } from './components/dashboard/dashboard';
 
 export const routes: Routes = [
   {
@@ -9,8 +9,8 @@ export const routes: Routes = [
     title: 'Cloud Connect: Login',
   },
   {
-    path: 'home',
-    component: Home,
-    title: 'Cloud Connect: Home',
+    path: 'dashboard',
+    component: Dashboard,
+    title: 'Cloud Connect: Dashboard',
   },
 ];

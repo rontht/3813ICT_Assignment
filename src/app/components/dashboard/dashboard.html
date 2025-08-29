@@ -1,0 +1,108 @@
+<div class="h-screen w-screen overflow-hidden bg-gradient-to-b from-pink-400 via-purple-500 to-blue-500 text-white">
+    <div class="flex h-full">
+
+        <!-- Group Sidebar -->
+        <aside class="w-20 shrink-0 p-4">
+
+            <!-- Logo -->
+            <img src="/logo/logo_no_text.png" alt="CC logo without text" class="mb-10">
+
+            <!-- Profile -->
+            <div class="mb-5">
+                <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto">
+                    <span
+                        class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">{{
+                        user.roles[0].charAt(0).toUpperCase() }}
+                    </span>
+                </button>
+                <div class="mt-1 text-md text-white text-center truncate">
+                    {{ user.username }}
+                </div>
+            </div>
+
+            <!-- Buttons for groups -->
+            <h2 class="text-sm text-white mb-4 pt-8 border-t-2">Groups</h2>
+            <nav class="space-y-3 text-center pb-8 border-b-2">
+                <div *ngFor="let g of groups">
+                    <button (click)="openGroup(g.id)"
+                        [ngClass]="{'rounded-xl border-3 border-violet-300': current_group_id === g.id}"
+                        class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+                        <span
+                            class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">
+                            {{ g.name[0] }}
+                        </span>
+                    </button>
+                    <div class="mt-1 text-xs text-white text-center truncate">
+                        {{ g.name }}
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Create Group Button -->
+            <div class="mt-8">
+                <button (click)="openCreate()"
+                    [ngClass]="{'rounded-xl border-3 border-violet-300': current_group_id === 'create'}"
+                    class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+                    <span
+                        class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">+
+                    </span>
+                </button>
+                <div class="mt-1 text-xs text-white text-center truncate">
+                    Create
+                </div>
+            </div>
+
+            <!-- Logout Button -->
+            <div class="mt-8">
+                <button (click)="onLogout()"
+                    class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+                    <img src="/icons/logout.png" alt="Logout Icon" width="25px">
+                </button>
+                <div class="mt-1 text-xs text-white text-center truncate">
+                    Logout
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Panel -->
+        <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
+            <div class="flex h-full">
+                <!-- Channel Sidebar -->
+                <aside class="w-[15vw] shrink-0 pr-6">
+                    <h2 class="text-md text-white mb-3">Channels</h2>
+                    <nav class="space-y-4">
+                        <button *ngFor="let c of channels"
+                            class="bg-secondary block w-full text-left px-4 py-5 rounded-xl shadow-xl hover:bg-secondary-hover"
+                            [ngClass]="{'bg-secondary-selected': current_channel_id === c.id}" (click)="openChannel(c)">
+                            # {{ c.name }}
+                        </button>
+                    </nav>
+                </aside>
+
+                <!-- Messages -->
+                <section class="flex-1">
+                    <div class="m-auto w-[50vw]">
+                        <h1 class="text-2xl font-bold mb-4">Messages</h1>
+                        <p class="text-white mb-4">
+                            Put your page content here. This area scrolls independently if it overflows.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="h-48 rounded-xl border bg-gray-600 shadow-sm"></div>
+                            <div class="h-48 rounded-xl border bg-gray-600 shadow-sm"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- User Sidebar -->
+        <aside class="w-64 p-4">
+            <h2 class="text-sm font-semibold text-white mb-3">Users</h2>
+            <div class="space-y-2 text-sm">
+                <div class="rounded border p-3">User 1</div>
+                <div class="rounded border p-3">User 2</div>
+                <div class="rounded border p-3">User 3</div>
+            </div>
+        </aside>
+    </div>
+</div>

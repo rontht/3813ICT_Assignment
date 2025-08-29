@@ -8,12 +8,15 @@ import { Observable } from 'rxjs';
 })
 export class HttpService {
   private httpService = inject(HttpClient);
-  private server = 'http://localhost:3000';
+  private server = 'http://localhost:3000/api';
 
-login(email: string, password: string): Observable<User | { valid: false }> {
-    return this.httpService.post<User | { valid: false }>(`${this.server}/api/auth`, {
-      email,
-      password,
-    });
+  login(email: string, password: string): Observable<User | { valid: false }> {
+    return this.httpService.post<User | { valid: false }>(
+      `${this.server}/auth`,
+      {
+        email,
+        password,
+      }
+    );
   }
 }

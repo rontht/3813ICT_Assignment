@@ -38,7 +38,7 @@ export class Login {
 
         // store info in local storage
         localStorage.setItem("user", JSON.stringify(this.user));
-        this.router.navigate(['/home']);
+        this.router.navigate(['/dashboard']);
       },
       error: (e) => {
         this.loginError = "Something went wrong. Please try again later.";

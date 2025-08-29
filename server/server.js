@@ -19,17 +19,20 @@ const options = {
 const io = require("socket.io")(server, options);
 
 // ____________ For Permission ____________
-// get the id from api request header
-function getCurrentUser(req) {
+function attachUser(req, res, next) {
+  // get id from header
   const id = req.header("user-id");
-  if (id) return users.find((u) => u.id === id) || null;
-  return null;
-}
+  if (!id) {
+    return res.status(404).json({ error: "User not found in header." });
+  }
 
-// append current user to the request
-function requireAuth(req, res, next) {
-  const user = getCurrentUser(req);
-  if (!user) return res.status(401).json({ error: "UNAUTHENTICATED" });
+  // find user
+  const user = users.find((u) => u.id === id) || null;
+  if (!user) {
+    return res.status(404).json({ error: "User not found in database." });
+  }
+
+  // attach it to request
   req.user = user;
   next();
 }
@@ -41,36 +44,52 @@ app.post("/api/auth", (req, res) => {
 
   // find a matching user
   const user = users.find((u) => u.email === email && u.password === password);
-  if (!user) return res.json({ valid: false });
+  if (!user) {
+    return res.json({ valid: false });
+  }
 
   user.valid = true;
-  res.json(user);
+  return res.json(user);
 });
 
 // ____________ GROUPS ____________
 // list groups api call
-app.get("/api/groups", (req, res) => {
-  res.json(groups);
+app.get("/api/groups", attachUser, (req, res) => {
+  // check for permission. if super, get all group
+  const user = req.user;
+  const isSuper = user.roles.includes("super-admin");
+  if (isSuper) {
+    return res.json(groups);
+  }
+
+  // else, filter groups accordingly
+  const filtered_groups = groups.filter(
+    (g) => g.creator === user.id || g.members.includes(user.id)
+  );
+  return res.json(filtered_groups);
 });
 
 // ____________ CHANNELS ____________
 // list channels api call
-app.get("/api/groups/:group_id/channels", (req, res) => {
-  const user = req.user;
+app.get("/api/groups/:group_id/channels", attachUser, (req, res) => {
   const { group_id } = req.params;
 
   // find the group
   const group = groups.find((g) => g.id === group_id);
-  if (!group) return res.status(404).json({ error: "Group not found" });
+  if (!group) {
+    return res.status(404).json({ error: "Group not found in database" });
+  }
 
   // check for permission
+  const user = req.user;
   const isSuper = user.roles.includes("super-admin");
   const isMember = group.members.includes(user.id);
-  if (!isSuper && !isMember)
-    return res.status(403).json({ error: "FORBIDDEN" });
+  if (!isSuper && !isMember) {
+    return res.status(404).json({ error: "No permission" });
+  }
 
   const groupChannels = channels.filter((c) => c.group_id === group_id);
-  res.json(groupChannels);
+  return res.json(groupChannels);
 });
 
 // ____________ DEBUG ____________
