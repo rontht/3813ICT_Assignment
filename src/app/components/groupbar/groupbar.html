@@ -1,0 +1,61 @@
+<aside class="w-20 shrink-0 p-4">
+
+    <!-- Logo -->
+    <img src="/logo/logo_no_text.png" alt="CC logo without text" class="mb-10">
+
+    <!-- Profile -->
+    <div class="mb-5">
+        <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto">
+            <span
+                class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">{{
+                user.roles[0].charAt(0).toUpperCase() }}
+            </span>
+        </button>
+        <div class="mt-1 text-md text-white text-center truncate">
+            {{ user.username }}
+        </div>
+    </div>
+
+    <!-- Buttons for groups -->
+    <h2 class="text-sm text-white mb-4 pt-8 border-t-2">Groups</h2>
+    <nav class="space-y-3 text-center pb-8 border-b-2">
+        <div *ngFor="let g of groups">
+            <button (click)="openGroup.emit(g.id)"
+                [ngClass]="{'rounded-xl border-3 border-violet-300': current_group_id === g.id}"
+                class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+                <span
+                    class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">
+                    {{ g.name[0] }}
+                </span>
+            </button>
+            <div class="mt-1 text-xs text-white text-center truncate">
+                {{ g.name }}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Create Group Button -->
+    <div class="mt-8">
+        <button (click)="openCreate.emit()"
+            [ngClass]="{'rounded-xl border-3 border-violet-300': current_group_id === 'create'}"
+            class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+            <span
+                class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">+
+            </span>
+        </button>
+        <div class="mt-1 text-xs text-white text-center truncate">
+            Create
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="mt-8">
+        <button (click)="onLogout.emit()"
+            class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+            <img src="/icons/logout.png" alt="Logout Icon" width="25px">
+        </button>
+        <div class="mt-1 text-xs text-white text-center truncate">
+            Logout
+        </div>
+    </div>
+</aside>

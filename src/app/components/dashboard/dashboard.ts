@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
 import { CommonModule } from '@angular/common';
+import { Groupbar } from '../groupbar/groupbar';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Groupbar],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
