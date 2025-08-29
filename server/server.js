@@ -18,6 +18,22 @@ const options = {
 };
 const io = require("socket.io")(server, options);
 
+// ____________ For Permission ____________
+// get the id from api request header
+function getCurrentUser(req) {
+  const id = req.header("user-id");
+  if (id) return users.find((u) => u.id === id) || null;
+  return null;
+}
+
+// append current user to the request
+function requireAuth(req, res, next) {
+  const user = getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: "UNAUTHENTICATED" });
+  req.user = user;
+  next();
+}
+
 // ____________ AUTH ____________
 // auth api call
 app.post("/api/auth", (req, res) => {
@@ -40,10 +56,18 @@ app.get("/api/groups", (req, res) => {
 // ____________ CHANNELS ____________
 // list channels api call
 app.get("/api/groups/:group_id/channels", (req, res) => {
+  const user = req.user;
   const { group_id } = req.params;
 
+  // find the group
   const group = groups.find((g) => g.id === group_id);
   if (!group) return res.status(404).json({ error: "Group not found" });
+
+  // check for permission
+  const isSuper = user.roles.includes("super-admin");
+  const isMember = group.members.includes(user.id);
+  if (!isSuper && !isMember)
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   const groupChannels = channels.filter((c) => c.group_id === group_id);
   res.json(groupChannels);
