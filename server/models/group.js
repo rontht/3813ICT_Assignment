@@ -41,5 +41,16 @@ class Group {
   removeChannel(channel_id) {
     this.channels = this.channels.filter(id => id !== channel_id);
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      creator: this.creator,
+      channels: this.channels,
+      members: this.members,
+      admins: this.admins,
+    };
+  }
 }
 module.exports = Group;
