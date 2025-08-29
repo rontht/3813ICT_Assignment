@@ -1,1 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@font-face {
+  font-family: "CustomFont";
+  src: url("/fonts/Dashford.otf") format("woff2");
+  font-style: normal;
+  font-weight: 100;
+}
+
+@theme {
+  --font-sans: "CustomFont", Arial, sans-serif;
+}
+
+body {
+  @apply font-sans;
+}

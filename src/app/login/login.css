@@ -1,0 +1,7 @@
+:host {
+  display: block;
+  height: 100vh;
+  background-image: url('/background/login_bg.jpg');
+  background-size: cover;
+  background-position: center;
+}
