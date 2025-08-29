@@ -1,0 +1,10 @@
+<aside class="w-[260px] pr-6">
+    <h2 class="text-lg text-white mb-3">Channels</h2>
+    <nav class="space-y-4">
+        <button *ngFor="let c of channels"
+            class="bg-secondary block w-full text-left px-4 py-5 rounded-xl shadow-xl hover:bg-secondary-hover"
+            [ngClass]="{'bg-secondary-selected': current_channel_id === c.id}" (click)="openChannelHandler(c)">
+            # {{ c.name }}
+        </button>
+    </nav>
+</aside>

@@ -3,11 +3,13 @@ import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
 import { CommonModule } from '@angular/common';
 import { Groupbar } from '../groupbar/groupbar';
+import { Channelbar } from '../channelbar/channelbar';
+import { Userbar } from '../userbar/userbar';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Groupbar],
+  imports: [CommonModule, Groupbar, Channelbar, Userbar],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

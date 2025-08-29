@@ -9,16 +9,9 @@
         <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
             <div class="flex h-full">
                 <!-- Channel Sidebar -->
-                <aside class="w-[15vw] pr-6">
-                    <h2 class="text-lg text-white mb-3">Channels</h2>
-                    <nav class="space-y-4">
-                        <button *ngFor="let c of channels"
-                            class="bg-secondary block w-full text-left px-4 py-5 rounded-xl shadow-xl hover:bg-secondary-hover"
-                            [ngClass]="{'bg-secondary-selected': current_channel_id === c.id}" (click)="openChannel(c)">
-                            # {{ c.name }}
-                        </button>
-                    </nav>
-                </aside>
+                <app-channelbar [channels]="channels" [current_channel_id]="current_channel_id"
+                    (openChannel)="openChannel($event)">
+                </app-channelbar>
 
                 <!-- Messages -->
                 <section class="flex-1">
@@ -37,27 +30,6 @@
         </main>
 
         <!-- User Sidebar -->
-        <aside class="w-64 p-4">
-            <h2 class="text-lg text-white mb-3">Users</h2>
-            <div class="space-y-4">
-                <div *ngFor="let me of current_group_members"
-                    class="flex rounded p-3 bg-secondary px-4 rounded-xl shadow-xl hover:bg-secondary-hover">
-                    <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                        <span
-                            class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">{{
-                            me.roles[0].charAt(0).toUpperCase() }}
-                        </span>
-                    </button>
-                    <div class="pl-3">
-                        <p>
-                            {{ me.username }}
-                        </p>
-                        <p class="text-sm">
-                            {{ me.roles }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        <app-userbar [current_group_members]="current_group_members"></app-userbar>
     </div>
 </div>

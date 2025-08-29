@@ -1,15 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-export interface Group { id: string; name: string }
-export interface User  { username: string; roles: string[] }
+export interface Group {
+  id: string;
+  name: string;
+}
+export interface User {
+  username: string;
+  roles: string[];
+}
 
 @Component({
   selector: 'app-groupbar',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './groupbar.html',
-  styleUrl: './groupbar.css'
+  styleUrl: './groupbar.css',
 })
 export class Groupbar {
   @Input() user!: User;
@@ -20,5 +26,5 @@ export class Groupbar {
   @Output() openCreate = new EventEmitter<void>();
   @Output() onLogout = new EventEmitter<void>();
 
-  trackByGroupId = (_: number, g: Group) => g.id;
+  track_by_group_id = (_: number, g: Group) => g.id;
 }
