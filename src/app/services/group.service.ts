@@ -24,4 +24,10 @@ export class GroupService {
       headers: this.attachHeader(),
     });
   }
+
+  getMembers(group_id: any) {
+    return this.httpService.get<any[]>(`${this.server}/groups/${group_id}/members`, {
+      headers: this.attachHeader(),
+    });
+  }
 }

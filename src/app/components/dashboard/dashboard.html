@@ -82,7 +82,7 @@
                 <!-- Messages -->
                 <section class="flex-1">
                     <div class="m-auto w-[50vw]">
-                        <h1 class="text-2xl font-bold mb-4">Messages</h1>
+                        <h1 class="text-2xl font-bold mb-4">{{current_channel_name}} Messages</h1>
                         <p class="text-white mb-4">
                             Put your page content here. This area scrolls independently if it overflows.
                         </p>
@@ -99,9 +99,9 @@
         <aside class="w-64 p-4">
             <h2 class="text-sm font-semibold text-white mb-3">Users</h2>
             <div class="space-y-2 text-sm">
-                <div class="rounded border p-3">User 1</div>
-                <div class="rounded border p-3">User 2</div>
-                <div class="rounded border p-3">User 3</div>
+                <div *ngFor="let me of current_group_members" class="rounded border p-3">
+                    {{ me.username }}
+                </div>
             </div>
         </aside>
     </div>

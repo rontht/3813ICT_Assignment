@@ -92,6 +92,37 @@ app.get("/api/groups/:group_id/channels", attachUser, (req, res) => {
   return res.json(groupChannels);
 });
 
+// ____________ USERS ____________
+// list users api call for specific group
+app.get("/api/groups/:group_id/members", attachUser, (req, res) => {
+  const { group_id } = req.params;
+
+  // find the group
+  const group = groups.find((g) => g.id === group_id);
+  if (!group) {
+    return res.status(404).json({ error: "Group not found in database" });
+  }
+
+  // check for permission
+  const user = req.user;
+  const isSuper = user.roles.includes("super-admin");
+  const isMember = group.members.includes(user.id);
+  if (!isSuper && !isMember) {
+    return res.status(404).json({ error: "No permission" });
+  }
+
+  // map members using user id from the group
+  const members = group.members
+    .map((user_id) => users.find((u) => u.id === user_id))
+    .map((u) => ({
+      id: u.id,
+      username: u.username,
+      roles: u.roles,
+    }));
+
+  return res.json(members);
+});
+
 // ____________ DEBUG ____________
 // route to display all users for testing
 app.get("/", (req, res) => {
