@@ -31,8 +31,8 @@ app.post("/api/auth", (req, res) => {
   if (user) {
     // user matched, set valid = true
     user.valid = true;
-    const { username, birthdate, age, email, valid } = user;
-    res.json({ username, birthdate, age, email, valid });
+    const { id, username, email, roles, groups, valid } = user;
+    res.json({ id, username, email, roles, groups, valid });
   } else {
     // no match, return valid = false
     res.json({ valid: false });
