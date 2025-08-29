@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpService } from '../services/http.service';
+import { HttpService } from '../../services/http.service';
 import { Router } from '@angular/router';
-import { User } from '../models/user';
+import { User } from '../../models/user';
 
 @Component({
   selector: 'app-login',
@@ -37,12 +37,10 @@ export class Login {
         this.user = data as User;
 
         // store info in local storage
-        console.log(this.user);
-        // localStorage.setItem("user", JSON.stringify(this.user));
-        // this.router.navigate(['/home']);
+        localStorage.setItem("user", JSON.stringify(this.user));
+        this.router.navigate(['/home']);
       },
       error: (e) => {
-        console.log("Error: ", e);
         this.loginError = "Something went wrong. Please try again later.";
       },
       complete: () => {
