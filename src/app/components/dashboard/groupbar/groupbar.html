@@ -1,4 +1,4 @@
-<aside class="w-20 shrink-0 p-4">
+<aside class="w-20 shrink-0 p-2">
 
     <!-- Logo -->
     <img src="/logo/logo_no_text.png" alt="CC logo without text" class="mb-10">
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Buttons for groups -->
-    <h2 class="text-sm text-white mb-4 pt-8 border-t-2">Groups</h2>
+    <h2 class="text-sm text-white mb-4 pt-8 border-t-2 text-center">Groups</h2>
     <nav class="space-y-3 text-center pb-8 border-b-2">
         <div *ngFor="let g of groups">
             <button (click)="openGroup.emit(g.id)"
@@ -52,7 +52,7 @@
     <div class="mt-8">
         <button (click)="onLogout.emit()"
             class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
-            <img src="/icons/logout.png" alt="Logout Icon" width="25px">
+            <img src="./icons/logout.png" alt="Logout Icon" width="25px">
         </button>
         <div class="mt-1 text-xs text-white text-center truncate">
             Logout

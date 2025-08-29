@@ -16,8 +16,10 @@ export interface Channel {
 export class Channelbar {
   @Input() channels: Channel[] = [];
   @Input() current_channel_id: string | null = null;
+  @Input() current_group_name: string = "Error";
 
   @Output() openChannel = new EventEmitter<Channel>();
+  @Output() toggleGroupSettings = new EventEmitter<void>();
 
   openChannelHandler(c: Channel) {
     if (!c) return;

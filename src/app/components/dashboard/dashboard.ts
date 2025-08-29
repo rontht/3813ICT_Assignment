@@ -2,9 +2,9 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupService } from '../../services/group.service';
 import { CommonModule } from '@angular/common';
-import { Groupbar } from '../groupbar/groupbar';
-import { Channelbar } from '../channelbar/channelbar';
-import { Userbar } from '../userbar/userbar';
+import { Groupbar } from './groupbar/groupbar';
+import { Channelbar } from './channelbar/channelbar';
+import { Userbar } from './userbar/userbar';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,7 +25,10 @@ export class Dashboard {
   current_group_id: string | null = null;
   current_channel_id: string | null = null;
   current_channel_name = '';
+  current_group_name = '';
   current_group_members: any[] = [];
+
+  show_group_settings: boolean = false;
 
   ngOnInit() {
     // route back to login if unauth
@@ -43,6 +46,7 @@ export class Dashboard {
       // get first group the user is apart of
       if (!this.groups.length) return;
       this.current_group_id = this.groups[0].id;
+      this.current_group_name = this.groups[0].name;
       if (this.current_group_id === null) return;
 
       // get first channel of that group
@@ -65,6 +69,8 @@ export class Dashboard {
   // get all channels that the group have
   openGroup(group_id: string) {
     this.current_group_id = group_id;
+    const group = this.groups.find((gs) => gs.id == group_id);
+    this.current_group_name = group.name;
 
     // get members from that group
     this.groupService.getMembers(group_id).subscribe((me) => {
@@ -98,7 +104,14 @@ export class Dashboard {
   // set id to create and reset everything else
   openCreate() {
     this.current_group_id = 'create';
+    this.current_group_name = '';
     this.current_channel_id = null;
     this.current_channel_name = '';
+    this.current_group_members = [];
+  }
+
+  toggleGroupSettings() {
+    this.show_group_settings = !this.show_group_settings;
+    console.log("Hello: " + this.show_group_settings);
   }
 }

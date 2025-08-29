@@ -1,5 +1,6 @@
-<aside class="w-[260px] p-4">
-    <h2 class="text-lg text-white mb-3">Users</h2>
+<aside class="w-[250px] h-full m-4">
+    @if (current_group_members.length != 0) {
+    <h2 class="text-2xl text-white mb-6 pb-3 border-b-2">Users</h2>
     <div class="space-y-4">
         <div *ngFor="let me of current_group_members"
             class="flex rounded p-3 bg-secondary px-4 rounded-xl shadow-xl hover:bg-secondary-hover">
@@ -19,4 +20,9 @@
             </div>
         </div>
     </div>
+    } @else {
+    <div class="w-full h-full flex items-center justify-center">
+        <img src="/logo/logo_no_text.png" alt="Icon" class="max-w-full max-h-full object-contain" width="100px" />
+    </div>
+    }
 </aside>
