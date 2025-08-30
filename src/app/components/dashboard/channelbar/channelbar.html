@@ -7,10 +7,10 @@
     </div>
     <h2 class="text-md text-white mb-3">Channels</h2>
     <nav class="space-y-4 flex-1 overflow-y-auto pr-1">
-        <button *ngFor="let c of channels"
+        <button *ngFor="let channel of channels"
             class="bg-secondary block w-full text-left px-4 py-5 rounded-xl shadow-xl hover:bg-secondary-hover"
-            [ngClass]="{'bg-secondary-selected': current_channel_id === c.id}" (click)="openChannelHandler(c)">
-            # {{ c.name }}
+            [ngClass]="{'bg-secondary-selected': current_channel!.id === channel.id}" (click)="openChannel.emit(channel)">
+            # {{ channel.name }}
         </button>
     </nav>
 

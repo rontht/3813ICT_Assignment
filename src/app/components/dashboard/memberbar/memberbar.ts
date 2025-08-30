@@ -1,20 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-
-export interface Member {
-  id: string;
-  username: string;
-  roles: string[];
-}
+import { Member } from '../../../models/member';
 
 @Component({
-  selector: 'app-userbar',
+  selector: 'app-memberbar',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './userbar.html',
-  styleUrl: './userbar.css',
+  templateUrl: './memberbar.html',
+  styleUrl: './memberbar.css'
 })
-export class Userbar {
+export class Memberbar {
   @Input() current_group_members: any[] = [];
   track_by_member_id = (_: number, m: Member) => m.id;
 }

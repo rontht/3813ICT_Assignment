@@ -3,11 +3,11 @@
     <h2 class="text-2xl text-white mb-6 pb-3 border-b-2">Users</h2>
     <div class="space-y-4">
         <div *ngFor="let me of current_group_members"
-            class="flex rounded p-3 bg-secondary px-4 rounded-xl shadow-xl hover:bg-secondary-hover">
+            class="flex p-3 bg-secondary px-4 rounded-xl shadow-xl hover:bg-secondary-hover">
             <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
                 <span
                     class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">{{
-                    me.roles[0].charAt(0).toUpperCase() }}
+                    me.role.charAt(0).toUpperCase() }}
                 </span>
             </button>
             <div class="pl-3">

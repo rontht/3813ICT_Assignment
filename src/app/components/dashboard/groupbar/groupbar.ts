@@ -1,14 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-export interface Group {
-  id: string;
-  name: string;
-}
-export interface User {
-  username: string;
-  roles: string[];
-}
+import { User } from '../../../models/user';
+import { Group } from '../../../models/group';
 
 @Component({
   selector: 'app-groupbar',
@@ -20,9 +13,9 @@ export interface User {
 export class Groupbar {
   @Input() user!: User;
   @Input() groups: Group[] = [];
-  @Input() current_group_id: string | null = null;
+  @Input() current_group: Group | null = null;
 
-  @Output() openGroup = new EventEmitter<string>();
+  @Output() openGroup = new EventEmitter<Group>();
   @Output() openCreate = new EventEmitter<void>();
   @Output() onLogout = new EventEmitter<void>();
 

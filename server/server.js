@@ -57,7 +57,7 @@ app.post("/api/auth", (req, res) => {
 app.get("/api/groups", attachUser, (req, res) => {
   // check for permission. if super, get all group
   const user = req.user;
-  const isSuper = user.roles.includes("super-admin");
+  const isSuper = user.role === 'super-admin';
   if (isSuper) {
     return res.json(groups);
   }
@@ -82,7 +82,7 @@ app.get("/api/groups/:group_id/channels", attachUser, (req, res) => {
 
   // check for permission
   const user = req.user;
-  const isSuper = user.roles.includes("super-admin");
+  const isSuper = user.role === 'super-admin';
   const isMember = group.members.includes(user.id);
   if (!isSuper && !isMember) {
     return res.status(404).json({ error: "No permission" });
@@ -105,19 +105,20 @@ app.get("/api/groups/:group_id/members", attachUser, (req, res) => {
 
   // check for permission
   const user = req.user;
-  const isSuper = user.roles.includes("super-admin");
+  const isSuper = user.role === 'super-admin';
   const isMember = group.members.includes(user.id);
   if (!isSuper && !isMember) {
     return res.status(404).json({ error: "No permission" });
   }
 
-  // map members using user id from the group
+  // don't sent all info of users
+  // send only what's necessary
   const members = group.members
     .map((user_id) => users.find((u) => u.id === user_id))
     .map((u) => ({
       id: u.id,
       username: u.username,
-      roles: u.roles,
+      role: u.role,
     }));
 
   return res.json(members);

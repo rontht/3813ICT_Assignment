@@ -9,7 +9,7 @@ const users = [
     "Ron",
     "ron@com",
     "123",
-    ["super-admin"],
+    "super-admin",
     ["g001", "g003", "g004"]
   ),
   // AJ: group-admin (creator of g002), also member of g001
@@ -18,33 +18,33 @@ const users = [
     "AJ",
     "aj@com.au",
     "123",
-    ["group-admin"],
+    "group-admin",
     ["g002", "g001"]
   ),
   // Juno: user in g001 & g003
-  new User("u00003", "Juno", "juno@com.au", "123", ["user"], ["g001", "g003"]),
+  new User("u00003", "Juno", "juno@com.au", "123", "user", ["g001", "g003"]),
   // Momo: user in g002 & g004
-  new User("u00004", "Momo", "momo@com.au", "123", ["user"], ["g002", "g004"]),
+  new User("u00004", "Momo", "momo@com.au", "123", "user", ["g002", "g004"]),
   // Kira: group-admin (creator of g003), also member of g004
   new User(
     "u00005",
     "Kira",
     "kira@com.au",
     "123",
-    ["group-admin"],
+    "group-admin",
     ["g003", "g004"]
   ),
   // Leo: user in g003
-  new User("u00006", "Leo", "leo@com.au", "123", ["user"], ["g003"]),
+  new User("u00006", "Leo", "leo@com.au", "123", "user", ["g003"]),
   // Zara: user in g004 & g001
-  new User("u00007", "Zara", "zara@com.au", "123", ["user"], ["g004", "g001"]),
+  new User("u00007", "Zara", "zara@com.au", "123", "user", ["g004", "g001"]),
   // Max: group-admin (creator of g004), also member of g002
   new User(
     "u00008",
     "Max",
     "max@com.au",
     "123",
-    ["group-admin"],
+    "group-admin",
     ["g004", "g002"]
   ),
 ];

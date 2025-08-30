@@ -1,10 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-export interface Channel {
-  id: string;
-  name: string;
-}
+import { Channel } from '../../../models/channel';
 
 @Component({
   selector: 'app-channelbar',
@@ -15,16 +11,11 @@ export interface Channel {
 })
 export class Channelbar {
   @Input() channels: Channel[] = [];
-  @Input() current_channel_id: string | null = null;
+  @Input() current_channel: Channel | null = null;
   @Input() current_group_name: string = "Error";
 
   @Output() openChannel = new EventEmitter<Channel>();
   @Output() toggleGroupSettings = new EventEmitter<void>();
 
-  openChannelHandler(c: Channel) {
-    if (!c) return;
-    this.openChannel.emit(c);
-  }
-
-  track_by_channel_id = (_: number, c: Channel) => c.id;
+  track_by_channel_id = (_: number, channel: Channel) => channel.id;
 }
