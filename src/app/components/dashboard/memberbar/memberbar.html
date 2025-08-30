@@ -5,9 +5,13 @@
         <div *ngFor="let me of current_group_members"
             class="flex p-3 bg-secondary px-4 rounded-xl shadow-xl hover:bg-secondary-hover">
             <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                <span
-                    class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">{{
-                    me.role.charAt(0).toUpperCase() }}
+                <span class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 
+                    font-semibold bg-clip-text text-transparent capitalize">
+                    @if (me.role != undefined) {
+                    {{ me.role.charAt(0) }}
+                    } @else {
+                    E
+                    }
                 </span>
             </button>
             <div class="pl-3">
@@ -15,7 +19,7 @@
                     {{ me.username }}
                 </p>
                 <p class="text-sm">
-                    {{ me.roles }}
+                    {{ me.role }}
                 </p>
             </div>
         </div>

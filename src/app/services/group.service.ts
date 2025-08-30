@@ -20,13 +20,25 @@ export class GroupService {
   }
 
   getChannels(group_id: any) {
-    return this.httpService.get<any[]>(`${this.server}/groups/${group_id}/channels`, {
-      headers: this.attachHeader(),
-    });
+    return this.httpService.get<any[]>(
+      `${this.server}/groups/${group_id}/channels`,
+      {
+        headers: this.attachHeader(),
+      }
+    );
   }
 
   getMembers(group_id: any) {
-    return this.httpService.get<any[]>(`${this.server}/groups/${group_id}/members`, {
+    return this.httpService.get<any[]>(
+      `${this.server}/groups/${group_id}/members`,
+      {
+        headers: this.attachHeader(),
+      }
+    );
+  }
+
+  getAllMembers() {
+    return this.httpService.get<any[]>('/users', {
       headers: this.attachHeader(),
     });
   }

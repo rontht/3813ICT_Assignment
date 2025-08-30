@@ -10,6 +10,6 @@ import { Member } from '../../../models/member';
   styleUrl: './memberbar.css'
 })
 export class Memberbar {
-  @Input() current_group_members: any[] = [];
+  @Input() current_group_members: Member[] = [];
   track_by_member_id = (_: number, m: Member) => m.id;
 }

@@ -19,15 +19,21 @@
     <!-- Buttons for groups -->
     <h2 class="text-sm text-white mb-4 pt-8 border-t-2 text-center">Groups</h2>
     <nav class="space-y-3 text-center pb-8 border-b-2">
-        <div *ngFor="let group of groups">
-            <button (click)="openGroup.emit(group)"
-                [ngClass]="{'rounded-xl border-3 border-violet-300': current_group!.id === group.id}"
-                class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+        <div *ngFor="let group of groups" class="relative inline-block">
+            <button [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === group.id}" class="w-12 h-12 bg-main rounded-full flex items-center justify-center 
+            hover:rounded-2xl mx-auto transition-all" (click)="openGroup.emit(group)">
                 <span
                     class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">
                     {{ group.name[0] }}
                 </span>
             </button>
+
+            <!-- Star if user is the creator -->
+            <span *ngIf="group.creator === user.id"
+                class="absolute -top-2 -right-0 text-yellow-400 text-lg drop-shadow-md" title="You created this group">
+                ★
+            </span>
+
             <div class="mt-1 text-xs text-white text-center truncate">
                 {{ group.name }}
             </div>
@@ -35,9 +41,10 @@
     </nav>
 
     <!-- Create Group Button -->
+    @if (canCreateGroup) {
     <div class="mt-8">
-        <button (click)="openCreate.emit()"
-            [ngClass]="{'rounded-xl border-3 border-violet-300': current_group!.id === 'create'}"
+        <button (click)="openGroupCreate.emit()"
+            [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === 'create'}"
             class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
             <span
                 class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">+
@@ -47,6 +54,22 @@
             Create
         </div>
     </div>
+    }
+
+    @if (isSuperAdmin) {
+    <div class="mt-8">
+        <button (click)="openManageUsers.emit()"
+            [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === 'users'}"
+            class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
+            <span
+                class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">O
+            </span>
+        </button>
+        <div class="mt-1 text-xs text-white text-center truncate">
+            Users
+        </div>
+    </div>
+    }
 
     <!-- Logout Button -->
     <div class="mt-8">

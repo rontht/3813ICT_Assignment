@@ -14,10 +14,13 @@ export class Groupbar {
   @Input() user!: User;
   @Input() groups: Group[] = [];
   @Input() current_group: Group | null = null;
+  @Input() canCreateGroup!: boolean;
+  @Input() isSuperAdmin!: boolean;
 
   @Output() openGroup = new EventEmitter<Group>();
-  @Output() openCreate = new EventEmitter<void>();
   @Output() onLogout = new EventEmitter<void>();
+  @Output() openGroupCreate = new EventEmitter<void>();
+  @Output() openManageUsers = new EventEmitter<void>();
 
   track_by_group_id = (_: number, g: Group) => g.id;
 }

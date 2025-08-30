@@ -50,41 +50,9 @@ export class Dashboard {
     this.groupService.getGroups().subscribe({
       next: (groups) => {
         this.groups = groups;
-
-        // get first group the user is apart of
-        if (!this.groups.length) return;
-        this.current_group = this.groups[0];
-        if (this.current_group === null) return;
-        const group_id = this.current_group.id;
-
-        // get first channel of that group
-        this.groupService.getChannels(group_id).subscribe({
-          next: (cs) => {
-            // in case of mismatch during async
-            if (this.current_group?.id !== group_id) return;
-            this.channels = cs;
-            if (!this.channels.length) return;
-            this.current_channel = this.channels[0];
-          },
-
-          error: (e) => {
-            console.log('ngOnInit Channel Error: ', e);
-          },
-        });
-
-        // get the members of that group
-        this.groupService.getMembers(group_id).subscribe({
-          next: (me) => {
-            // in case of mismatch during async
-            if (this.current_group?.id !== group_id) return;
-            this.members = me;
-            if (!this.members.length) return;
-            this.current_group!.members = this.members;
-          },
-          error: (e) => {
-            console.log('ngOnInit Member Error: ', e);
-          },
-        });
+        if (this.groups.length) {
+          this.openGroup(this.groups[0]);
+        }
       },
       error: (e) => {
         console.log('ngOnInit Group Error: ', e);
@@ -101,7 +69,7 @@ export class Dashboard {
 
   // get all channels that the group have
   openGroup(group: Group | null) {
-    // reset everything
+    // reset before change
     this.reset();
 
     //assign group
@@ -149,11 +117,21 @@ export class Dashboard {
     this.router.navigate(['']);
   }
 
-  // set id to create and creator to current user
-  openCreate() {
+  openGroupCreate() {
     this.reset();
     this.current_group = {
       id: 'create',
+      name: '',
+      creator: this.user?.id ?? '',
+      channels: [],
+      members: [],
+    };
+  }
+
+  openManageUsers() {
+    this.reset();
+    this.current_group = {
+      id: 'users',
       name: '',
       creator: this.user?.id ?? '',
       channels: [],
@@ -167,16 +145,16 @@ export class Dashboard {
 
   // ____________ Check Permissions ____________ //
   // check user's role, false by default
-  isSuperAdmin(): boolean {
+  isSuperAdmin() {
     if (this.user?.role === 'super-admin') return true;
     return false;
   }
-  isGroupAdmin(): boolean {
+  isGroupAdmin() {
     if (this.user?.role === 'group-admin') return true;
     return false;
   }
-  // check if they have admin rights
-  canManageGroup(): boolean {
+  // check if they have group admin rights for certain groups
+  canManageGroup() {
     const user = this.user;
     const group =
       this.groups.find((g) => g.id === this.current_group!.id) ?? null;
@@ -187,6 +165,13 @@ export class Dashboard {
     // check group admin
     if (user.role === 'group-admin' && group.creator === user.id) return true;
     // false by default
+    return false;
+  }
+  // check if they can create
+  canCreateGroup() {
+    if (this.isSuperAdmin() || this.isGroupAdmin()) {
+      return true;
+    }
     return false;
   }
 }
