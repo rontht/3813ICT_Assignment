@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { User } from '../models/user';
 
 @Injectable({
   providedIn: 'root',
@@ -37,8 +38,8 @@ export class GroupService {
     );
   }
 
-  getAllMembers() {
-    return this.httpService.get<any[]>('/users', {
+  getAllUsers() {
+    return this.httpService.get<User[]>(`${this.server}/users`, {
       headers: this.attachHeader(),
     });
   }

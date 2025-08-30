@@ -15,11 +15,12 @@ import { User } from '../../models/user';
 import { Group } from '../../models/group';
 import { Channel } from '../../models/channel';
 import { Member } from '../../models/member';
+import { UserManager } from './user-manager/user-manager';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Groupbar, Channelbar, Memberbar],
+  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -31,6 +32,7 @@ export class Dashboard {
   groups: Group[] = [];
   channels: Channel[] = [];
   members: Member[] = [];
+  all_users: User[] = [];
 
   current_group: Group | null = null;
   current_channel: Channel | null = null;
@@ -137,6 +139,14 @@ export class Dashboard {
       channels: [],
       members: [],
     };
+    this.groupService.getAllUsers().subscribe({
+      next: (users) => {
+        this.all_users = users;
+      },
+      error: (e) => {
+        console.log('openManageUsers Error: ', e);
+      },
+    });
   }
 
   toggleGroupSettings() {
