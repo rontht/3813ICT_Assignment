@@ -5,6 +5,10 @@
   <!-- Profile -->
   <div class="mb-5">
     <button
+      [ngClass]="{
+        'rounded-xl border-3 border-violet-300': current_group?.id === 'account'
+      }"
+      (click)="openAccountSettings.emit()"
       class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto"
     >
       <span
@@ -16,6 +20,8 @@
       {{ user.name }}
     </div>
   </div>
+
+  <!-- Search Group -->
   <div class="text-center mb-3">
     <div class="relative inline-block">
       <button
@@ -23,7 +29,7 @@
           'rounded-xl border-3 border-violet-300':
             current_group?.id === 'search'
         }"
-        class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+        class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
         (click)="openGroupSearch.emit()"
       >
         <img src="/icons/search.png" alt="Search Icon" width="25px" />
@@ -79,10 +85,10 @@
       [ngClass]="{
         'rounded-xl border-3 border-violet-300': current_group?.id === 'create'
       }"
-      class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+      class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
     >
       <span
-        class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+        class="text-5xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
         >+
       </span>
     </button>
@@ -95,9 +101,9 @@
       [ngClass]="{
         'rounded-xl border-3 border-violet-300': current_group?.id === 'users'
       }"
-      class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+      class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
     >
-      <img src="/icons/manage_users.png" alt="Manage Users Icon" width="25px" />
+      <img src="/icons/manage_users.png" alt="Manage Users Icon" width="30px" />
     </button>
     <div class="mt-1 text-xs text-white text-center truncate">Users</div>
   </div>
@@ -107,7 +113,7 @@
   <div class="pt-4 mt-4 border-t-2">
     <button
       (click)="onLogout.emit()"
-      class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+      class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
     >
       <img src="./icons/logout.png" alt="Logout Icon" width="25px" />
     </button>

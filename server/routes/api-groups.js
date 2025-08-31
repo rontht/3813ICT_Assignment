@@ -5,7 +5,10 @@
 module.exports = {
   route: async (app) => {
     const attachUser = require("./attachUser");
-    const { groups } = require("../mock");
+    const { readJson } = require("../db-manager.js");
+    
+    const groups = await readJson("../data/group.json");
+
     // ____________ GROUPS ____________
     // list groups api call
     app.get("/api/groups", attachUser, (req, res) => {

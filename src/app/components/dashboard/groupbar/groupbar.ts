@@ -22,4 +22,5 @@ export class Groupbar {
   @Output() openGroupCreate = new EventEmitter<void>();
   @Output() openManageUsers = new EventEmitter<void>();
   @Output() openGroupSearch = new EventEmitter<void>();
+  @Output() openAccountSettings = new EventEmitter<void>();
 }

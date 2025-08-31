@@ -21,11 +21,12 @@ import { GroupSearch } from "./group-search/group-search";
 import { Chat } from './chat/chat';
 import { CreateGroup } from './create-group/create-group';
 import { GroupSettings } from './group-settings/group-settings';
+import { AccountSettings } from './account-settings/account-settings';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager, GroupSearch, Chat, CreateGroup, GroupSettings],
+  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager, GroupSearch, Chat, CreateGroup, GroupSettings, AccountSettings],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -154,6 +155,18 @@ export class Dashboard {
   openChannel(channel: Channel | null) {
     this.show_group_settings = false;
     if (channel) this.current_channel = channel;
+  }
+
+  // open account settings
+  openAccountSettings() {
+    this.reset();
+    this.current_group = {
+      id: 'account',
+      name: '',
+      creator: this.user?.username ?? '',
+      channels: [],
+      members: [],
+    };
   }
 
   // logout and clear the storage

@@ -1,0 +1,11 @@
+[
+  { "id": "c001", "name": "Lobby", "group_id": "g001" },
+  { "id": "c002", "name": "Interest", "group_id": "g001" },
+  { "id": "c003", "name": "Lobby", "group_id": "g002" },
+  { "id": "c004", "name": "Research", "group_id": "g002" },
+  { "id": "c005", "name": "Announcements", "group_id": "g003" },
+  { "id": "c006", "name": "Tasks", "group_id": "g003" },
+  { "id": "c007", "name": "Lobby", "group_id": "g004" },
+  { "id": "c008", "name": "MMO", "group_id": "g004" },
+  { "id": "c009", "name": "FPS", "group_id": "g004" }
+]

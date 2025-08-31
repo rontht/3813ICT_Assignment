@@ -1,11 +1,14 @@
-/*  Routes
+/*  Get Routes
     /api/groups/:group_id/members
     /api/users
 */
 module.exports = {
   route: async (app) => {
-    const attachUser = require('./attachUser');
-    const { groups, users } = require('../mock');
+    const attachUser = require("./attachUser");
+    const { readJson } = require("../db-manager.js");
+
+    const users = await readJson("../data/user.json");
+    const groups = await readJson("../data/group.json");
 
     // ____________ USERS ____________
     // list users api call for specific group

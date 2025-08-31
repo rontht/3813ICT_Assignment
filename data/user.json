@@ -1,0 +1,66 @@
+[
+  {
+    "username": "ron",
+    "name": "Ron",
+    "email": "ron@com",
+    "password": "123",
+    "role": "super-admin",
+    "groups": ["g001", "g003"]
+  },
+  {
+    "username": "aj",
+    "name": "AJ",
+    "email": "aj@com.au",
+    "password": "123",
+    "role": "group-admin",
+    "groups": ["g002", "g001"]
+  },
+  {
+    "username": "juno",
+    "name": "Juno",
+    "email": "juno@com.au",
+    "password": "123",
+    "role": "user",
+    "groups": ["g001", "g003"]
+  },
+  {
+    "username": "momo",
+    "name": "Momo",
+    "email": "momo@com.au",
+    "password": "123",
+    "role": "user",
+    "groups": ["g002", "g004"]
+  },
+  {
+    "username": "kira",
+    "name": "Kira",
+    "email": "kira@com.au",
+    "password": "123",
+    "role": "group-admin",
+    "groups": ["g003", "g004"]
+  },
+  {
+    "username": "leo",
+    "name": "Leo",
+    "email": "leo@com.au",
+    "password": "123",
+    "role": "user",
+    "groups": ["g003"]
+  },
+  {
+    "username": "zara",
+    "name": "Zara",
+    "email": "zara@com.au",
+    "password": "123",
+    "role": "user",
+    "groups": ["g004", "g001"]
+  },
+  {
+    "username": "max",
+    "name": "Max",
+    "email": "max@com.au",
+    "password": "123",
+    "role": "group-admin",
+    "groups": ["g004", "g002"]
+  }
+]

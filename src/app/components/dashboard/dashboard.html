@@ -15,13 +15,16 @@
       (openGroupCreate)="openGroupCreate()"
       (openManageUsers)="openManageUsers()"
       (openGroupSearch)="openGroupSearch()"
+      (openAccountSettings)="openAccountSettings()"
     ></app-groupbar>
     }
 
     <!-- Main Content Panel -->
     @if (current_group != null) {
     <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
-      @switch (current_group.id) { @case ("create") {
+      @switch (current_group.id) { @case ("account") {
+      <app-account-settings></app-account-settings>
+      } @case ("create") {
       <app-create-group></app-create-group>
       } @case ("users") {
       <app-user-manager [all_users]="all_users"></app-user-manager>
