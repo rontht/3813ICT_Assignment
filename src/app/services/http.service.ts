@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from '../models/user';
 import { Observable } from 'rxjs';
@@ -15,6 +15,19 @@ export class HttpService {
       `${this.server}/auth`,
       {
         email,
+        password,
+      }
+    );
+  }
+
+  register(username: string, name: string, email: string, role: string, password: string): Observable<User | { valid: false }> {
+    return this.httpService.post<User | { valid: false }>(
+      `${this.server}/auth/register`,
+      {
+        username,
+        name,
+        email,
+        role,
         password,
       }
     );

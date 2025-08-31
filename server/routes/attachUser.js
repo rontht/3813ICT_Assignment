@@ -1,8 +1,9 @@
-const { users } = require('../mock');
-
 module.exports = function attachUser(req, res, next) {
+  const { readJson } = require("../db-manager.js");
+  const users = readJson("../data/user.json");
   // get id from header
   const username = req.header("username");
+
   if (!username) {
     return res.status(404).json({ error: "User not found in header." });
   }

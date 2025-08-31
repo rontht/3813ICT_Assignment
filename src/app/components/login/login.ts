@@ -14,12 +14,15 @@ import { User } from '../../models/user';
 })
 export class Login {
   private httpService = inject(HttpService);
-  constructor(private router: Router) {};
+  constructor(private router: Router) { };
 
   user: User | null = null;
+  username = "";
+  name = "";
   email = "";
   password = "";
   loginError: string | null = null;
+  toggle: boolean = false;
 
   onLogin() {
     // reset the error message
@@ -41,11 +44,42 @@ export class Login {
         this.router.navigate(['/dashboard']);
       },
       error: (e) => {
-        this.loginError = "Something went wrong. Please try again later.";
+        this.loginError = e.error?.error || e.message;
       },
       complete: () => {
         console.log("Login request complete!");
       }
     })
+  }
+
+  onSignup() {
+    // reset the error message
+    this.loginError = null;
+
+    // connect to service
+    this.httpService.register(this.username, this.name, this.email, "user", this.password).subscribe({
+      next: (data) => {
+        // if wrong input
+        if ('valid' in data && !data.valid) {
+          this.loginError = "Invalid Credentials!";
+          return;
+        }
+        this.user = data as User;
+
+        // store info in local storage
+        localStorage.setItem("user", JSON.stringify(this.user));
+        this.router.navigate(['/dashboard']);
+      },
+      error: (e) => {
+        this.loginError = "Error: " + e.error?.error || e.message;
+      },
+      complete: () => {
+        console.log("Sign up request complete!");
+      }
+    })
+  }
+
+  toggleForms() {
+    this.toggle = !this.toggle;
   }
 }

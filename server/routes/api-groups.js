@@ -6,7 +6,7 @@ module.exports = {
   route: async (app) => {
     const attachUser = require("./attachUser");
     const { readJson } = require("../db-manager.js");
-    
+
     const groups = await readJson("../data/group.json");
 
     // ____________ GROUPS ____________

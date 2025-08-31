@@ -1,51 +1,159 @@
 <div class="h-screen w-full flex flex-col items-center justify-center">
+  <div
+    class="w-full max-w-sm p-8 rounded-2xl shadow-2xl bg-gradient-to-b from-pink-400 via-purple-500 to-blue-500 text-white"
+  >
+    <img
+      src="logo/logo_with_text_white.png"
+      alt="CC Logo"
+      width="400"
+      class="mb-10"
+    />
+    @if (!toggle) {
+    <!-- Sign in form -->
+    <!-- Title -->
+    <h2 class="text-md mb-3">Logging in . . .</h2>
 
-    <div class="w-full max-w-sm p-8 rounded-2xl shadow-2xl 
-        bg-gradient-to-b from-pink-400 via-purple-500 to-blue-500 text-white">
-        <img src="logo/logo_with_text_white.png" alt="CC Logo" width="400" class="mb-10">
+    <!-- Form -->
+    <form class="space-y-10" (ngSubmit)="onLogin()">
+      <!-- Email -->
+      <div class="flex flex-col">
+        <label for="email" class="mb-1 text-sm font-medium text-white"
+          >Email</label
+        >
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400"
+        />
+      </div>
 
-        <!-- Title -->
-        <h2 class="text-md mb-3">Enter your credentials below</h2>
+      <!-- Password -->
+      <div class="flex flex-col">
+        <label for="password" class="mb-1 text-sm font-medium text-white"
+          >Password</label
+        >
+        <input
+          id="password"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400"
+        />
+      </div>
 
-        <!-- Form -->
-        <form class="space-y-10" (ngSubmit)="onLogin()">
-            <!-- Email -->
-            <div class="flex flex-col">
-                <label for="email" class="mb-1 text-sm font-medium text-white">Email</label>
-                <input id="email" type="email" [(ngModel)]="email" name="email"
-                    class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400" />
-            </div>
+      <!-- Login Button -->
+      <button
+        type="submit"
+        class="w-full py-3 rounded-lg bg-white border border-gray-300 hover:shadow-lg hover:bg-gray-200"
+      >
+        <span
+          class="inline-block bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 bg-clip-text text-transparent"
+        >
+          Sign In
+        </span>
+      </button>
+    </form>
 
-            <!-- Password -->
-            <div class="flex flex-col">
-                <label for="password" class="mb-1 text-sm font-medium text-white">Password</label>
-                <input id="password" type="password" [(ngModel)]="password" name="password"
-                    class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400" />
-            </div>
-
-            <!-- Login Button -->
-            <button type="submit"
-                class="w-full py-3 rounded-lg bg-white border border-gray-300 hover:shadow-lg hover:bg-gray-200">
-                <span
-                    class="inline-block bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-                    Sign In
-                </span>
-            </button>
-        </form>
-
-        <!-- Signup -->
-        <div class="mt-8 text-sm">
-            <p>If you don't have an account,</p>
-            <p class="underline">please sign up here.</p>
-        </div>
-
+    <!-- Signup -->
+    <div class="mt-8 text-sm">
+      <p>If you don't have an account,</p>
+      <button class="underline cursor-pointer" (click)="toggleForms()">please sign up from here.</button>
     </div>
 
-    <!-- Error message -->
-    <div class="min-h-25">
-        <div *ngIf="loginError"
-            class="bg-red-700 border-2 border-red-400 text-white mt-3 px-4 py-2 rounded-xl shadow-xl">
-            {{loginError}}
-        </div>
+    } @else {
+
+    <!-- Register form -->
+    <!-- Title -->
+    <h2 class="text-md mb-3">Registering . . .</h2>
+
+    <!-- Form -->
+    <form class="space-y-10" (ngSubmit)="onSignup()">
+      <!-- Username -->
+      <div class="flex flex-col">
+        <label for="email" class="mb-1 text-sm font-medium text-white"
+          >*Username</label
+        >
+        <input
+          id="username"
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400"
+        />
+      </div>
+
+      <!-- Display Name -->
+      <div class="flex flex-col">
+        <label for="email" class="mb-1 text-sm font-medium text-white"
+          >*Display Name</label
+        >
+        <input
+          id="name"
+          type="text"
+          [(ngModel)]="name"
+          name="name"
+          class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400"
+        />
+      </div>
+
+      <!-- Email -->
+      <div class="flex flex-col">
+        <label for="email" class="mb-1 text-sm font-medium text-white"
+          >*Email</label
+        >
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="flex flex-col">
+        <label for="password" class="mb-1 text-sm font-medium text-white"
+          >*Password</label
+        >
+        <input
+          id="password"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          class="w-full border-b-2 border-white bg-transparent py-2 focus:outline-none focus:border-purple-400"
+        />
+      </div>
+
+      <!-- Login Button -->
+      <button
+        type="submit"
+        class="w-full py-3 rounded-lg bg-white border border-gray-300 hover:shadow-lg hover:bg-gray-200"
+      >
+        <span
+          class="inline-block bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 bg-clip-text text-transparent"
+        >
+          Sign Up
+        </span>
+      </button>
+    </form>
+
+    <!-- Signin -->
+    <div class="mt-8 text-sm">
+      <p>If you already have an account,</p>
+      <button class="underline cursor-pointer" (click)="toggleForms()">please sign in from here.</button>
     </div>
+    }
+  </div>
+
+  <!-- Error message -->
+  <div class="min-h-25">
+    <div
+      *ngIf="loginError"
+      class="bg-red-700 border-2 border-red-400 text-white mt-3 px-4 py-2 rounded-xl shadow-xl"
+    >
+      {{ loginError }}
+    </div>
+  </div>
 </div>
