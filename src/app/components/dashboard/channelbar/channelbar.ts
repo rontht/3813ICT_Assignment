@@ -14,7 +14,7 @@ export class Channelbar {
   @Input() channels: Channel[] = [];
   @Input() current_channel: Channel | null = null;
   @Input() current_group: Group | null = null;
-  @Input() canManageGroup!: boolean;
+  @Input() can_manage_group!: boolean;
 
   @Output() openChannel = new EventEmitter<Channel>();
   @Output() toggleGroupSettings = new EventEmitter<void>();

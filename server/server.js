@@ -21,13 +21,13 @@ const io = require("socket.io")(server, options);
 // ____________ For Permission ____________
 function attachUser(req, res, next) {
   // get id from header
-  const id = req.header("user-id");
-  if (!id) {
+  const username = req.header("username");
+  if (!username) {
     return res.status(404).json({ error: "User not found in header." });
   }
 
   // find user
-  const user = users.find((u) => u.id === id) || null;
+  const user = users.find((u) => u.username === username) || null;
   if (!user) {
     return res.status(404).json({ error: "User not found in database." });
   }
@@ -64,7 +64,7 @@ app.get("/api/groups", attachUser, (req, res) => {
 
   // else, filter groups accordingly
   const filtered_groups = groups.filter(
-    (g) => g.creator === user.id || g.members.includes(user.id)
+    (g) => g.creator === user.username || g.members.includes(user.username)
   );
   return res.json(filtered_groups);
 });
@@ -83,7 +83,7 @@ app.get("/api/groups/:group_id/channels", attachUser, (req, res) => {
   // check for permission
   const user = req.user;
   const isSuper = user.role === "super-admin";
-  const isMember = group.members.includes(user.id);
+  const isMember = group.members.includes(user.username);
   if (!isSuper && !isMember) {
     return res.status(404).json({ error: "No permission" });
   }
@@ -106,7 +106,7 @@ app.get("/api/groups/:group_id/members", attachUser, (req, res) => {
   // check for permission
   const user = req.user;
   const isSuper = user.role === "super-admin";
-  const isMember = group.members.includes(user.id);
+  const isMember = group.members.includes(user.username);
   if (!isSuper && !isMember) {
     return res.status(404).json({ error: "No permission" });
   }
@@ -114,11 +114,11 @@ app.get("/api/groups/:group_id/members", attachUser, (req, res) => {
   // don't sent all info of users
   // send only what's necessary
   const members = group.members
-    .map((user_id) => users.find((u) => u.id === user_id))
-    .map((u) => ({
-      id: u.id,
-      username: u.username,
-      role: u.role,
+    .map((username) => users.find((user) => user.username === username))
+    .map((user) => ({
+      username: user.username,
+      name: user.name,
+      role: user.role,
     }));
 
   return res.json(members);
@@ -130,11 +130,11 @@ app.get('/api/users', attachUser, (req, res) => {
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
   if (user.role !== 'super-admin') return res.status(403).json({ error: 'Forbidden' });
 
-  return res.json(users.map(u => ({
-    id: u.id,
-    username: u.username,
-    email: u.email,
-    role: u.role
+  return res.json(users.map(user => ({
+    username: user.username,
+    name: user.name,
+    email: user.email,
+    role: user.role
   })));
 });
 

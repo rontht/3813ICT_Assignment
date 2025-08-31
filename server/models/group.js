@@ -1,32 +1,32 @@
 class Group {
-  constructor(id, name, creator_id) {
+  constructor(id, name, creator_username) {
     this.id = id;
     this.name = name;
-    this.creator = creator_id;
+    this.creator = creator_username;
     this.channels = [];
 
     // auto membership and admin rights to creator
-    this.members = [creator_id];
-    this.admins = [creator_id];
+    this.members = [creator_username];
+    this.admins = [creator_username];
   }
 
   // add a new member
-  addMember(user_id) {
-    if (!this.members.includes(user_id)) {
-      this.members.push(user_id);
+  addMember(username) {
+    if (!this.members.includes(username)) {
+      this.members.push(username);
     }
   }
 
   // remove a member (also remove from admin)
-  removeMember(user_id) {
-    this.members = this.members.filter(id => id !== user_id);
-    this.admins = this.admins.filter(id => id !== user_id);
+  removeMember(username) {
+    this.members = this.members.filter(id => id !== username);
+    this.admins = this.admins.filter(id => id !== username);
   }
 
   // promote a user to admin
-  promoteToAdmin(user_id) {
-    if (this.members.includes(user_id) && !this.admins.includes(user_id)) {
-      this.admins.push(user_id);
+  promoteToAdmin(username) {
+    if (this.members.includes(username) && !this.admins.includes(username)) {
+      this.admins.push(username);
     }
   }
 

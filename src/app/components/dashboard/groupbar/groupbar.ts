@@ -14,8 +14,8 @@ export class Groupbar {
   @Input() user!: User;
   @Input() groups: Group[] = [];
   @Input() current_group: Group | null = null;
-  @Input() canCreateGroup!: boolean;
-  @Input() isSuperAdmin!: boolean;
+  @Input() can_create_group!: boolean;
+  @Input() is_super_admin!: boolean;
 
   @Output() openGroup = new EventEmitter<Group>();
   @Output() onLogout = new EventEmitter<void>();

@@ -12,7 +12,7 @@
             </span>
         </button>
         <div class="mt-1 text-md text-white text-center truncate">
-            {{ user.username }}
+            {{ user.name }}
         </div>
     </div>
 
@@ -29,7 +29,7 @@
             </button>
 
             <!-- Star if user is the creator -->
-            @if (group.creator === user.id) {
+            @if (group.creator === user.username) {
             <span class="absolute -top-3 -right-0.5 text-white text-2xl drop-shadow-md" title="You created this group">
                 ★
             </span>
@@ -42,7 +42,7 @@
     </nav>
 
     <!-- Create Group Button -->
-    @if (canCreateGroup) {
+    @if (can_create_group) {
     <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">Admin</h2>
     <div>
         <button (click)="openGroupCreate.emit()"
@@ -58,7 +58,7 @@
     </div>
     }
 
-    @if (isSuperAdmin) {
+    @if (is_super_admin) {
     <div class="mt-3">
         <button (click)="openManageUsers.emit()"
             [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === 'users'}"

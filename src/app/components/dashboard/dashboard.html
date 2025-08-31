@@ -1,69 +1,92 @@
-<div class="h-screen w-screen overflow-hidden bg-gradient-to-b from-pink-400 via-purple-500 to-blue-500 text-white">
-    <div class="flex h-full">
-        <!-- Group Sidebar -->
-        @if (user != null) {
-        <app-groupbar [user]="user" [groups]="groups" [current_group]="current_group" (openGroup)="openGroup($event)"
-            (onLogout)="onLogout()" [canCreateGroup]="canCreateGroup()" [isSuperAdmin]="isSuperAdmin()"
-            (openGroupCreate)="openGroupCreate()" (openManageUsers)="openManageUsers()"></app-groupbar>
-        }
+<div
+  class="h-screen w-screen overflow-hidden bg-gradient-to-b from-pink-400 via-purple-500 to-blue-500 text-white"
+>
+  <div class="flex h-full">
+    <!-- Group Sidebar -->
+    @if (user != null) {
+    <app-groupbar
+      [user]="user"
+      [groups]="groups"
+      [current_group]="current_group"
+      (openGroup)="openGroup($event)"
+      (onLogout)="onLogout()"
+      [can_create_group]="canCreateGroup()"
+      [is_super_admin]="isSuperAdmin()"
+      (openGroupCreate)="openGroupCreate()"
+      (openManageUsers)="openManageUsers()"
+    ></app-groupbar>
+    }
 
-        <!-- Main Content Panel -->
-        @if (current_group != null) {
-        <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
-            <!-- Create Group View -->
-            @if(current_group.id === "create") {
-            <div class="flex h-full items-center justify-center">
-                <div class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
-                    <h2 class="text-2xl font-bold mb-4">Create a Group</h2>
-                    <p class="text-white mb-6">Enter Group Name: </p>
-                </div>
-            </div>
-
-            <!-- Manage Users -->
-            } @else if (current_group.id === 'users') {
-                <app-user-manager [all_users]="all_users"></app-user-manager>
-            } @else {
-            <div class="flex h-full">
-                <!-- Channel Sidebar -->
-                <app-channelbar [channels]="channels" [current_channel]="current_channel"
-                    [current_group]="current_group" (openChannel)="openChannel($event)"
-                    (toggleGroupSettings)="toggleGroupSettings()" [canManageGroup]="canManageGroup()">
-                </app-channelbar>
-
-                @if (!show_group_settings) {
-                <!-- Messages -->
-                <section class="flex-1">
-                    <div class="m-auto w-[50vw]">
-                        <h1 class="text-2xl font-bold mb-4">{{ current_channel?.name }}
-                            Messages</h1>
-                        <p class="text-white mb-4">Put your page content here. This area scrolls independently if it
-                            overflows.</p>
-                        <div class="space-y-4">
-                            <div class="h-48 rounded-xl border bg-gray-600 shadow-sm"></div>
-                            <div class="h-48 rounded-xl border bg-gray-600 shadow-sm"></div>
-                        </div>
-                    </div>
-                </section>
-                } @else {
-                <section class="flex w-full h-full items-center justify-center">
-                    <!-- Group Settings -->
-                    <div class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
-                        <h2 class="text-2xl font-bold mb-4">Group Settings</h2>
-                        <p class="text-white mb-6">Something something . . . </p>
-                    </div>
-                </section>
-                }
-            </div>
-            }
-        </main>
-
-        <!-- User Sidebar -->
-        <app-memberbar [current_group_members]="current_group.members"></app-memberbar>
-
-        } @else {
-        <div class="bg-red-800 text-white">
-            current_group is empty
+    <!-- Main Content Panel -->
+    @if (current_group != null) {
+    <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
+      <!-- Create Group View -->
+      @if(current_group.id === "create") {
+      <div class="flex h-full items-center justify-center">
+        <div class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
+          <h2 class="text-2xl font-bold mb-4">Create a Group</h2>
+          <p class="text-white mb-6">Enter Group Name:</p>
         </div>
+      </div>
+
+      <!-- Manage Users -->
+      } @else if (current_group.id === 'users') {
+      <app-user-manager [all_users]="all_users"></app-user-manager>
+      } @else {
+      <div class="flex h-full">
+        <!-- Channel Sidebar -->
+        <app-channelbar
+          [channels]="channels"
+          [current_channel]="current_channel"
+          [current_group]="current_group"
+          (openChannel)="openChannel($event)"
+          (toggleGroupSettings)="toggleGroupSettings()"
+          [can_manage_group]="canManageGroup()"
+        >
+        </app-channelbar>
+
+        @if (!show_group_settings) {
+        <!-- Messages -->
+        <section class="flex-1">
+          <div class="m-auto w-[50vw]">
+            <h1 class="text-2xl font-bold mb-4">
+              {{ current_channel?.name }} Messages
+            </h1>
+            <p class="text-white mb-4">
+              Put your page content here. This area scrolls independently if it
+              overflows.
+            </p>
+            <div class="space-y-4">
+              <div class="h-48 rounded-xl border bg-gray-600 shadow-sm"></div>
+              <div class="h-48 rounded-xl border bg-gray-600 shadow-sm"></div>
+            </div>
+          </div>
+        </section>
+        } @else {
+        <section class="flex w-full h-full items-center justify-center">
+          <!-- Group Settings -->
+          <div
+            class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl"
+          >
+            <h2 class="text-2xl font-bold mb-4">Group Settings</h2>
+            <p class="text-white mb-6">Something something . . .</p>
+          </div>
+        </section>
         }
-    </div>
+      </div>
+      }
+    </main>
+
+    <!-- User Sidebar -->
+    <app-memberbar
+      [current_group_members]="current_group.members"
+      [can_manage_group]="canManageGroup()"
+      (banMember)="banMember($event)"
+      (kickMember)="kickMember($event)"
+    ></app-memberbar>
+
+    } @else {
+    <div class="bg-red-800 text-white">current_group is empty</div>
+    }
+  </div>
 </div>

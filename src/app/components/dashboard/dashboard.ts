@@ -26,7 +26,7 @@ import { UserManager } from './user-manager/user-manager';
 })
 export class Dashboard {
   private groupService = inject(GroupService);
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   user: User | null = null;
   groups: Group[] = [];
@@ -52,6 +52,8 @@ export class Dashboard {
     this.groupService.getGroups().subscribe({
       next: (groups) => {
         this.groups = groups;
+
+        // default open the first group upon log in
         if (this.groups.length) {
           this.openGroup(this.groups[0]);
         }
@@ -110,6 +112,7 @@ export class Dashboard {
 
   // open a channel
   openChannel(channel: Channel | null) {
+    this.show_group_settings = false;
     if (channel) this.current_channel = channel;
   }
 
@@ -119,23 +122,25 @@ export class Dashboard {
     this.router.navigate(['']);
   }
 
+  // creating new groups
   openGroupCreate() {
     this.reset();
     this.current_group = {
       id: 'create',
       name: '',
-      creator: this.user?.id ?? '',
+      creator: this.user?.username ?? '',
       channels: [],
       members: [],
     };
   }
 
+  // superadmin managing users in the server
   openManageUsers() {
     this.reset();
     this.current_group = {
       id: 'users',
       name: '',
-      creator: this.user?.id ?? '',
+      creator: this.user?.username ?? '',
       channels: [],
       members: [],
     };
@@ -148,9 +153,22 @@ export class Dashboard {
       },
     });
   }
+  promoteUser(user: User) {
+    console.log("Promoted ", user.username);
+  }
 
+
+  // open group settings
   toggleGroupSettings() {
     this.show_group_settings = !this.show_group_settings;
+  }
+
+  // group member management
+  banMember(member: Member) {
+    console.log("Banned ", member.username);
+  }
+  kickMember(member: Member) {
+    console.log("Kicked ", member.username);
   }
 
   // ____________ Check Permissions ____________ //
@@ -173,7 +191,7 @@ export class Dashboard {
     // check super admin as they can manage regardless
     if (user.role === 'super-admin') return true;
     // check group admin
-    if (user.role === 'group-admin' && group.creator === user.id) return true;
+    if (user.role === 'group-admin' && group.creator === user.username) return true;
     // false by default
     return false;
   }

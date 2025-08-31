@@ -1,21 +1,21 @@
 export class User {
-  id: string;
   username: string;
+  name: string;
   email: string;
   role: string;
   groups: string[];
   valid: boolean;
 
   constructor(
-    id: string,
     username: string,
+    name: string,
     email: string,
     role: string,
     groups: string[] = [],
     valid: boolean = false
   ) {
-    this.id = id;
     this.username = username;
+    this.name = name;
     this.email = email;
     this.role = role;
     this.groups = groups;

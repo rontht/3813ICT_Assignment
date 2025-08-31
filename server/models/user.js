@@ -1,7 +1,7 @@
 class User {
-  constructor(id, username, email, password, role, groups = [], valid) {
-    this.id = id;
+  constructor(username, name, email, password, role, groups = [], valid) {
     this.username = username;
+    this.name = name;
     this.email = email;
     this.password = password;
     this.role = role;
@@ -10,8 +10,8 @@ class User {
   }
   toJSON() {
     return {
-      id: this.id,
       username: this.username,
+      name: this.name,
       email: this.email,
       role: this.role,
       groups: this.groups,

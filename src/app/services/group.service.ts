@@ -11,7 +11,7 @@ export class GroupService {
 
   private attachHeader() {
     const user = JSON.parse(localStorage.getItem('user') || 'null');
-    return new HttpHeaders({ 'user-id': user?.id || '' });
+    return new HttpHeaders({ 'username': user?.username || '' });
   }
 
   getGroups() {
