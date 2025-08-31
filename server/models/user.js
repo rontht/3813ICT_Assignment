@@ -8,16 +8,6 @@ class User {
     this.groups = groups;
     this.valid = valid;
   }
-  toJSON() {
-    return {
-      username: this.username,
-      name: this.name,
-      email: this.email,
-      role: this.role,
-      groups: this.groups,
-      valid: this.valid,
-    };
-  }
 }
 
 module.exports = User;

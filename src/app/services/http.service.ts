@@ -20,15 +20,15 @@ export class HttpService {
     );
   }
 
-  register(username: string, name: string, email: string, role: string, password: string): Observable<User | { valid: false }> {
+  register(username: string, name: string, email: string, password: string, role: string): Observable<User | { valid: false }> {
     return this.httpService.post<User | { valid: false }>(
       `${this.server}/auth/register`,
       {
         username,
         name,
         email,
-        role,
         password,
+        role,
       }
     );
   }

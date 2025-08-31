@@ -45,9 +45,6 @@ export class Login {
       },
       error: (e) => {
         this.loginError = e.error?.error || e.message;
-      },
-      complete: () => {
-        console.log("Login request complete!");
       }
     })
   }
@@ -57,7 +54,7 @@ export class Login {
     this.loginError = null;
 
     // connect to service
-    this.httpService.register(this.username, this.name, this.email, "user", this.password).subscribe({
+    this.httpService.register(this.username, this.name, this.email, this.password, "user").subscribe({
       next: (data) => {
         // if wrong input
         if ('valid' in data && !data.valid) {
@@ -72,9 +69,6 @@ export class Login {
       },
       error: (e) => {
         this.loginError = "Error: " + e.error?.error || e.message;
-      },
-      complete: () => {
-        console.log("Sign up request complete!");
       }
     })
   }
