@@ -2,6 +2,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from '../models/user';
 import { Groups } from '../models/groups';
+import { Group } from '../models/group';
+import { Channel } from '../models/channel';
 
 @Injectable({
   providedIn: 'root',
@@ -39,6 +41,24 @@ export class GroupService {
     );
   }
 
+  getRequests(group_id: any) {
+    return this.httpService.get<any[]>(
+      `${this.server}/groups/${group_id}/requests`,
+      {
+        headers: this.attachHeader(),
+      }
+    );
+  }
+
+  getBanned(channel_id: any) {
+    return this.httpService.get<any[]>(
+      `${this.server}/channels/${channel_id}/banned`,
+      {
+        headers: this.attachHeader(),
+      }
+    );
+  }
+
   getAllUsers() {
     return this.httpService.get<User[]>(`${this.server}/users`, {
       headers: this.attachHeader(),
@@ -49,5 +69,29 @@ export class GroupService {
     return this.httpService.get<Groups[]>(`${this.server}/search/groups`, {
       headers: this.attachHeader(),
     });
+  }
+
+  createGroup(group: Group) {
+    return this.httpService.post<Group>(
+      `${this.server}/group/`,
+      group,
+      { headers: this.attachHeader() }
+    );
+  }
+
+  editGroup(id: string, group: Group) {
+    return this.httpService.put<Group>(
+      `${this.server}/group/${id}`,
+      group,
+      { headers: this.attachHeader() }
+    );
+  }
+
+  createChannel(name: string, group_id: string) {
+    return this.httpService.post<Channel>(
+      `${this.server}/channel/${group_id}`,
+      { name },
+      { headers: this.attachHeader() }
+    );
   }
 }

@@ -6,7 +6,7 @@
         <div class="space-y-3">
             <div *ngFor="let u of all_users" class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow">
                 <div>
-                    <p class="font-semibold">{{ u.username }}</p>
+                    <p class="font-semibold">{{ u.name }}, <span class="font-normal text-sm text-white/70">{{ u.username }}</span></p>
                     <p class="text-sm text-gray-300">{{ u.email }}</p>
                 </div>
                 <div class="text-sm text-gray-400 italic">

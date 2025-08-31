@@ -1,7 +1,7 @@
 /*  Routes
-    /
-    /api/auth
-    /api/auth/register
+    GET /
+    POST /api/auth
+    POST /api/auth/register
 */
 module.exports = {
   route: async (app) => {
@@ -24,11 +24,11 @@ module.exports = {
     // auth api call
     app.post("/api/auth", (req, res) => {
       const users = readJson(user_path) ?? [];
-      const { email, password } = req.body;
+      const { username, password } = req.body;
 
       // find a matching user
       const user = users.find(
-        (u) => u.email === email && u.password === password
+        (u) => u.username === username && u.password === password
       );
       if (!user) {
         return res.json({ valid: false });

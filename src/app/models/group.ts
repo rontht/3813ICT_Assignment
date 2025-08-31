@@ -1,23 +1,24 @@
-import { Member } from "./member";
-
 export class Group {
-  id: string;
+  id?: string;
   name: string;
-  creator: string;
-  channels: string[];
-  members: Member[];
+  creator?: string;
+  channels?: string[];
+  members?: any[];
+  requests?: any[];
 
   constructor(
     id: string,
     name: string,
     creator: string,
     channels: string[] = [],
-    members: Member[] = []
+    members: any[] = [],
+    requests: any[] = []
   ) {
     this.id = id;
     this.name = name;
     this.creator = creator;
     this.channels = channels;
     this.members = members;
+    this.requests = requests;
   }
 }

@@ -29,7 +29,7 @@ export class Login {
     this.loginError = null;
 
     // connect to service
-    this.httpService.login(this.email, this.password).subscribe({
+    this.httpService.login(this.username, this.password).subscribe({
       next: (data) => {
 
         // if wrong input

@@ -25,39 +25,7 @@ function writeJson(filePath, data) {
   }
 }
 
-function appendJson(filePath, newData) {
-  try {
-    const fullPath = path.resolve(__dirname, filePath);
-    // Read current content or start with empty array
-    let existingData = [];
-    if (fs.existsSync(fullPath)) {
-      const raw = fs.readFileSync(fullPath, "utf8");
-      existingData = JSON.parse(raw);
-    }
-
-    // Ensure existing content is an array
-    if (!Array.isArray(existingData)) {
-      throw new Error("Existing JSON is not an array.");
-    }
-
-    // Append new data
-    if (Array.isArray(newData)) {
-      existingData.push(...newData);
-    } else {
-      existingData.push(newData);
-    }
-
-    // Write updated array back to file
-    fs.writeFileSync(fullPath, JSON.stringify(existingData, null, 2), "utf8");
-    return true;
-  } catch (error) {
-    console.error("Error appending to JSON file:", error.message);
-    return false;
-  }
-}
-
 module.exports = {
   readJson,
-  writeJson,
-  appendJson,
+  writeJson
 };

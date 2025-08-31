@@ -12,7 +12,7 @@
       (onLogout)="onLogout()"
       [can_create_group]="canCreateGroup()"
       [is_super_admin]="isSuperAdmin()"
-      (openGroupCreate)="openGroupCreate()"
+      (openGroupCreate)="openGroupCreate($event)"
       (openManageUsers)="openManageUsers()"
       (openGroupSearch)="openGroupSearch()"
       (openAccountSettings)="openAccountSettings()"
@@ -24,46 +24,64 @@
     <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
       @switch (current_group.id) { @case ("account") {
       <app-account-settings></app-account-settings>
+
       } @case ("create") {
-      <app-create-group></app-create-group>
+      <app-create-group
+        [all_users]="all_users"
+        [current_group]="current_group"
+        [channels]="channels"
+        [create_new]="create_new_group"
+        (reloadGroups)="reloadGroups($event)"
+      ></app-create-group>
+
       } @case ("users") {
       <app-user-manager [all_users]="all_users"></app-user-manager>
+
       } @case ("search") {
       <app-group-search [all_groups]="all_groups"></app-group-search>
-      } @default {
+
+      } @default { @if (!show_group_settings) {
       <div class="flex h-full">
         <app-channelbar
           [channels]="channels"
           [current_channel]="current_channel"
           [current_group]="current_group"
           (openChannel)="openChannel($event)"
-          (toggleGroupSettings)="toggleGroupSettings()"
+          (openGroupEdit)="openGroupEdit()"
           [can_manage_group]="canManageGroup()"
         >
         </app-channelbar>
 
-        @if (!show_group_settings) {
         <section class="flex-1">
           <app-chat [current_channel]="current_channel"></app-chat>
         </section>
-        } @else {
-        <section class="flex w-full h-full items-center justify-center">
-          <app-group-settings></app-group-settings>
-        </section>
-        }
       </div>
-      } }
+      } @else {
+      <app-create-group
+        [all_users]="all_users"
+        [current_group]="current_group"
+        [channels]="channels"
+        [create_new]="create_new_group"
+        (reloadGroups)="reloadGroups($event)"
+        (closeEdit)="closeGroupEdit($event)"
+      ></app-create-group>
+      } } }
     </main>
 
     <app-memberbar
-      [current_group_members]="current_group.members"
+      [current_group]="current_group"
+      [current_channel]="current_channel"
       [can_manage_group]="canManageGroup()"
       (banMember)="banMember($event)"
       (kickMember)="kickMember($event)"
+      (unbanMember)="unbanMember($event)"
+      (approveMember)="approveMember($event)"
     >
     </app-memberbar>
     } @else {
-    <main class="max-w-[81.2vw] flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
+    <main
+      class="max-w-[81.2vw] flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl"
+    >
       <div class="flex h-full items-center justify-center">
         <div class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
           <h2 class="text-2xl font-bold mb-4 text-center">

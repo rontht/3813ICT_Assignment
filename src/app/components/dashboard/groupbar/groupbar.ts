@@ -19,7 +19,7 @@ export class Groupbar {
 
   @Output() openGroup = new EventEmitter<Group>();
   @Output() onLogout = new EventEmitter<void>();
-  @Output() openGroupCreate = new EventEmitter<void>();
+  @Output() openGroupCreate = new EventEmitter<boolean>();
   @Output() openManageUsers = new EventEmitter<void>();
   @Output() openGroupSearch = new EventEmitter<void>();
   @Output() openAccountSettings = new EventEmitter<void>();

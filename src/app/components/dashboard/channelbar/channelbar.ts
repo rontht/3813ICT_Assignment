@@ -17,7 +17,7 @@ export class Channelbar {
   @Input() can_manage_group!: boolean;
 
   @Output() openChannel = new EventEmitter<Channel>();
-  @Output() toggleGroupSettings = new EventEmitter<void>();
+  @Output() openGroupEdit = new EventEmitter<void>();
 
   track_by_channel_id = (_: number, channel: Channel) => channel.id;
 }

@@ -10,11 +10,11 @@ export class HttpService {
   private httpService = inject(HttpClient);
   private server = 'http://localhost:3000/api';
 
-  login(email: string, password: string): Observable<User | { valid: false }> {
+  login(username: string, password: string): Observable<User | { valid: false }> {
     return this.httpService.post<User | { valid: false }>(
       `${this.server}/auth`,
       {
-        email,
+        username,
         password,
       }
     );
