@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from '../models/user';
+import { Groups } from '../models/groups';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,12 @@ export class GroupService {
 
   getAllUsers() {
     return this.httpService.get<User[]>(`${this.server}/users`, {
+      headers: this.attachHeader(),
+    });
+  }
+
+  getAllGroupsForSearch() {
+    return this.httpService.get<Groups[]>(`${this.server}/search/groups`, {
       headers: this.attachHeader(),
     });
   }

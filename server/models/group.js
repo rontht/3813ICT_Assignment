@@ -7,6 +7,8 @@ class Group {
 
     // auto membership and admin rights to creator
     this.members = [creator_username];
+
+    // not necessary
     this.admins = [creator_username];
   }
 
@@ -17,17 +19,10 @@ class Group {
     }
   }
 
-  // remove a member (also remove from admin)
+  // remove a member
   removeMember(username) {
     this.members = this.members.filter(id => id !== username);
     this.admins = this.admins.filter(id => id !== username);
-  }
-
-  // promote a user to admin
-  promoteToAdmin(username) {
-    if (this.members.includes(username) && !this.admins.includes(username)) {
-      this.admins.push(username);
-    }
   }
 
   // add a new channel

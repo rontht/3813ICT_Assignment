@@ -1,86 +1,116 @@
 <aside class="w-20 shrink-0 p-2">
+  <!-- Logo -->
+  <img src="/logo/logo_no_text.png" alt="CC logo without text" class="mb-6" />
 
-    <!-- Logo -->
-    <img src="/logo/logo_no_text.png" alt="CC logo without text" class="mb-6">
-
-    <!-- Profile -->
-    <div class="mb-5">
-        <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto">
-            <span
-                class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">{{
-                user.role.charAt(0).toUpperCase() }}
-            </span>
-        </button>
-        <div class="mt-1 text-md text-white text-center truncate">
-            {{ user.name }}
-        </div>
+  <!-- Profile -->
+  <div class="mb-5">
+    <button
+      class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto"
+    >
+      <span
+        class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+        >{{ user.role.charAt(0).toUpperCase() }}
+      </span>
+    </button>
+    <div class="mt-1 text-md text-white text-center truncate">
+      {{ user.name }}
     </div>
-
-    <!-- Buttons for groups -->
-    <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">Groups</h2>
-    <nav class="space-y-3 text-center">
-        <div *ngFor="let group of groups" class="relative inline-block">
-            <button [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === group.id}" class="w-12 h-12 bg-main rounded-full flex items-center justify-center 
-            hover:rounded-2xl mx-auto transition-all" (click)="openGroup.emit(group)">
-                <span
-                    class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">
-                    {{ group.name[0] }}
-                </span>
-            </button>
-
-            <!-- Star if user is the creator -->
-            @if (group.creator === user.username) {
-            <span class="absolute -top-3 -right-0.5 text-white text-2xl drop-shadow-md" title="You created this group">
-                ★
-            </span>
-            }
-
-            <div class="mt-1 text-xs text-white text-center truncate">
-                {{ group.name }}
-            </div>
-        </div>
-    </nav>
-
-    <!-- Create Group Button -->
-    @if (can_create_group) {
-    <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">Admin</h2>
-    <div>
-        <button (click)="openGroupCreate.emit()"
-            [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === 'create'}"
-            class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
-            <span
-                class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">+
-            </span>
-        </button>
-        <div class="mt-1 text-xs text-white text-center truncate">
-            Create
-        </div>
+  </div>
+  <div class="text-center mb-3">
+    <div class="relative inline-block">
+      <button
+        [ngClass]="{
+          'rounded-xl border-3 border-violet-300':
+            current_group?.id === 'search'
+        }"
+        class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+        (click)="openGroupSearch.emit()"
+      >
+        <img src="/icons/search.png" alt="Search Icon" width="25px" />
+      </button>
+      <div class="mt-1 text-xs text-white text-center truncate">Search</div>
     </div>
-    }
+  </div>
 
-    @if (is_super_admin) {
-    <div class="mt-3">
-        <button (click)="openManageUsers.emit()"
-            [ngClass]="{'rounded-xl border-3 border-violet-300': current_group?.id === 'users'}"
-            class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
-            <span
-                class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent">O
-            </span>
-        </button>
-        <div class="mt-1 text-xs text-white text-center truncate">
-            Users
-        </div>
-    </div>
-    }
+  <!-- Buttons for groups -->
+  <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">
+    Your Groups
+  </h2>
 
-    <!-- Logout Button -->
-    <div class="pt-4 mt-4 border-t-2">
-        <button (click)="onLogout.emit()"
-            class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all">
-            <img src="./icons/logout.png" alt="Logout Icon" width="25px">
-        </button>
-        <div class="mt-1 text-xs text-white text-center truncate">
-            Logout
-        </div>
+  <nav class="space-y-3 text-center">
+    <div *ngFor="let group of groups" class="relative inline-block">
+      <button
+        [ngClass]="{
+          'rounded-xl border-3 border-violet-300':
+            current_group?.id === group.id
+        }"
+        class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+        (click)="openGroup.emit(group)"
+      >
+        <span
+          class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+        >
+          {{ group.name[0] }}
+        </span>
+      </button>
+
+      <!-- Star if user is the creator -->
+      @if (group.creator === user.username) {
+      <span
+        class="absolute -top-3 -right-0.5 text-white text-2xl drop-shadow-md"
+        title="You created this group"
+      >
+        ★
+      </span>
+      }
+
+      <div class="mt-1 text-xs text-white text-center truncate">
+        {{ group.name }}
+      </div>
     </div>
+  </nav>
+
+  <!-- Create Group Button -->
+  @if (can_create_group) {
+  <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">Admin</h2>
+  <div>
+    <button
+      (click)="openGroupCreate.emit()"
+      [ngClass]="{
+        'rounded-xl border-3 border-violet-300': current_group?.id === 'create'
+      }"
+      class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+    >
+      <span
+        class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+        >+
+      </span>
+    </button>
+    <div class="mt-1 text-xs text-white text-center truncate">Create</div>
+  </div>
+  } @if (is_super_admin) {
+  <div class="mt-3">
+    <button
+      (click)="openManageUsers.emit()"
+      [ngClass]="{
+        'rounded-xl border-3 border-violet-300': current_group?.id === 'users'
+      }"
+      class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+    >
+      <img src="/icons/manage_users.png" alt="Manage Users Icon" width="25px" />
+    </button>
+    <div class="mt-1 text-xs text-white text-center truncate">Users</div>
+  </div>
+  }
+
+  <!-- Logout Button -->
+  <div class="pt-4 mt-4 border-t-2">
+    <button
+      (click)="onLogout.emit()"
+      class="w-12 h-12 bg-main rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"
+    >
+      <img src="./icons/logout.png" alt="Logout Icon" width="25px" />
+    </button>
+    <div class="mt-1 text-xs text-white text-center truncate">Logout</div>
+  </div>
 </aside>

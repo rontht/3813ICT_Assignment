@@ -5,22 +5,27 @@ import { CommonModule } from '@angular/common';
 // Services
 import { GroupService } from '../../services/group.service';
 
-// Components
-import { Groupbar } from './groupbar/groupbar';
-import { Channelbar } from './channelbar/channelbar';
-import { Memberbar } from './memberbar/memberbar';
-
 // Models
 import { User } from '../../models/user';
 import { Group } from '../../models/group';
 import { Channel } from '../../models/channel';
 import { Member } from '../../models/member';
+
+// Components
+import { Groupbar } from './groupbar/groupbar';
+import { Channelbar } from './channelbar/channelbar';
+import { Memberbar } from './memberbar/memberbar';
 import { UserManager } from './user-manager/user-manager';
+import { Groups } from '../../models/groups';
+import { GroupSearch } from "./group-search/group-search";
+import { Chat } from './chat/chat';
+import { CreateGroup } from './create-group/create-group';
+import { GroupSettings } from './group-settings/group-settings';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager],
+  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager, GroupSearch, Chat, CreateGroup, GroupSettings],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -30,6 +35,7 @@ export class Dashboard {
 
   user: User | null = null;
   groups: Group[] = [];
+  all_groups: Groups[] = [];
   channels: Channel[] = [];
   members: Member[] = [];
   all_users: User[] = [];
@@ -39,6 +45,39 @@ export class Dashboard {
 
   show_group_settings: boolean = false;
 
+  // ____________ Check Permissions ____________ //
+  // check user's role, false by default
+  isSuperAdmin() {
+    if (this.user?.role === 'super-admin') return true;
+    return false;
+  }
+  isGroupAdmin() {
+    if (this.user?.role === 'group-admin') return true;
+    return false;
+  }
+  // check if they have group admin rights for certain groups
+  canManageGroup() {
+    const user = this.user;
+    const group =
+      this.groups.find((g) => g.id === this.current_group!.id) ?? null;
+    // if undefine or null, false
+    if (!user || !group) return false;
+    // check super admin as they can manage regardless
+    if (user.role === 'super-admin') return true;
+    // check group admin
+    if (user.role === 'group-admin' && group.creator === user.username) return true;
+    // false by default
+    return false;
+  }
+  // check if they can create groups
+  canCreateGroup() {
+    if (this.isSuperAdmin() || this.isGroupAdmin()) {
+      return true;
+    }
+    return false;
+  }
+
+  // ____________ ngOnInit ____________ //
   ngOnInit() {
     // route back to login if unauth
     const user_info = localStorage.getItem('user');
@@ -64,6 +103,7 @@ export class Dashboard {
     });
   }
 
+  // ____________ Functions ____________ //
   reset() {
     this.channels = [];
     this.members = [];
@@ -134,6 +174,26 @@ export class Dashboard {
     };
   }
 
+  // finding groups
+  openGroupSearch() {
+    this.reset();
+    this.current_group = {
+      id: 'search',
+      name: '',
+      creator: this.user?.username ?? '',
+      channels: [],
+      members: [],
+    };
+    this.groupService.getAllGroupsForSearch().subscribe({
+      next: (groups) => {
+        this.all_groups = groups
+      },
+      error: (e) => {
+        console.log('openGroupSearch Error: ', e);
+      },
+    })
+  }
+
   // superadmin managing users in the server
   openManageUsers() {
     this.reset();
@@ -157,7 +217,6 @@ export class Dashboard {
     console.log("Promoted ", user.username);
   }
 
-
   // open group settings
   toggleGroupSettings() {
     this.show_group_settings = !this.show_group_settings;
@@ -169,37 +228,5 @@ export class Dashboard {
   }
   kickMember(member: Member) {
     console.log("Kicked ", member.username);
-  }
-
-  // ____________ Check Permissions ____________ //
-  // check user's role, false by default
-  isSuperAdmin() {
-    if (this.user?.role === 'super-admin') return true;
-    return false;
-  }
-  isGroupAdmin() {
-    if (this.user?.role === 'group-admin') return true;
-    return false;
-  }
-  // check if they have group admin rights for certain groups
-  canManageGroup() {
-    const user = this.user;
-    const group =
-      this.groups.find((g) => g.id === this.current_group!.id) ?? null;
-    // if undefine or null, false
-    if (!user || !group) return false;
-    // check super admin as they can manage regardless
-    if (user.role === 'super-admin') return true;
-    // check group admin
-    if (user.role === 'group-admin' && group.creator === user.username) return true;
-    // false by default
-    return false;
-  }
-  // check if they can create
-  canCreateGroup() {
-    if (this.isSuperAdmin() || this.isGroupAdmin()) {
-      return true;
-    }
-    return false;
   }
 }

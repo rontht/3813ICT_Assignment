@@ -21,6 +21,5 @@ export class Groupbar {
   @Output() onLogout = new EventEmitter<void>();
   @Output() openGroupCreate = new EventEmitter<void>();
   @Output() openManageUsers = new EventEmitter<void>();
-
-  track_by_group_id = (_: number, g: Group) => g.id;
+  @Output() openGroupSearch = new EventEmitter<void>();
 }
