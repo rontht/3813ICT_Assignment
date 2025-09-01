@@ -2,11 +2,15 @@
     GET /api/groups/:group_id/members
     GET /api/groups/:group_id/requests
     GET /api/channels/:channel_id/banned
+    GET /api/channels/:channel_id/members
     GET /api/users
+    DELETE /api/channel/:channel_id/members/:username
+    PUT /api/channel/:channel_id/bans/:username
+    PUT /api/channel/:channel_id/members/:username
 */
 module.exports = {
   route: async (app) => {
-    const { readJson } = require("../db-manager.js");
+    const { readJson, writeJson } = require("../db-manager.js");
     const user_path = "../data/user.json";
     const group_path = "../data/group.json";
     const channel_path = "../data/channel.json";
@@ -196,5 +200,198 @@ module.exports = {
         }))
       );
     });
+
+    // remove user from channel_users
+    app.delete(
+      "/api/channel/:channel_id/members/:username",
+      attachUser,
+      (req, res) => {
+        const user = req.user;
+        if (!user) return res.status(401).json({ error: "No user" });
+
+        const channels = readJson(channel_path) ?? [];
+        const groups = readJson(group_path) ?? [];
+
+        const channel_id = req.params.channel_id;
+        const username = req.params.username;
+        if (!channel_id || !username)
+          return res.status(404).json({ error: "Bad parameters" });
+
+        // find the channel
+        const channel = channels.find((g) => g.id === channel_id);
+        if (!channel) {
+          return res
+            .status(404)
+            .json({ error: "Channel not found in database" });
+        }
+
+        // check permission
+        const group = groups.find((g) => g.id === channel.group_id);
+        if (!group) {
+          return res.status(404).json({ error: "Group not found in database" });
+        }
+        // only creators and super admin can edit
+        if (user.role === "group-admin" && group.creator !== user.username) {
+          return res
+            .status(404)
+            .json({ error: "Not allowed to edit this group" });
+        }
+
+        // remove user from channel_users
+        channel.channel_users = channel.channel_users || [];
+        for (let i = 0; i < channel.channel_users.length; i++) {
+          if (channel.channel_users[i] === username) {
+            channel.channel_users.splice(i, 1);
+            break;
+          }
+        }
+
+        writeJson(channel_path, channels);
+        return res.json(channel);
+      }
+    );
+
+    // add user to banned_users (also remove from channel_users if present)
+    app.put(
+      "/api/channel/:channel_id/bans/:username",
+      attachUser,
+      (req, res) => {
+        const user = req.user;
+        if (!user) return res.status(401).json({ error: "No user" });
+
+        const channels = readJson(channel_path) ?? [];
+        const groups = readJson(group_path) ?? [];
+
+        const channel_id = req.params.channel_id;
+        const username = req.params.username;
+        if (!channel_id || !username)
+          return res.status(404).json({ error: "Bad parameters" });
+
+        // find the channel
+        const channel = channels.find((g) => g.id === channel_id);
+        if (!channel) {
+          return res
+            .status(404)
+            .json({ error: "Channel not found in database" });
+        }
+
+        // check permission
+        const group = groups.find((g) => g.id === channel.group_id);
+        if (!group) {
+          return res.status(404).json({ error: "Group not found in database" });
+        }
+        // only creators and super admin can edit
+        if (user.role === "group-admin" && group.creator !== user.username) {
+          return res
+            .status(404)
+            .json({ error: "Not allowed to edit this group" });
+        }
+
+        // ensure username is a group member
+        let is_group_member = false;
+        const gm = group.members || [];
+        for (let i = 0; i < gm.length; i++)
+          if (gm[i] === username) {
+            is_group_member = true;
+            break;
+          }
+        if (!is_group_member)
+          return res.status(409).json({ error: "User not in group" });
+
+        // remove from channel_users if present
+        channel.channel_users = channel.channel_users || [];
+        for (let i = 0; i < channel.channel_users.length; i++) {
+          if (channel.channel_users[i] === username) {
+            channel.channel_users.splice(i, 1);
+            break;
+          }
+        }
+
+        // add to banned_users if not present
+        channel.banned_users = channel.banned_users || [];
+        let already_banned = false;
+        for (let i = 0; i < channel.banned_users.length; i++) {
+          if (channel.banned_users[i] === username) {
+            already_banned = true;
+            break;
+          }
+        }
+        if (!already_banned) channel.banned_users.push(username);
+
+        writeJson(channel_path, channels);
+        return res.json(channel);
+      }
+    );
+
+    // add user to channel_users and remove from banned_users
+    app.put(
+      "/api/channel/:channel_id/members/:username",
+      attachUser,
+      (req, res) => {
+        const user = req.user;
+        if (!user) return res.status(401).json({ error: "No user" });
+
+        const channels = readJson(channel_path) ?? [];
+        const groups = readJson(group_path) ?? [];
+
+        const channel_id = req.params.channel_id;
+        const username = req.params.username;
+        if (!channel_id || !username)
+          return res.status(404).json({ error: "bad parameters" });
+
+        // find the channel
+        const channel = channels.find((g) => g.id === channel_id);
+        if (!channel) {
+          return res
+            .status(404)
+            .json({ error: "Channel not found in database" });
+        }
+
+        // check permission
+        const group = groups.find((g) => g.id === channel.group_id);
+        if (!group) {
+          return res.status(404).json({ error: "Group not found in database" });
+        }
+        // only creators and super admin can edit
+        if (user.role === "group-admin" && group.creator !== user.username) {
+          return res
+            .status(404)
+            .json({ error: "Not allowed to edit this group" });
+        }
+
+        // must be a group member to join channel
+        let is_group_member = false;
+        const gm = group.members || [];
+        for (let i = 0; i < gm.length; i++)
+          if (gm[i] === username) {
+            is_group_member = true;
+            break;
+          }
+        if (!is_group_member)
+          return res.status(409).json({ error: "User not in group" });
+
+        // remove from banned_users if present
+        channel.banned_users = channel.banned_users || [];
+        for (let i = 0; i < channel.banned_users.length; i++) {
+          if (channel.banned_users[i] === username) {
+            channel.banned_users.splice(i, 1);
+            break;
+          }
+        }
+
+        // add to channel_users if not present
+        channel.channel_users = channel.channel_users || [];
+        let already_member = false;
+        for (let i = 0; i < channel.channel_users.length; i++) {
+          if (channel.channel_users[i] === username) {
+            already_member = true;
+            break;
+          }
+        }
+        if (!already_member) channel.channel_users.push(username);
+        writeJson(channel_path, channels);
+        return res.json(channel);
+      }
+    );
   },
 };

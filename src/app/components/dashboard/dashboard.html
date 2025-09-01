@@ -69,7 +69,12 @@
       } } }
     </main>
 
-    <app-memberbar [channel]="current_channel"> </app-memberbar>
+    <app-memberbar
+      [group]="current_group"
+      [channel]="current_channel"
+      [can_manage_group]="canManageGroup()"
+    >
+    </app-memberbar>
     } @else {
     <main
       class="max-w-[81.2vw] flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl"

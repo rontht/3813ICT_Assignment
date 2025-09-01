@@ -110,4 +110,27 @@ export class GroupService {
       { headers: this.attachHeader() }
     );
   }
+
+  addChannelMember(username: string, channel_id: string) {
+    return this.httpService.put<any>(
+      `${this.server}/channel/${channel_id}/members/${username}`,
+      {},
+      { headers: this.attachHeader() }
+    )
+  }
+
+  banMember(username: string, channel_id: string) {
+    return this.httpService.put<any>(
+      `${this.server}/channel/${channel_id}/bans/${username}`,
+      {},
+      { headers: this.attachHeader() }
+    )
+  }
+
+  removeChannelMember(username: string, channel_id: string) {
+    return this.httpService.delete<any>(
+      `${this.server}/channel/${channel_id}/members/${username}`,
+      { headers: this.attachHeader() }
+    )
+  }
 }
