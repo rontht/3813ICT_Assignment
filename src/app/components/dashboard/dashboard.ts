@@ -19,14 +19,13 @@ import { UserManager } from './user-manager/user-manager';
 import { Groups } from '../../models/groups';
 import { GroupSearch } from "./group-search/group-search";
 import { Chat } from './chat/chat';
-import { CreateGroup } from './create-group/create-group';
-import { GroupSettings } from './group-settings/group-settings';
 import { AccountSettings } from './account-settings/account-settings';
+import { GroupForm } from './group-form/group-form';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager, GroupSearch, Chat, CreateGroup, AccountSettings],
+  imports: [CommonModule, Groupbar, Channelbar, Memberbar, UserManager, GroupSearch, Chat, GroupForm, AccountSettings],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

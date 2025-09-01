@@ -22,7 +22,7 @@
   </div>
 
   <!-- Search Group -->
-  <div class="text-center mb-3">
+  <div class="text-center">
     <div class="relative inline-block">
       <button
         [ngClass]="{
@@ -39,12 +39,10 @@
   </div>
 
   <!-- Buttons for groups -->
-  <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">
-    Your Groups
-  </h2>
-
-  <nav class="space-y-3 text-center">
-    <div *ngFor="let group of groups" class="relative inline-block">
+  <nav
+    class="space-y-3 text-center overflow-auto max-h-[40vh] hide-scrollbar border-t-2"
+  >
+    <div *ngFor="let group of groups" class="relative inline-block mt-2">
       <button
         [ngClass]="{
           'rounded-xl border-3 border-violet-300':
@@ -78,7 +76,7 @@
 
   <!-- Create Group Button -->
   @if (can_create_group) {
-  <h2 class="text-sm text-white mb-3 pt-4 border-t-2 text-center">Admin</h2>
+  <h2 class="text-sm text-white mb-2 pt-2 border-t-2 text-center">Admin</h2>
   <div>
     <button
       (click)="openGroupCreate.emit(true)"
@@ -110,7 +108,7 @@
   }
 
   <!-- Logout Button -->
-  <div class="pt-4 mt-4 border-t-2">
+  <div class="pt-3 mt-3 border-t-2">
     <button
       (click)="onLogout.emit()"
       class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all"

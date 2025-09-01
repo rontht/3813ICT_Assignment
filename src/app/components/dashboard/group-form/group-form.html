@@ -128,10 +128,36 @@
         </div>
 
         <div class="flex space-x-5">
-          <div class="w-[400px] h-[62vh] bg-main p-4 rounded-2xl">
-            <div class="mb-1 text-sm font-medium text-white">All Users</div>
-            @if (old_user_array.length > 0) {
-            <div class="space-y-3 overflow-auto w-[365px] h-[56vh]">
+          <div class="w-[400px] h-[62vh] bg-main rounded-2xl">
+            <div
+              class="mb-1 text-sm font-medium text-white flex w-full h-[40px]"
+            >
+              <button
+                type="button"
+                (click)="changeTab(1)"
+                class="w-full rounded-tl-2xl"
+                [ngClass]="{
+                  'bg-main': select_tab === 1,
+                  'bg-main-inactive': select_tab !== 1
+                }"
+              >
+                Non-members
+              </button>
+              <button
+                type="button"
+                (click)="changeTab(2)"
+                class="w-full rounded-tr-2xl"
+                [ngClass]="{
+                  'bg-main': select_tab === 2,
+                  'bg-main-inactive': select_tab !== 2
+                }"
+              >
+                Requested to join
+              </button>
+            </div>
+
+            @switch (select_tab) { @case(1) { @if (old_user_array.length > 0) {
+            <div class="space-y-3 overflow-auto w-[365px] h-[56vh] m-auto">
               <div
                 *ngFor="let u of old_user_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
@@ -148,7 +174,7 @@
                 <div class="flex gap-2">
                   <button
                     type="button"
-                    class="px-2 py-1 w-[100px] bg-blue-800 rounded mr-3"
+                    class="px-2 py-1 w-[100px] bg-blue-800 rounded"
                     (click)="addMember(u)"
                   >
                     Add
@@ -157,14 +183,51 @@
               </div>
             </div>
             } @else {
-            <p class="text-gray-300">No users found.</p>
-            }
+            <p class="text-gray-300 p-4">No users found.</p>
+
+            } } @case (2) { @if (old_user_array.length > 0) {
+            <div class="space-y-3 overflow-auto w-[365px] h-[56vh] m-auto">
+              <div
+                *ngFor="let u of old_user_array"
+                class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
+              >
+                <div>
+                  <p class="font-semibold">
+                    {{ u.name }},
+                    <span class="font-normal text-sm text-white/70">{{
+                      u.username
+                    }}</span>
+                  </p>
+                  <p class="text-sm text-gray-300">{{ u.email }}</p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="px-2 py-1 w-[100px] bg-green-800 rounded"
+                    (click)="addMember(u)"
+                  >
+                    Approve
+                  </button>
+                </div>
+              </div>
+            </div>
+            } @else {
+            <p class="text-gray-300 p-4">No requests found.</p>
+            } } @default {
+            <p class="text-red-400 p-4">Error occurred.</p>
+            } }
           </div>
 
-          <div class="w-[400px] h-[62vh] bg-main p-4 rounded-2xl">
-            <div class="mb-1 text-sm font-medium text-white">Current Users</div>
+          <div class="w-[400px] h-[62vh] bg-main rounded-2xl">
+            <div
+              class="mb-1 text-sm font-medium text-white flex w-full h-[40px]"
+            >
+              <button type="button" class="w-full rounded-tl-2xl bg-main">
+                Current members
+              </button>
+            </div>
             @if (new_user_array.length > 0) {
-            <div class="space-y-3 w-[365px] h-[56vh] overflow-auto">
+            <div class="space-y-3 w-[365px] h-[56vh] overflow-auto m-auto">
               <div
                 *ngFor="let u of new_user_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
@@ -181,7 +244,7 @@
                 <div class="flex gap-2">
                   <button
                     type="button"
-                    class="px-2 py-1 w-[100px] bg-red-800 rounded mr-3"
+                    class="px-2 py-1 w-[100px] bg-red-800 rounded"
                     (click)="removeMember(u)"
                   >
                     Remove
@@ -196,17 +259,24 @@
         </div>
 
         <!-- Save -->
-        <div class="w-full flex justify-center">
-          <button
-            type="submit"
-            class="w-sm py-3 rounded-lg bg-white border border-gray-300 hover:shadow-lg hover:bg-gray-200"
-          >
-            <span
-              class="inline-block bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 bg-clip-text text-transparent"
+        <div class="w-full flex">
+          <div class="w-full flex justify-center">
+            <button
+              type="reset"
+              disabled
+              class="w-2xs py-3 rounded-lg text-white bg-main border border-gray-300 hover:shadow-lg hover:bg-secondary-hover"
+            >
+              Reset
+            </button>
+          </div>
+          <div class="w-full flex justify-center">
+            <button
+              type="submit"
+              class="w-2xs py-3 rounded-lg text-white bg-main border border-gray-300 hover:shadow-lg hover:bg-secondary-hover"
             >
               Save
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
       </form>
     </div>

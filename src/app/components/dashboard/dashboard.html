@@ -26,13 +26,13 @@
       <app-account-settings></app-account-settings>
 
       } @case ("create") {
-      <app-create-group
+      <app-group-form
         [all_users]="all_users"
         [current_group]="current_group"
         [channels]="channels"
         [create_new]="create_new_group"
         (reloadGroups)="reloadGroups($event)"
-      ></app-create-group>
+      ></app-group-form>
 
       } @case ("users") {
       <app-user-manager [all_users]="all_users"></app-user-manager>
@@ -57,14 +57,14 @@
         </section>
       </div>
       } @else {
-      <app-create-group
+      <app-group-form
         [all_users]="all_users"
         [current_group]="current_group"
         [channels]="channels"
         [create_new]="create_new_group"
         (reloadGroups)="reloadGroups($event)"
         (closeEdit)="closeGroupEdit($event)"
-      ></app-create-group>
+      ></app-group-form>
       } } }
     </main>
 

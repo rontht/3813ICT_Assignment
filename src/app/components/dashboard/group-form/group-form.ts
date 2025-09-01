@@ -7,13 +7,13 @@ import { GroupService } from '../../../services/group.service';
 import { Group } from '../../../models/group';
 
 @Component({
-  selector: 'app-create-group',
+  selector: 'app-group-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './create-group.html',
-  styleUrl: './create-group.css'
+  templateUrl: './group-form.html',
+  styleUrl: './group-form.css'
 })
-export class CreateGroup implements OnChanges {
+export class GroupForm implements OnChanges {
   private groupService = inject(GroupService);
 
   @Input() current_group: Group | null = null;
@@ -34,6 +34,7 @@ export class CreateGroup implements OnChanges {
   opened_channel: string | null = null;
   show_add_channel_menu = false;
   new_channel_name = '';
+  select_tab: number = 1;
 
   // solution for async issues
   ngOnChanges(changes: SimpleChanges): void {
@@ -85,6 +86,11 @@ export class CreateGroup implements OnChanges {
   toggleAddChannel(ev: Event) {
     ev.stopPropagation();
     this.show_add_channel_menu = !this.show_add_channel_menu;
+  }
+
+  changeTab(id: number) {
+    console.log(id);
+    this.select_tab = id;
   }
 
   confirmAddChannel() {
