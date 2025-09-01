@@ -24,7 +24,7 @@ export class GroupService {
   }
 
   getChannels(group_id: any) {
-    return this.httpService.get<any[]>(
+    return this.httpService.get<Channel[]>(
       `${this.server}/groups/${group_id}/channels`,
       {
         headers: this.attachHeader(),
@@ -53,6 +53,15 @@ export class GroupService {
   getBanned(channel_id: any) {
     return this.httpService.get<any[]>(
       `${this.server}/channels/${channel_id}/banned`,
+      {
+        headers: this.attachHeader(),
+      }
+    );
+  }
+
+  getChannelMembers(channel_id: any) {
+    return this.httpService.get<any[]>(
+      `${this.server}/channels/${channel_id}/members`,
       {
         headers: this.attachHeader(),
       }
@@ -91,6 +100,13 @@ export class GroupService {
     return this.httpService.post<Channel>(
       `${this.server}/channel/${group_id}`,
       { name },
+      { headers: this.attachHeader() }
+    );
+  }
+
+  deleteChannel(id: string) {
+    return this.httpService.delete<Channel>(
+      `${this.server}/channel/${id}`,
       { headers: this.attachHeader() }
     );
   }

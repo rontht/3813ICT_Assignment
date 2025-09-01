@@ -2,7 +2,7 @@
   <aside class="w-[300px] flex flex-col h-full">
     <div class="text-xs">Group Name:</div>
 
-    <div class="text-xl mb-5 pb-5 border-b-2 border-white/10">
+    <div class="text-xl mb-3 pb-5 border-b-2 border-white/10">
       {{ group_name }}
     </div>
 
@@ -11,51 +11,56 @@
     } @else {
     <h2 class="text-md text-white mb-3">Editing Channels</h2>
     }
-    <nav class="space-y-4 flex-1 overflow-y-auto pr-1">
+    <nav
+      [ngClass]="{
+        'max-h-[40vh]': !create_new
+      }"
+      class="space-y-4 flex-1 overflow-y-auto hide-scrollbar pr-1"
+    >
       <div *ngFor="let channel of current_channels" class="relative">
-        <button
-          type="button"
-          class="bg-secondary block w-full text-left px-4 py-4.5 rounded-xl shadow-xl hover:bg-secondary-hover"
+        <div
+          class="bg-secondary block w-full text-left px-4 py-4.5 rounded-xl shadow-xl"
         >
           <div class="w-full flex justify-between items-center">
             <p class="truncate"># {{ channel.name }}</p>
-
-            <!-- Kebab/dropdown trigger: NOT a nested button inside another button -->
-            @if (channel.id != undefined) {
-            <span
-              role="button"
-              tabindex="0"
-              class="px-2 py-1 rounded hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed"
-              (click)="toggleMenu(channel.id, $event)"
-              (keydown.enter)="toggleMenu(channel.id, $event)"
-              aria-haspopup="menu"
-              [attr.aria-expanded]="opened_channel === channel.id"
-              title="Actions"
+            <button
+              type="button"
+              class="text-center flex items-center px-3 py-2 rounded hover:bg-white/10"
+              (click)="moveToDelete(channel)"
             >
-              <img src="/icons/dropdown.png" alt="menu open" width="20" />
-            </span>
-            }
+              <span class="text-xs">Delete</span>
+            </button>
           </div>
-        </button>
-
-        <!-- Dropdown menu: only render when open; stop propagation so clicks inside don't close it -->
-        @if (opened_channel === channel.id) {
-        <div
-          class="absolute right-2 top-12 z-10 w-40 rounded-xl border border-white/20 bg-main/95 shadow-2xl p-1"
-          (click)="$event.stopPropagation()"
-        >
-          <button
-            type="button"
-            class="w-full text-left flex items-center px-3 py-2 rounded hover:bg-white/10"
-            (click)="deleteChannel(channel)"
-          >
-            <img src="/icons/ban.png" alt="" class="w-[15px] h-[15px]" />
-            <span class="ml-3 text-xs">Delete</span>
-          </button>
         </div>
-        }
       </div>
     </nav>
+
+    <!-- Channels to be deleted -->
+    @if (!create_new) {
+    <h2 class="text-md text-white mb-3 mt-3 pt-3 border-t-2 border-white/10">
+      Channels to be delete
+    </h2>
+    <nav
+      class="space-y-4 flex-1 max-h-[25vh] overflow-y-auto hide-scrollbar pr-1"
+    >
+      <div *ngFor="let channel of channels_to_delete" class="relative">
+        <div
+          class="bg-secondary block w-full text-left px-4 py-4.5 rounded-xl shadow-xl"
+        >
+          <div class="w-full flex justify-between items-center">
+            <p class="truncate"># {{ channel.name }}</p>
+            <button
+              type="button"
+              class="text-center flex items-center px-3 py-2 rounded hover:bg-white/10"
+              (click)="removeFromDelete(channel)"
+            >
+              <span class="text-xs">Remove</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+    }
 
     <div class="pt-4 mt-4 border-t-2 border-white/10 relative">
       <!-- Add new channel trigger -->
@@ -185,10 +190,10 @@
             } @else {
             <p class="text-gray-300 p-4">No users found.</p>
 
-            } } @case (2) { @if (old_user_array.length > 0) {
+            } } @case (2) { @if (requested_array.length > 0) {
             <div class="space-y-3 overflow-auto w-[365px] h-[56vh] m-auto">
               <div
-                *ngFor="let u of old_user_array"
+                *ngFor="let u of requested_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
               >
                 <div>
@@ -204,7 +209,7 @@
                   <button
                     type="button"
                     class="px-2 py-1 w-[100px] bg-green-800 rounded"
-                    (click)="addMember(u)"
+                    (click)="approveMember(u)"
                   >
                     Approve
                   </button>
@@ -260,13 +265,22 @@
 
         <!-- Save -->
         <div class="w-full flex">
+          @if(create_new) {
           <div class="w-full flex justify-center">
             <button
-              type="reset"
-              disabled
+              type="submit"
               class="w-2xs py-3 rounded-lg text-white bg-main border border-gray-300 hover:shadow-lg hover:bg-secondary-hover"
             >
-              Reset
+              Create
+            </button>
+          </div>
+          } @else {
+          <div class="w-full flex justify-center">
+            <button
+              type="submit"
+              class="w-2xs py-3 rounded-lg text-white bg-red-900 border border-gray-300 hover:shadow-lg hover:bg-red-800"
+            >
+              Delete Group
             </button>
           </div>
           <div class="w-full flex justify-center">
@@ -274,9 +288,10 @@
               type="submit"
               class="w-2xs py-3 rounded-lg text-white bg-main border border-gray-300 hover:shadow-lg hover:bg-secondary-hover"
             >
-              Save
+              Save Changes
             </button>
           </div>
+          }
         </div>
       </form>
     </div>

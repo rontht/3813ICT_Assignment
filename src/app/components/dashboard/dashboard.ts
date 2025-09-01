@@ -126,34 +126,6 @@ export class Dashboard {
     this.current_group = group;
     const group_id = group.id;
 
-    // get members from that group
-    this.groupService.getMembers(group_id).subscribe({
-      next: (me) => {
-        // in case of mismatch during async
-        if (this.current_group?.id !== group_id) return;
-        this.members = me;
-        if (!this.members.length) return;
-        this.current_group!.members = this.members;
-      },
-      error: (e) => {
-        console.log('openGroup Member Error: ', e);
-      },
-    });
-
-    // get requests from that group
-    this.groupService.getRequests(group_id).subscribe({
-      next: (re) => {
-        // in case of mismatch during async
-        if (this.current_group?.id !== group_id) return;
-        this.requests = re;
-        if (!this.requests.length) return;
-        this.current_group!.requests = this.requests;
-      },
-      error: (e) => {
-        console.log('openGroup Request Error: ', e);
-      },
-    });
-
     // find the channels of that group and default open first channel
     this.groupService.getChannels(group_id).subscribe({
       next: (cs) => {
@@ -162,26 +134,11 @@ export class Dashboard {
         this.channels = cs;
         if (!this.channels.length) return;
         this.current_channel = this.channels[0];
-        
-        // find the banned users of that channel
-        this.groupService.getBanned(this.current_channel.id).subscribe({
-          next: (bn) => {
-            // in case of mismatch during async
-            if (this.current_channel?.group_id !== group_id) return;
-            this.banned_users = bn;
-            if (!this.banned_users.length) return;
-            this.current_channel!.banned_users = this.banned_users;
-          },
-          error: (e) => {
-            console.log('openGroup Request Error: ', e);
-          },
-        });
       },
       error: (e) => {
         console.log('openGroup Channel Error: ', e);
       },
     });
-
   }
 
   // open a channel

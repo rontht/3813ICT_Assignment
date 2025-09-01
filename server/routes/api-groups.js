@@ -8,6 +8,7 @@ module.exports = {
     const { readJson, writeJson } = require("../db-manager.js");
     const user_path = "../data/user.json";
     const group_path = "../data/group.json";
+    const channel_path = "../data/channel.json";
     const Group = require("../models/group.js");
 
     function attachUser(req, res, next) {
@@ -51,21 +52,23 @@ module.exports = {
     // list all groups for searching
     app.get("/api/search/groups", attachUser, (req, res) => {
       const groups = readJson(group_path) ?? [];
+      const channels = readJson(channel_path) ?? [];
       const user = req.user;
       if (!user) return res.status(401).json({ error: "No user found" });
 
-      const raw_groups = groups;
-
       // only send necessary group info
-      const mapped_groups = raw_groups.map((group) => ({
-        id: group.id,
-        name: group.name,
-        creator: group.creator,
-        isAdmin: group.creator === user.username,
-        isMember: group.members.includes(user.username),
-        channelCount: group.channels.length,
-        memberCount: group.members.length,
-      }));
+      const mapped_groups = groups.map((group) => {
+        const groupChannels = channels.filter((c) => c.group_id === group.id);
+        return {
+          id: group.id,
+          name: group.name,
+          creator: group.creator,
+          isAdmin: group.creator === user.username,
+          isMember: group.members.includes(user.username),
+          channelCount: groupChannels.length,
+          memberCount: group.members.length,
+        };
+      });
 
       return res.json(mapped_groups);
     });
@@ -79,7 +82,7 @@ module.exports = {
         return res.status(404).json({ error: "Not allowed to create groups" });
       }
 
-      const { name, members = [], channels = [] } = req.body || {};
+      const { name, members = [], requests = [] } = req.body || {};
       if (!name) return res.status(404).json({ error: "Group name required" });
 
       let group_id;
@@ -92,13 +95,7 @@ module.exports = {
         group_id = "g001";
       }
 
-      const new_group = new Group(
-        group_id,
-        name,
-        user.username,
-        members,
-        channels
-      );
+      const new_group = new Group(group_id, name, user.username, members, requests);
 
       groups.push(new_group);
       writeJson(group_path, groups);
@@ -117,7 +114,7 @@ module.exports = {
         return res.status(404).json({ error: "Group not found" });
 
       const original_group = groups[original_id];
-      
+
       // only creators and super admin can edit
       if (
         user.role === "group-admin" &&
@@ -128,14 +125,14 @@ module.exports = {
           .json({ error: "Not allowed to edit this group" });
       }
 
-      const { name, members, channels } = req.body || {};
+      const { name, members, requests } = req.body || {};
 
       const updated_group = new Group(
         original_group.id,
         name,
         original_group.creator,
         members,
-        channels
+        requests
       );
 
       groups[original_id] = updated_group;

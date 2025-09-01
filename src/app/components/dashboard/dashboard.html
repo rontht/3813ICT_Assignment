@@ -43,6 +43,7 @@
       } @default { @if (!show_group_settings) {
       <div class="flex h-full">
         <app-channelbar
+          [user]="user"
           [channels]="channels"
           [current_channel]="current_channel"
           [current_group]="current_group"
@@ -68,16 +69,7 @@
       } } }
     </main>
 
-    <app-memberbar
-      [current_group]="current_group"
-      [current_channel]="current_channel"
-      [can_manage_group]="canManageGroup()"
-      (banMember)="banMember($event)"
-      (kickMember)="kickMember($event)"
-      (unbanMember)="unbanMember($event)"
-      (approveMember)="approveMember($event)"
-    >
-    </app-memberbar>
+    <app-memberbar [channel]="current_channel"> </app-memberbar>
     } @else {
     <main
       class="max-w-[81.2vw] flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl"

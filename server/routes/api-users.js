@@ -13,7 +13,7 @@ module.exports = {
 
     function attachUser(req, res, next) {
       const users = readJson(user_path) ?? [];
-      
+
       // get id from header
       const username = req.header("username");
 
@@ -137,6 +137,46 @@ module.exports = {
         }));
 
       return res.json(banned_users);
+    });
+
+    // list channel users api call for specific channel
+    app.get("/api/channels/:channel_id/members", attachUser, (req, res) => {
+      const channels = readJson(channel_path) ?? [];
+      const groups = readJson(group_path) ?? [];
+      const users = readJson(user_path) ?? [];
+      const { channel_id } = req.params;
+
+      // find the channel
+      const channel = channels.find((g) => g.id === channel_id);
+      if (!channel) {
+        return res.status(404).json({ error: "Channel not found in database" });
+      }
+
+      // find the group
+      const group = groups.find((g) => g.id === channel.group_id);
+      if (!group) {
+        return res.status(404).json({ error: "Group not found in database" });
+      }
+
+      // check for permission
+      const user = req.user;
+      const isSuper = user.role === "super-admin";
+      const isMember = group.members.includes(user.username);
+      if (!isSuper && !isMember) {
+        return res.status(404).json({ error: "No permission" });
+      }
+
+      // don't sent all info of users
+      // send only what's necessary
+      const channel_users = channel.channel_users
+        .map((username) => users.find((user) => user.username === username))
+        .map((user) => ({
+          username: user.username,
+          name: user.name,
+          role: user.role,
+        }));
+
+      return res.json(channel_users);
     });
 
     // list all users for super admins

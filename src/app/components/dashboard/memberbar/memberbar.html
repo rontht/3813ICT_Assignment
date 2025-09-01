@@ -1,10 +1,10 @@
 <aside class="w-[250px] h-full m-4 overflow-auto hide-scrollbar">
-  @if (current_group != null) {
+  @if (current_channel != null) {
   <h2 class="text-lg text-white pb-3 border-t-2">Members</h2>
 
   <div class="space-y-4 mb-5">
     <div
-      *ngFor="let member of current_group?.members"
+      *ngFor="let member of channel_users"
       class="relative flex p-3 bg-main/90 px-4 rounded-xl shadow-xl"
     >
       <!-- Placeholder Avatar -->
@@ -26,48 +26,6 @@
         </p>
         <p class="text-sm">{{ member.role }}</p>
       </div>
-
-      <!-- Menu Button -->
-      @if (can_manage_group) {
-      <button
-        class="px-2 py-1 rounded hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed"
-        (click)="toggleManageMenu(member.username, $event)"
-        [disabled]="!can_manage_group"
-        aria-haspopup="menu"
-        [attr.aria-expanded]="
-          can_manage_group && manage_user_opened === member.username
-        "
-        title="Actions"
-      >
-        <img src="/icons/dropdown.png" alt="menu open" width="20px" />
-      </button>
-      }
-
-      <!-- Dropdown menu -->
-      @if (can_manage_group && manage_user_opened === member.username) {
-      <div
-        class="absolute right-2 top-12 z-10 w-30 rounded-xl border border-white/20 bg-main/95 shadow-2xl p-1"
-      >
-        <button
-          class="w-full text-left flex px-3 py-2 rounded bg-yellow-700 hover:bg-yellow-700/50"
-          (click)="onBan(member)"
-        >
-          <img src="/icons/ban.png" alt="menu open" class="w-[15px] h-[15px]" />
-          <span class="ml-3 text-xs">Ban</span>
-        </button>
-        <button
-          class="w-full text-left flex px-3 py-2 rounded bg-red-900 hover:bg-red-900/50"
-          (click)="onKick(member)"
-        >
-          <img
-            src="/icons/kick.png"
-            alt="menu open"
-            class="w-[15px] h-[15px]"
-          />
-          <span class="ml-3 text-xs">Kick</span>
-        </button>
-      </div>
-      }
     </div>
   </div>
 
@@ -75,7 +33,7 @@
   <h2 class="text-lg text-white pb-3 border-t-2">Banned Members</h2>
   <div class="space-y-4 mb-5">
     <div
-      *ngFor="let me of current_channel?.banned_users"
+      *ngFor="let me of banned_users"
       class="relative flex p-3 bg-main/90 px-4 rounded-xl shadow-xl"
     >
       <!-- Placeholder Avatar -->
@@ -97,107 +55,8 @@
         </p>
         <p class="text-sm">{{ me.role }}</p>
       </div>
-
-      <!-- Menu Button -->
-      @if (can_manage_group) {
-      <button
-        class="px-2 py-1 rounded hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed"
-        (click)="toggleBannedMenu(me.username, $event)"
-        [disabled]="!can_manage_group"
-        aria-haspopup="menu"
-        [attr.aria-expanded]="can_manage_group && banned_user_opened === me.username"
-        title="Actions"
-      >
-        <img src="/icons/dropdown.png" alt="menu open" width="20px" />
-      </button>
-      }
-
-      <!-- Dropdown menu -->
-      @if (can_manage_group && banned_user_opened === me.username) {
-      <div
-        class="absolute right-2 top-12 z-10 w-30 rounded-xl border border-white/20 bg-main/95 shadow-2xl p-1"
-      >
-        <button
-          class="w-full text-left flex px-3 py-2 rounded bg-green-900 hover:bg-green-900/50"
-          (click)="onUnban(me)"
-        >
-          <img src="/icons/ban.png" alt="menu open" class="w-[15px] h-[15px]" />
-          <span class="ml-3 text-xs">Unban</span>
-        </button>
-        <button
-          class="w-full text-left flex px-3 py-2 rounded bg-red-900 hover:bg-red-900/50"
-          (click)="onKick(me)"
-        >
-          <img
-            src="/icons/kick.png"
-            alt="menu open"
-            class="w-[15px] h-[15px]"
-          />
-          <span class="ml-3 text-xs">Kick</span>
-        </button>
-      </div>
-      }
     </div>
   </div>
-
-  <!-- Join requests -->
-  <h2 class="text-lg text-white pb-3 border-t-2">Join Requests</h2>
-  <div class="space-y-4 mb-10">
-    <div
-      *ngFor="let me of current_group?.requests"
-      class="relative flex p-3 bg-main/90 px-4 rounded-xl shadow-xl"
-    >
-      <!-- Placeholder Avatar -->
-      <div
-        class="w-12 h-12 bg-white rounded-full flex items-center justify-center"
-      >
-        <span
-          class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
-        >
-          {{ placeholderAvatar(me) }}
-        </span>
-      </div>
-
-      <!-- Name and Role -->
-      <div class="pl-3 flex-1">
-        <p class="text-md">
-          {{ me.name }},
-          <span class="text-xs opacity-50">{{ me.username }}</span>
-        </p>
-        <p class="text-sm">{{ me.role }}</p>
-      </div>
-
-      <!-- Menu Button -->
-      @if (can_manage_group) {
-      <button
-        class="px-2 py-1 rounded hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed"
-        (click)="toggleRequestMenu(me.username, $event)"
-        [disabled]="!can_manage_group"
-        aria-haspopup="menu"
-        [attr.aria-expanded]="can_manage_group && requested_user_opened === me.username"
-        title="Actions"
-      >
-        <img src="/icons/dropdown.png" alt="menu open" width="20px" />
-      </button>
-      }
-
-      <!-- Dropdown menu -->
-      @if (can_manage_group && requested_user_opened === me.username) {
-      <div
-        class="absolute right-2 top-12 z-10 w-30 rounded-xl border border-white/20 bg-main/95 shadow-2xl p-1"
-      >
-        <button
-          class="w-full text-left flex px-3 py-2 rounded bg-green-900 hover:bg-green-900/50"
-          (click)="onApprove(me)"
-        >
-          <img src="/icons/ban.png" alt="menu open" class="w-[15px] h-[15px]" />
-          <span class="ml-3 text-xs">Approve</span>
-        </button>
-      </div>
-      }
-    </div>
-  </div>
-
   <!-- If no member, show logo -->
   } @else {
   <div class="w-full h-full flex items-center justify-center">

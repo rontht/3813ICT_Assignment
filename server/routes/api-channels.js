@@ -54,6 +54,7 @@ module.exports = {
       return res.json(groupChannels);
     });
 
+    // create channel
     app.post("/api/channel/:id", attachUser, (req, res) => {
       const channels = readJson(channel_path) ?? [];
 
@@ -85,6 +86,44 @@ module.exports = {
       channels.push(new_channel);
       writeJson(channel_path, channels);
       return res.json(new_channel);
+    });
+
+    // delete channel
+    app.delete("/api/channel/:id", attachUser, (req, res) => {
+      const channels = readJson(channel_path) ?? [];
+      const groups = readJson(group_path) ?? [];
+
+      const { id: channel_id } = req.params;
+      if (!channel_id)
+        return res.status(404).json({ error: "Channel id required" });
+
+      const channelIndex = channels.findIndex((c) => c && c.id === channel_id);
+      if (channelIndex === -1)
+        return res.status(404).json({ error: "Channel not found" });
+
+      const channel = channels[channelIndex];
+
+      // check permission
+      const user = req.user;
+      if (user.role !== "super-admin" && user.role !== "group-admin") {
+        return res
+          .status(404)
+          .json({ error: "Not allowed to delete channels" });
+      }
+      const group = groups.find((g) => g && g.id === channel.group_id);
+      if (!group)
+        return res
+          .status(404)
+          .json({ error: "group not found while deleting channel" });
+      if (group.creator !== user.username) {
+        return res
+          .status(404)
+          .json({ error: "not allowed to delete channel from this group" });
+      }
+
+      channels.splice(channelIndex, 1);
+      writeJson(channel_path, channels);
+      return res.json();
     });
   },
 };
