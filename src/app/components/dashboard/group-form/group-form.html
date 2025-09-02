@@ -276,12 +276,14 @@
           </div>
           } @else {
           <div class="w-full flex justify-center">
-            <button
-              type="submit"
-              class="w-2xs py-3 rounded-lg text-white bg-red-900 border border-gray-300 hover:shadow-lg hover:bg-red-800"
-            >
-              Delete Group
-            </button>
+            @if (current_group) {
+              <button
+                type="button" (click)="deleteGroup(current_group)"
+                class="w-2xs py-3 rounded-lg text-white bg-red-900 border border-gray-300 hover:shadow-lg hover:bg-red-800"
+              >
+                Delete Group
+              </button>
+            }
           </div>
           <div class="w-full flex justify-center">
             <button

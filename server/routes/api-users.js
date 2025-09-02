@@ -22,13 +22,13 @@ module.exports = {
       const username = req.header("username");
 
       if (!username) {
-        return res.status(404).json({ error: "User not found in header." });
+        return res.status(404).json({ error: "api-user.js: User not found in header." });
       }
 
       // find user
       const user = users.find((u) => u.username === username) || null;
       if (!user) {
-        return res.status(404).json({ error: "User not found in database." });
+        return res.status(404).json({ error: "api-user.js: User not found in database." });
       }
 
       // attach it to request
@@ -46,7 +46,7 @@ module.exports = {
       // find the group
       const group = groups.find((g) => g.id === group_id);
       if (!group) {
-        return res.status(404).json({ error: "Group not found in database" });
+        return res.status(404).json({ error: "GET/api/groups/:group_id/members = Group not found in database" });
       }
 
       // check for permission
@@ -54,7 +54,7 @@ module.exports = {
       const isSuper = user.role === "super-admin";
       const isMember = group.members.includes(user.username);
       if (!isSuper && !isMember) {
-        return res.status(404).json({ error: "No permission" });
+        return res.status(404).json({ error: "GET/api/groups/:group_id/members = No permission" });
       }
 
       // don't sent all info of users
@@ -79,7 +79,7 @@ module.exports = {
       // find the group
       const group = groups.find((g) => g.id === group_id);
       if (!group) {
-        return res.status(404).json({ error: "Group not found in database" });
+        return res.status(404).json({ error: "GET/api/groups/:group_id/requests = Group not found in database" });
       }
 
       // check for permission
@@ -87,7 +87,7 @@ module.exports = {
       const isSuper = user.role === "super-admin";
       const isMember = group.members.includes(user.username);
       if (!isSuper && !isMember) {
-        return res.status(404).json({ error: "No permission" });
+        return res.status(404).json({ error: "GET/api/groups/:group_id/requests = No permission" });
       }
 
       // don't sent all info of users
@@ -113,13 +113,13 @@ module.exports = {
       // find the channel
       const channel = channels.find((g) => g.id === channel_id);
       if (!channel) {
-        return res.status(404).json({ error: "Channel not found in database" });
+        return res.status(404).json({ error: "GET/api/channels/:channel_id/banned = Channel not found in database" });
       }
 
       // find the group
       const group = groups.find((g) => g.id === channel.group_id);
       if (!group) {
-        return res.status(404).json({ error: "Group not found in database" });
+        return res.status(404).json({ error: "GET/api/channels/:channel_id/banned = Group not found in database" });
       }
 
       // check for permission
@@ -127,7 +127,7 @@ module.exports = {
       const isSuper = user.role === "super-admin";
       const isMember = group.members.includes(user.username);
       if (!isSuper && !isMember) {
-        return res.status(404).json({ error: "No permission" });
+        return res.status(404).json({ error: "GET/api/channels/:channel_id/banned = No permission" });
       }
 
       // don't sent all info of users
@@ -153,13 +153,13 @@ module.exports = {
       // find the channel
       const channel = channels.find((g) => g.id === channel_id);
       if (!channel) {
-        return res.status(404).json({ error: "Channel not found in database" });
+        return res.status(404).json({ error: "GET/api/channels/:channel_id/members = Channel not found in database" });
       }
 
       // find the group
       const group = groups.find((g) => g.id === channel.group_id);
       if (!group) {
-        return res.status(404).json({ error: "Group not found in database" });
+        return res.status(404).json({ error: "GET/api/channels/:channel_id/members = Group not found in database" });
       }
 
       // check for permission
@@ -167,7 +167,7 @@ module.exports = {
       const isSuper = user.role === "super-admin";
       const isMember = group.members.includes(user.username);
       if (!isSuper && !isMember) {
-        return res.status(404).json({ error: "No permission" });
+        return res.status(404).json({ error: "GET/api/channels/:channel_id/members = No permission" });
       }
 
       // don't sent all info of users
@@ -187,9 +187,9 @@ module.exports = {
     app.get("/api/users", attachUser, (req, res) => {
       const users = readJson(user_path) ?? [];
       const user = req.user;
-      if (!user) return res.status(401).json({ error: "Unauthorized" });
+      if (!user) return res.status(401).json({ error: "GET/api/users = not auth" });
       if (user.role !== "super-admin")
-        return res.status(403).json({ error: "Forbidden" });
+        return res.status(403).json({ error: "GET/api/users = not permission" });
 
       return res.json(
         users.map((user) => ({
@@ -207,7 +207,7 @@ module.exports = {
       attachUser,
       (req, res) => {
         const user = req.user;
-        if (!user) return res.status(401).json({ error: "No user" });
+        if (!user) return res.status(401).json({ error: "DELETE/api/channel/:channel_id/members/:username = No user" });
 
         const channels = readJson(channel_path) ?? [];
         const groups = readJson(group_path) ?? [];
@@ -215,26 +215,26 @@ module.exports = {
         const channel_id = req.params.channel_id;
         const username = req.params.username;
         if (!channel_id || !username)
-          return res.status(404).json({ error: "Bad parameters" });
+          return res.status(404).json({ error: "DELETE/api/channel/:channel_id/members/:username = Bad parameters" });
 
         // find the channel
         const channel = channels.find((g) => g.id === channel_id);
         if (!channel) {
           return res
             .status(404)
-            .json({ error: "Channel not found in database" });
+            .json({ error: "DELETE/api/channel/:channel_id/members/:username = Channel not found in database" });
         }
 
         // check permission
         const group = groups.find((g) => g.id === channel.group_id);
         if (!group) {
-          return res.status(404).json({ error: "Group not found in database" });
+          return res.status(404).json({ error: "DELETE/api/channel/:channel_id/members/:username = Group not found in database" });
         }
         // only creators and super admin can edit
         if (user.role === "group-admin" && group.creator !== user.username) {
           return res
             .status(404)
-            .json({ error: "Not allowed to edit this group" });
+            .json({ error: "DELETE/api/channel/:channel_id/members/:username = Not allowed to edit this group" });
         }
 
         // remove user from channel_users
@@ -257,7 +257,7 @@ module.exports = {
       attachUser,
       (req, res) => {
         const user = req.user;
-        if (!user) return res.status(401).json({ error: "No user" });
+        if (!user) return res.status(401).json({ error: "PUT/api/channel/:channel_id/bans/:username = No user" });
 
         const channels = readJson(channel_path) ?? [];
         const groups = readJson(group_path) ?? [];
@@ -265,26 +265,26 @@ module.exports = {
         const channel_id = req.params.channel_id;
         const username = req.params.username;
         if (!channel_id || !username)
-          return res.status(404).json({ error: "Bad parameters" });
+          return res.status(404).json({ error: "PUT/api/channel/:channel_id/bans/:username = Bad parameters" });
 
         // find the channel
         const channel = channels.find((g) => g.id === channel_id);
         if (!channel) {
           return res
             .status(404)
-            .json({ error: "Channel not found in database" });
+            .json({ error: "PUT/api/channel/:channel_id/bans/:username = Channel not found in database" });
         }
 
         // check permission
         const group = groups.find((g) => g.id === channel.group_id);
         if (!group) {
-          return res.status(404).json({ error: "Group not found in database" });
+          return res.status(404).json({ error: "PUT/api/channel/:channel_id/bans/:username = Group not found in database" });
         }
         // only creators and super admin can edit
         if (user.role === "group-admin" && group.creator !== user.username) {
           return res
             .status(404)
-            .json({ error: "Not allowed to edit this group" });
+            .json({ error: "PUT/api/channel/:channel_id/bans/:username = Not allowed to edit this group" });
         }
 
         // ensure username is a group member
@@ -296,7 +296,7 @@ module.exports = {
             break;
           }
         if (!is_group_member)
-          return res.status(409).json({ error: "User not in group" });
+          return res.status(409).json({ error: "PUT/api/channel/:channel_id/bans/:username = User not in group" });
 
         // remove from channel_users if present
         channel.channel_users = channel.channel_users || [];
@@ -329,7 +329,7 @@ module.exports = {
       attachUser,
       (req, res) => {
         const user = req.user;
-        if (!user) return res.status(401).json({ error: "No user" });
+        if (!user) return res.status(401).json({ error: "PUT/api/channel/:channel_id/members/:username = No user" });
 
         const channels = readJson(channel_path) ?? [];
         const groups = readJson(group_path) ?? [];
@@ -337,26 +337,26 @@ module.exports = {
         const channel_id = req.params.channel_id;
         const username = req.params.username;
         if (!channel_id || !username)
-          return res.status(404).json({ error: "bad parameters" });
+          return res.status(404).json({ error: "PUT/api/channel/:channel_id/members/:username = bad parameters" });
 
         // find the channel
         const channel = channels.find((g) => g.id === channel_id);
         if (!channel) {
           return res
             .status(404)
-            .json({ error: "Channel not found in database" });
+            .json({ error: "PUT/api/channel/:channel_id/members/:username = Channel not found in database" });
         }
 
         // check permission
         const group = groups.find((g) => g.id === channel.group_id);
         if (!group) {
-          return res.status(404).json({ error: "Group not found in database" });
+          return res.status(404).json({ error: "PUT/api/channel/:channel_id/members/:username = Group not found in database" });
         }
         // only creators and super admin can edit
         if (user.role === "group-admin" && group.creator !== user.username) {
           return res
             .status(404)
-            .json({ error: "Not allowed to edit this group" });
+            .json({ error: "PUT/api/channel/:channel_id/members/:username = Not allowed to edit this group" });
         }
 
         // must be a group member to join channel
@@ -368,7 +368,7 @@ module.exports = {
             break;
           }
         if (!is_group_member)
-          return res.status(409).json({ error: "User not in group" });
+          return res.status(409).json({ error: "PUT/api/channel/:channel_id/members/:username = User not in group" });
 
         // remove from banned_users if present
         channel.banned_users = channel.banned_users || [];

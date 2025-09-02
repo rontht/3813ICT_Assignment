@@ -64,7 +64,7 @@ export class Memberbar implements OnChanges {
             this.available_users = backet_3;
           },
           error: (e) => {
-            console.log('openGroup Member Error: ', e);
+            console.log('member bar Error: ', e);
           },
         });
       }

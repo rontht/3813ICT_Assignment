@@ -302,7 +302,7 @@ export class GroupForm implements OnChanges {
           this.reloadGroups.emit(created_group);
         },
         error: (e) => {
-          this.error = e?.error?.error || e.message || 'Failed to create group';
+          console.log('Failed to create a group', e);
         },
       });
     } else {
@@ -335,7 +335,7 @@ export class GroupForm implements OnChanges {
           this.reloadGroups.emit(edited_group);
         },
         error: (e) => {
-          this.error = e?.error?.error || e.message || 'Failed to edit a group';
+          console.log('Failed to edit a group', e);
         },
       });
     }
@@ -347,5 +347,15 @@ export class GroupForm implements OnChanges {
     } else {
       console.log("Something happened");
     }
+  }
+
+  deleteGroup(group: Group) {
+    if (group.id === undefined) return;
+    this.groupService.deleteGroup(group.id).subscribe({
+      next: () => {},
+      error: (e) => {
+        console.log('Failed to delete a group', e);
+      },
+    })
   }
 }

@@ -277,18 +277,4 @@ export class Dashboard {
     this.show_group_settings = false;
     this.openGroup(group);
   }
-
-  // group member management
-  banMember(member: Member) {
-    console.log("Banned ", member.username);
-  }
-  kickMember(member: Member) {
-    console.log("Kicked ", member.username);
-  }
-  unbanMember(member: Member) {
-    console.log("unbanned ", member.username);
-  }
-  approveMember(member: Member) {
-    console.log("approve ", member.username);
-  }
 }

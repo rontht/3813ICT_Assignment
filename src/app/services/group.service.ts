@@ -133,4 +133,11 @@ export class GroupService {
       { headers: this.attachHeader() }
     )
   }
+
+  deleteGroup(id: string) {
+    return this.httpService.delete<Group>(
+      `${this.server}/group/${id}`,
+      { headers: this.attachHeader() }
+    );
+  }
 }

@@ -2,6 +2,8 @@
   GET /api/groups
   GET /api/search/groups
   POST /api/group/create
+  PUT /api/group/:id
+  DELETE /api/group/:id
 */
 module.exports = {
   route: async (app) => {
@@ -17,13 +19,17 @@ module.exports = {
       const username = req.header("username");
 
       if (!username) {
-        return res.status(404).json({ error: "User not found in header." });
+        return res
+          .status(404)
+          .json({ error: "api-group.js: User not found in header." });
       }
 
       // find user
       const user = users.find((u) => u.username === username) || null;
       if (!user) {
-        return res.status(404).json({ error: "User not found in database." });
+        return res
+          .status(404)
+          .json({ error: "api-group.js:User not found in database." });
       }
 
       // attach it to request
@@ -32,7 +38,7 @@ module.exports = {
     }
 
     // ____________ GROUPS ____________
-    // list groups api call
+    // get all groups for super
     app.get("/api/groups", attachUser, (req, res) => {
       const groups = readJson(group_path) ?? [];
       // check for permission. if super, get all group
@@ -54,7 +60,10 @@ module.exports = {
       const groups = readJson(group_path) ?? [];
       const channels = readJson(channel_path) ?? [];
       const user = req.user;
-      if (!user) return res.status(401).json({ error: "No user found" });
+      if (!user)
+        return res
+          .status(401)
+          .json({ error: "GET/api/search/groups/ = No user found" });
 
       // only send necessary group info
       const mapped_groups = groups.map((group) => {
@@ -79,11 +88,16 @@ module.exports = {
 
       const user = req.user;
       if (user.role !== "super-admin" && user.role !== "group-admin") {
-        return res.status(404).json({ error: "Not allowed to create groups" });
+        return res
+          .status(404)
+          .json({ error: "POST/api/group/ = Not allowed to create groups" });
       }
 
       const { name, members = [], requests = [] } = req.body || {};
-      if (!name) return res.status(404).json({ error: "Group name required" });
+      if (!name)
+        return res
+          .status(404)
+          .json({ error: "POST/api/group/ = Group name required" });
 
       let group_id;
       if (groups.length > 0) {
@@ -95,42 +109,48 @@ module.exports = {
         group_id = "g001";
       }
 
-      const new_group = new Group(group_id, name, user.username, members, requests);
+      const new_group = new Group(
+        group_id,
+        name,
+        user.username,
+        members,
+        requests
+      );
 
       groups.push(new_group);
       writeJson(group_path, groups);
       return res.json(new_group);
     });
 
-    // edit (full replace) a group
+    // edit a group
     app.put("/api/group/:id", attachUser, (req, res) => {
       const user = req.user;
 
       const groups = readJson(group_path) ?? [];
       const { id } = req.params;
 
-      const original_id = groups.findIndex((g) => g.id === id);
-      if (original_id === -1)
-        return res.status(404).json({ error: "Group not found" });
-
-      const original_group = groups[original_id];
-
-      // only creators and super admin can edit
-      if (
-        user.role === "group-admin" &&
-        original_group.creator !== user.username
-      ) {
+      const group = groups.find((g) => g.id === id);
+      if (!group) {
         return res
           .status(404)
-          .json({ error: "Not allowed to edit this group" });
+          .json({ error: "PUT/api/group/:id = Group not found in database" });
+      }
+
+      // only creators and super admin can edit
+      if (user.role === "group-admin" && group.creator !== user.username) {
+        return res
+          .status(404)
+          .json({
+            error: "PUT/api/group/:id = Not allowed to edit this group",
+          });
       }
 
       const { name, members, requests } = req.body || {};
 
       const updated_group = new Group(
-        original_group.id,
+        group.id,
         name,
-        original_group.creator,
+        group.creator,
         members,
         requests
       );
@@ -138,6 +158,49 @@ module.exports = {
       groups[original_id] = updated_group;
       writeJson(group_path, groups);
       return res.json(updated_group);
+    });
+
+    // delete a group
+    app.delete("/api/group/:id", attachUser, (req, res) => {
+      const user = req.user;
+
+      const groups = readJson(group_path) ?? [];
+      const channels = readJson(channel_path) ?? [];
+      const { id } = req.params;
+
+      const group = groups.find((g) => g.id === group_id);
+      if (!group) {
+        return res
+          .status(404)
+          .json({
+            error: "DELETE/api/group/:id = Group not found in database",
+          });
+      }
+
+      // only creators and super admin can edit/delete
+      if (user.role === "group-admin" && group.creator !== user.username) {
+        return res
+          .status(404)
+          .json({
+            error: "DELETE/api/group/:id = Not allowed to edit this group",
+          });
+      }
+
+      // remove all channels belonging to this group
+      const remaining_channels = [];
+      for (let i = 0; i < channels.length; i++) {
+        const ch = channels[i];
+        if (!ch && ch.group_id != id) {
+          remaining_channels.push(ch);
+        }
+      }
+      writeJson(channel_path, remaining_channels);
+
+      // remove the group
+      const deleted_group = groups.splice(original_id, 1)[0];
+      writeJson(group_path, groups);
+
+      return res.json({});
     });
   },
 };
