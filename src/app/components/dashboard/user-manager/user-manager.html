@@ -1,25 +1,213 @@
-<div class="flex h-full items-center justify-center">
-    <div class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
-        <h2 class="text-2xl font-bold mb-4">User Management</h2>
+<div class="w-full h-full">
+  <h2 class="text-2xl font-bold mb-6">User Management</h2>
+  <div class="grid grid-cols-3 gap-6 h-[88vh]">
+    <!-- Left: Current User + Create New User Form -->
+    <div class="flex flex-col h-full">
+      @if (current_user) {
+      <div class="mb-6 rounded-2xl bg-secondary p-5 shadow-xl">
+        <h3 class="text-lg font-semibold mb-2 text-white/80">You</h3>
+        <div
+          class="flex items-center justify-between p-4 rounded-xl bg-main shadow-lg"
+        >
+          <div>
+            <p class="font-semibold">
+              {{ current_user.name }},
+              <span class="font-normal text-sm text-white/70">{{
+                current_user.username
+              }}</span>
+            </p>
+            <p class="text-sm text-gray-300">{{ current_user.email }}</p>
+          </div>
+          <span
+            class="px-3 py-1 rounded-full bg-blue-800 text-white text-xs uppercase"
+          >
+            {{ current_user.role }}
+          </span>
+        </div>
+      </div>
+      }
 
-        @if (all_users.length > 0) {
-        <div class="space-y-3">
-            <div *ngFor="let u of all_users" class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow">
-                <div>
-                    <p class="font-semibold">{{ u.name }}, <span class="font-normal text-sm text-white/70">{{ u.username }}</span></p>
-                    <p class="text-sm text-gray-300">{{ u.email }}</p>
-                </div>
-                <div class="text-sm text-gray-400 italic">
-                    {{ u.role }}
-                </div>
-                <div class="flex gap-2">
-                    <button class="px-2 py-1 bg-blue-800 rounded">Promote</button>
-                    <button class="px-2 py-1 bg-red-800 rounded">Remove</button>
-                </div>
+      <!-- create new user form -->
+      <div class="bg-secondary p-5 rounded-2xl h-full shadow-xl">
+        <h3 class="text-lg font-semibold mb-4 text-white/80">Add New User</h3>
+
+        <form
+          class="flex flex-col gap-10 rounded-xl"
+          (ngSubmit)="createAccount()"
+        >
+          <input
+            name="name"
+            type="text"
+            [(ngModel)]="name"
+            placeholder="Name"
+            class="p-5 rounded-xl bg-main text-white placeholder-gray-400"
+          />
+          <input
+            name="username"
+            type="text"
+            [(ngModel)]="username"
+            placeholder="Username"
+            class="p-5 rounded-xl bg-main text-white placeholder-gray-400"
+          />
+          <input
+            name="email"
+            [(ngModel)]="email"
+            type="email"
+            placeholder="Email"
+            class="p-5 rounded-xl bg-main text-white placeholder-gray-400"
+          />
+          <input
+            name="password"
+            [(ngModel)]="password"
+            type="text"
+            placeholder="Password"
+            class="p-5 rounded-xl bg-main text-white placeholder-gray-400"
+          />
+          <select
+            class="p-5 rounded-xl bg-main text-white"
+            name="role"
+            [(ngModel)]="role"
+          >
+            <option value="user">User</option>
+            <option value="group-admin">Group Admin</option>
+            <option value="super-admin">Super Admin</option>
+          </select>
+          <button
+            type="submit"
+            class="m-auto p-3 w-[250px] bg-blue-700 rounded-xl text-white hover:bg-blue-600"
+          >
+            Create
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Center: role-users -->
+    <div class="flex flex-col h-full rounded-2xl bg-secondary p-5 shadow-xl">
+      <h3 class="text-lg font-semibold mb-4 text-white/80">Users</h3>
+
+      @if (filtered_users.length > 0) {
+      <div class="flex-1 min-h-0 hide-scrollbar overflow-y-auto pr-2 space-y-3">
+        <div
+          *ngFor="let u of filtered_users"
+          class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
+        >
+          <div>
+            <p class="font-semibold">
+              {{ u.name }},
+              <span class="font-normal text-sm text-white/70">{{
+                u.username
+              }}</span>
+            </p>
+            <p class="text-sm text-gray-300">{{ u.email }}</p>
+          </div>
+          <div class="flex gap-2">
+            <button
+              class="px-3 py-1 bg-green-700 rounded text-white hover:bg-green-600"
+              (click)="promote(u.username, 'group-admin')"
+            >
+              Promote
+            </button>
+            <button
+              class="px-3 py-1 bg-red-700 rounded text-white hover:bg-red-600"
+              (click)="delete(u.username)"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <div class="h-full w-full flex justify-center items-center">
+        <div class="bg-main p-4 rounded-2xl">No User Found!</div>
+      </div>
+      }
+    </div>
+
+    <!-- Right: role-group-admin (top) + role-super-admin (bottom) -->
+    <div class="flex flex-col h-full gap-6">
+      <!-- Group Admins -->
+      <div
+        class="flex flex-col flex-1 min-h-0 rounded-2xl bg-secondary p-5 shadow-xl"
+      >
+        <h3 class="text-lg font-semibold mb-4 text-white/80">Group Admins</h3>
+
+        @if (group_admins.length > 0) {
+        <div
+          class="space-y-3 flex-1 min-h-0 overflow-y-auto pr-2 hide-scrollbar"
+        >
+          <div
+            *ngFor="let u of group_admins"
+            class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
+          >
+            <div>
+              <p class="font-semibold">
+                {{ u.name }},
+                <span class="font-normal text-sm text-white/70">{{
+                  u.username
+                }}</span>
+              </p>
+              <p class="text-sm text-gray-300">{{ u.email }}</p>
             </div>
+            <div class="flex gap-2">
+              <button
+                class="px-3 py-1 bg-green-700 rounded text-white hover:bg-green-600"
+                (click)="promote(u.username, 'super-admin')"
+              >
+                Promote
+              </button>
+              <button
+                class="px-3 py-1 bg-red-700 rounded text-white hover:bg-red-600"
+                (click)="delete(u.username)"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
         } @else {
-        <p class="text-gray-300">No users found.</p>
+        <div class="flex-1 min-h-0 flex items-center justify-center">
+          <div class="bg-main p-4 rounded-2xl">Empty!</div>
+        </div>
         }
+      </div>
+
+      <!-- Super Admins -->
+      <div
+        class="flex flex-col flex-1 min-h-0 rounded-2xl bg-secondary p-5 shadow-xl"
+      >
+        <h3 class="text-lg font-semibold mb-4 text-white/80">Super Admins</h3>
+
+        @if (other_super_admins.length > 0) {
+        <div
+          class="space-y-3 flex-1 min-h-0 overflow-y-auto pr-2 hide-scrollbar"
+        >
+          <div
+            *ngFor="let u of other_super_admins"
+            class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
+          >
+            <div>
+              <p class="font-semibold">
+                {{ u.name }},
+                <span class="font-normal text-sm text-white/70">{{
+                  u.username
+                }}</span>
+              </p>
+              <p class="text-sm text-gray-300">{{ u.email }}</p>
+            </div>
+            <span
+              class="px-3 py-1 rounded-full bg-red-700 text-white text-xs uppercase"
+            >
+              {{ u.role }}
+            </span>
+          </div>
+        </div>
+        } @else {
+        <div class="flex-1 min-h-0 flex items-center justify-center">
+          <div class="bg-main p-4 rounded-2xl">Empty!</div>
+        </div>
+        }
+      </div>
     </div>
+  </div>
 </div>

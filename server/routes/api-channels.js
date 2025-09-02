@@ -45,7 +45,12 @@ module.exports = {
       // find the group
       const group = groups.find((g) => g.id === group_id);
       if (!group) {
-        return res.status(404).json({ error: "GET/api/groups/:group_id/channels = Group not found in database" });
+        return res
+          .status(404)
+          .json({
+            error:
+              "GET/api/groups/:group_id/channels = Group not found in database",
+          });
       }
 
       // check for permission
@@ -53,7 +58,9 @@ module.exports = {
       const isSuper = user.role === "super-admin";
       const isMember = group.members.includes(user.username);
       if (!isSuper && !isMember) {
-        return res.status(404).json({ error: "GET/api/groups/:group_id/channels = No permission" });
+        return res
+          .status(404)
+          .json({ error: "GET/api/groups/:group_id/channels = No permission" });
       }
 
       const groupChannels = channels.filter((c) => c.group_id === group_id);
@@ -63,16 +70,26 @@ module.exports = {
     // create channel
     app.post("/api/channel/:id", attachUser, (req, res) => {
       const channels = readJson(channel_path) ?? [];
+      const groups = readJson(group_path) ?? [];
 
       const { id } = req.params;
       const { name } = req.body || {};
 
+      const group = groups.find((g) => g.id === id);
+
       if (!name)
-        return res.status(404).json({ error: "POST/api/channel/:id = Channel name required" });
+        return res
+          .status(404)
+          .json({ error: "POST/api/channel/:id = Channel name required" });
 
       const user = req.user;
-      if (user.role !== "super-admin" && user.role !== "group-admin") {
-        return res.status(404).json({ error: "POST/api/channel/:id = Not allowed to create groups" });
+      if (user.role !== "super-admin" && group.creator !== user.username) {
+        return res
+          .status(404)
+          .json({
+            error:
+              "POST/api/channel/:id = Only super and creator are allowed to create groups",
+          });
       }
 
       let channel_id;
@@ -101,31 +118,36 @@ module.exports = {
 
       const { id: channel_id } = req.params;
       if (!channel_id)
-        return res.status(404).json({ error: "Delete/api/channel/:id = Channel id required" });
+        return res
+          .status(404)
+          .json({ error: "Delete/api/channel/:id = Channel id required" });
 
       const channelIndex = channels.findIndex((c) => c && c.id === channel_id);
       if (channelIndex === -1)
-        return res.status(404).json({ error: "Delete/api/channel/:id = Channel not found" });
+        return res
+          .status(404)
+          .json({ error: "Delete/api/channel/:id = Channel not found" });
 
       const channel = channels[channelIndex];
 
       // check permission
       const user = req.user;
-      if (user.role !== "super-admin" && user.role !== "group-admin") {
+      if (user.role !== "super-admin" && group.creator !== user.username) {
         return res
           .status(404)
-          .json({ error: "Delete/api/channel/:id = Not allowed to delete channels" });
+          .json({
+            error:
+              "Delete/api/channel/:id = Only super and creator are allowed to delete channels",
+          });
       }
       const group = groups.find((g) => g && g.id === channel.group_id);
       if (!group)
         return res
           .status(404)
-          .json({ error: "Delete/api/channel/:id = Group not found while deleting channel" });
-      if (group.creator !== user.username) {
-        return res
-          .status(404)
-          .json({ error: "Delete/api/channel/:id = Not allowed to delete channel from this group" });
-      }
+          .json({
+            error:
+              "Delete/api/channel/:id = Group not found while deleting channel",
+          });
 
       channels.splice(channelIndex, 1);
       writeJson(channel_path, channels);

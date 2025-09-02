@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { Channel } from '../../../models/channel';
 import { Group } from '../../../models/group';
 import { User } from '../../../models/user';
+import { GroupService } from '../../../services/group.service';
 
 @Component({
   selector: 'app-channelbar',
@@ -11,7 +12,9 @@ import { User } from '../../../models/user';
   templateUrl: './channelbar.html',
   styleUrl: './channelbar.css',
 })
-export class Channelbar {
+export class Channelbar implements OnChanges {
+  private groupService = inject(GroupService);
+
   @Input() user: User | null = null;
   @Input() channels: Channel[] = [];
   @Input() current_channel: Channel | null = null;
@@ -20,9 +23,22 @@ export class Channelbar {
 
   @Output() openChannel = new EventEmitter<Channel>();
   @Output() openGroupEdit = new EventEmitter<void>();
+  @Output() reloadGroups = new EventEmitter<null>();
+
+  confirm_menu_open: boolean = false;
+  is_member: boolean | undefined = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['current_group'] || changes['user']) {
+      if (!this.current_group || !this.user) return;
+
+      const match = this.current_group.members?.includes(this.user.username);
+      this.is_member = match;
+    }
+  }
 
   // show only channels you can see
-  get available_channels(): Channel[] {
+  get available_channels() {
     const list = this.channels || [];
     // if you can manage, you can see everything
     if (this.can_manage_group) return list;
@@ -39,5 +55,31 @@ export class Channelbar {
       if (channel_user.indexOf(username) !== -1) available.push(channel);
     }
     return available;
+  }
+
+  askConfirm(ev: Event) {
+    // prevent the menu from instant closure
+    ev.stopPropagation();
+    this.confirm_menu_open = !this.confirm_menu_open
+  }
+
+  //if clicked anywhere, close the menu
+  @HostListener('document:click')
+  cancel() {
+    this.confirm_menu_open = false;
+  }
+
+  confirm(group: Group) {
+    if (!group) return;
+    if (!group.id) return;
+
+    this.groupService.leaveGroup(group.id).subscribe({
+      next: (res) => {
+        this.reloadGroups.emit(null);
+      },
+      error: (e) => {
+
+      }
+    });
   }
 }

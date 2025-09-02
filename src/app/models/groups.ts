@@ -6,6 +6,7 @@ export class Groups {
     isMember: boolean;
     channelCount: number;
     memberCount: number;
+    requests?: any[];
 
     constructor(
         id: string,
@@ -14,7 +15,8 @@ export class Groups {
         isAdmin: boolean,
         isMember: boolean,
         channelCount: number,
-        memberCount: number
+        memberCount: number,
+        requests: any[]
     ) {
         this.id = id;
         this.name = name;
@@ -23,5 +25,6 @@ export class Groups {
         this.isMember = isMember;
         this.channelCount = channelCount;
         this.memberCount = memberCount;
+        this.requests = requests;
     }
 }

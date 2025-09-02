@@ -23,6 +23,15 @@ export class GroupService {
     });
   }
 
+  getGroup(group_id: string) {
+    return this.httpService.get<Group>(
+      `${this.server}/group/${group_id}`,
+      {
+        headers: this.attachHeader(),
+      }
+    );
+  }
+
   getChannels(group_id: any) {
     return this.httpService.get<Channel[]>(
       `${this.server}/groups/${group_id}/channels`,
@@ -135,8 +144,38 @@ export class GroupService {
   }
 
   deleteGroup(id: string) {
-    return this.httpService.delete<Group>(
+    return this.httpService.delete<any>(
       `${this.server}/group/${id}`,
+      { headers: this.attachHeader() }
+    );
+  }
+
+  deleteUser(username: string) {
+    return this.httpService.delete<any>(
+      `${this.server}/user/${username}`,
+      { headers: this.attachHeader() }
+    );
+  }
+
+  promoteUser(username: string, role: string) {
+    return this.httpService.patch<User>(
+      `${this.server}/user/${username}/role`,
+      { role },
+      { headers: this.attachHeader() }
+    );
+  }
+
+  leaveGroup(id: string) {
+    return this.httpService.delete<any>(
+      `${this.server}/group/${id}/member`,
+      { headers: this.attachHeader() }
+    );
+  }
+
+  sendRequest(id: string) {
+    return this.httpService.patch<string>(
+      `${this.server}/group/${id}/request`,
+      {},
       { headers: this.attachHeader() }
     );
   }

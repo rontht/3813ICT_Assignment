@@ -21,7 +21,8 @@ export class GroupForm implements OnChanges {
   @Input() channels: Channel[] = [];
   @Input() create_new: boolean = false;
 
-  @Output() reloadGroups = new EventEmitter<Group>();
+  @Output() groupDeleted = new EventEmitter<any>();
+  @Output() reloadGroups = new EventEmitter<string | null>();
   @Output() closeEdit = new EventEmitter<Group>();
 
   old_user_array: User[] = [];
@@ -53,12 +54,12 @@ export class GroupForm implements OnChanges {
       const memberNames = (this.current_group?.members ?? []) as string[];
       const requestNames = (this.current_group?.requests ?? []) as string[];
 
-      // Buckets (reset)
+      // empty arrays (reset)
       this.new_user_array = [];
       this.requested_array = [];
       this.old_user_array = [];
 
-      // Classify each user by username
+      // sort each user by username
       for (let i = 0; i < all.length; i++) {
         const u = all[i];
         const name = u && u.username ? u.username : '';
@@ -90,7 +91,6 @@ export class GroupForm implements OnChanges {
   }
 
   changeTab(id: number) {
-    console.log(id);
     this.select_tab = id;
   }
 
@@ -287,19 +287,23 @@ export class GroupForm implements OnChanges {
       members: g_members,
       requests: remaining_requests
     };
-
+    
     if (this.create_new) {
       this.groupService.createGroup(group).subscribe({
         next: (created_group) => {
           if (created_group.id != undefined) {
             for (let ch of new_channels) {
               this.groupService.createChannel(ch, created_group.id).subscribe({
-                next: (added_channel) => { },
+                next: (added_channel) => {
+
+                },
                 error: (e) => { }
               });
             }
+            this.reloadGroups.emit(created_group.id);
+          } else {
+            console.log("error: with newly created id")
           }
-          this.reloadGroups.emit(created_group);
         },
         error: (e) => {
           console.log('Failed to create a group', e);
@@ -322,7 +326,8 @@ export class GroupForm implements OnChanges {
           const group_id = edited_group?.id || current_group_id;
           for (let ch of new_channels) {
             this.groupService.createChannel(ch, group_id).subscribe({
-              next: (added_channel) => { },
+              next: (added_channel) => {
+              },
               error: (e) => { }
             });
           }
@@ -332,7 +337,7 @@ export class GroupForm implements OnChanges {
               error: () => { }
             });
           }
-          this.reloadGroups.emit(edited_group);
+          this.reloadGroups.emit(group_id);
         },
         error: (e) => {
           console.log('Failed to edit a group', e);
@@ -352,7 +357,10 @@ export class GroupForm implements OnChanges {
   deleteGroup(group: Group) {
     if (group.id === undefined) return;
     this.groupService.deleteGroup(group.id).subscribe({
-      next: () => {},
+      next: (name) => {
+        this.reloadGroups.emit(null);
+        console.log(name.deleted, "Group has been successfully deleted!");
+      },
       error: (e) => {
         console.log('Failed to delete a group', e);
       },

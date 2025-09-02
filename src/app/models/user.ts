@@ -1,10 +1,10 @@
 export class User {
   username: string;
   name: string;
-  email: string;
+  email?: string;
   role: string;
-  groups: string[];
-  valid: boolean;
+  groups?: string[];
+  valid?: boolean;
 
   constructor(
     username: string,

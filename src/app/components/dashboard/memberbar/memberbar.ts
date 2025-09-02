@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Member } from '../../../models/member';
 import { Channel } from '../../../models/channel';
 import { GroupService } from '../../../services/group.service';
 import { Group } from '../../../models/group';
+import { User } from '../../../models/user';
 
 @Component({
   selector: 'app-memberbar',
@@ -22,9 +22,10 @@ export class Memberbar implements OnChanges {
   current_channel: Channel | null = null;
   opened_user: string | null = null;
 
-  banned_users: Member[] = [];
-  channel_users: Member[] = [];
-  available_users: Member[] = [];
+  banned_users: User[] = [];
+  channel_users: User[] = [];
+  available_users: User[] = [];
+  all_members: User[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["channel"] || changes['group']) {
@@ -33,35 +34,12 @@ export class Memberbar implements OnChanges {
       this.channel_users = [];
       this.available_users = [];
 
-
-
       if (this.group != null && this.channel != null) {
         this.groupService.getMembers(this.group.id).subscribe({
           next: (me) => {
-            const all = me ?? [];
-            const banned_names = (this.channel?.banned_users ?? []) as string[];
-            const channel_names = (this.channel?.channel_users ?? []) as string[];
-
-            const backet_1: Member[] = [];
-            const backet_2: Member[] = [];
-            const backet_3: Member[] = [];
-
-            for (let i = 0; i < all.length; i++) {
-              const u = all[i];
-              const name = u && u.username ? u.username : '';
-              if (!name) continue;
-
-              if (banned_names.indexOf(name) !== -1) {
-                backet_1.push(u);
-              } else if (channel_names.indexOf(name) !== -1) {
-                backet_2.push(u);
-              } else {
-                backet_3.push(u);
-              }
-            }
-            this.banned_users = backet_1;
-            this.channel_users = backet_2;
-            this.available_users = backet_3;
+            // set all members in this group and refresh
+            this.all_members = me ?? [];
+            this.refresh();
           },
           error: (e) => {
             console.log('member bar Error: ', e);
@@ -69,6 +47,33 @@ export class Memberbar implements OnChanges {
         });
       }
     }
+  }
+
+  refresh() {
+    const all = this.all_members;
+    const banned_names = (this.channel?.banned_users ?? []) as string[];
+    const channel_names = (this.channel?.channel_users ?? []) as string[];
+
+    const banned_members: User[] = [];
+    const channel_members: User[] = [];
+    const available_members: User[] = [];
+
+    for (let i = 0; i < all.length; i++) {
+      const u = all[i];
+      const name = u && u.username ? u.username : '';
+      if (!name) continue;
+
+      if (banned_names.indexOf(name) !== -1) {
+        banned_members.push(u);
+      } else if (channel_names.indexOf(name) !== -1) {
+        channel_members.push(u);
+      } else {
+        available_members.push(u);
+      }
+    }
+    this.banned_users = banned_members;
+    this.channel_users = channel_members;
+    this.available_users = available_members;
   }
 
   toggleMenu(username: string, ev: Event) {
@@ -86,38 +91,86 @@ export class Memberbar implements OnChanges {
     }
   }
 
-  onAdd(member: Member) {
-    console.log("before")
+  setMembership(list: string[], username: string, should_exist: boolean) {
+    // to refresh the channel
+    const arr = list || [];
+
+    //remove the matched username
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === username) {
+        arr.splice(i, 1);
+        i++;
+      }
+    }
+
+    // whether or not added to the array again
+    if (should_exist) {
+      arr.push(username)
+    }
+    return arr;
+  }
+
+  onAdd(member: User) {
+    // check if they exist
     if (this.channel == null) return;
     if (!this.channel.id) return;
-    console.log("after")
     this.groupService.addChannelMember(member.username, this.channel.id).subscribe({
       next: () => {
+        // check again
+        if (this.channel == null) return;
+        if (!this.channel.channel_users) return;
+        if (!this.channel.banned_users) return;
 
+        // this is adding member so put it on true
+        this.channel.channel_users = this.setMembership(this.channel.channel_users, member.username, true);
+        // this is removing bans so put it on false
+        this.channel.banned_users = this.setMembership(this.channel.banned_users, member.username, false);
+
+        // refresh the variables
+        this.refresh();
       }, error: () => {
 
       },
     })
   }
 
-  onRemove(member: Member) {
+  onRemove(member: User) {
     if (!this.channel) return;
     if (!this.channel.id) return;
     this.groupService.removeChannelMember(member.username, this.channel.id).subscribe({
       next: () => {
+        // check again
+        if (this.channel == null) return;
+        if (!this.channel.channel_users) return;
 
+        // this is removing member so put it on false
+        this.channel.channel_users = this.setMembership(this.channel.channel_users, member.username, false);
+
+        // refresh the variables
+        this.refresh();
       }, error: () => {
 
       },
     })
   }
 
-  onBan(member: Member) {
+  onBan(member: User) {
     if (!this.channel) return;
     if (!this.channel.id) return;
     this.groupService.banMember(member.username, this.channel.id).subscribe({
       next: () => {
+        // check again
+        if (this.channel == null) return;
+        if (!this.channel.channel_users) return;
+        if (!this.channel.banned_users) return;
 
+        // this is removing member so put it on false
+        this.channel.channel_users = this.setMembership(this.channel.channel_users, member.username, false);
+        // this is adding bans so put it on true
+        this.channel.banned_users = this.setMembership(this.channel.banned_users, member.username, true);
+
+        // refresh the variables
+        this.refresh();
       }, error: () => {
 
       },
@@ -130,7 +183,7 @@ export class Memberbar implements OnChanges {
     this.opened_user = null;
   }
 
-  placeholderAvatar(member: Member): string {
+  placeholderAvatar(member: User): string {
     const role = member?.role ?? member?.role?.[0] ?? 'u';
     return role ? role[0].toUpperCase() : 'U';
   }

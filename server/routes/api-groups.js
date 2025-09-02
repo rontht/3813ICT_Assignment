@@ -1,9 +1,12 @@
 /*  Routes
   GET /api/groups
+  GET /api/group/:id
   GET /api/search/groups
   POST /api/group/create
   PUT /api/group/:id
   DELETE /api/group/:id
+  DELETE /api/group/:id/member
+  PATCH /api/group/:id/request
 */
 module.exports = {
   route: async (app) => {
@@ -55,6 +58,21 @@ module.exports = {
       return res.json(filtered_groups);
     });
 
+    app.get("/api/group/:id", attachUser, (req, res) => {
+      const groups = readJson(group_path) ?? [];
+      // check for permission. if super, get all group
+      const user = req.user;
+      const id = req.params.id;
+      const group = groups.find((g) => g.id === id);
+      // only creators and super admin can view this
+      if (user.role === "group-admin" && group.creator !== user.username) {
+        return res.status(404).json({
+          error: "GET/api/group/:id = Not allowed to view this group",
+        });
+      }
+      return res.json(group);
+    });
+
     // list all groups for searching
     app.get("/api/search/groups", attachUser, (req, res) => {
       const groups = readJson(group_path) ?? [];
@@ -76,6 +94,7 @@ module.exports = {
           isMember: group.members.includes(user.username),
           channelCount: groupChannels.length,
           memberCount: group.members.length,
+          requests: group.requests,
         };
       });
 
@@ -135,14 +154,13 @@ module.exports = {
           .status(404)
           .json({ error: "PUT/api/group/:id = Group not found in database" });
       }
+      const index = groups.findIndex((g) => g.id === id);
 
       // only creators and super admin can edit
       if (user.role === "group-admin" && group.creator !== user.username) {
-        return res
-          .status(404)
-          .json({
-            error: "PUT/api/group/:id = Not allowed to edit this group",
-          });
+        return res.status(404).json({
+          error: "PUT/api/group/:id = Not allowed to edit this group",
+        });
       }
 
       const { name, members, requests } = req.body || {};
@@ -155,7 +173,8 @@ module.exports = {
         requests
       );
 
-      groups[original_id] = updated_group;
+      groups[index] = updated_group;
+
       writeJson(group_path, groups);
       return res.json(updated_group);
     });
@@ -168,39 +187,114 @@ module.exports = {
       const channels = readJson(channel_path) ?? [];
       const { id } = req.params;
 
-      const group = groups.find((g) => g.id === group_id);
+      const group = groups.find((g) => g.id === id);
       if (!group) {
-        return res
-          .status(404)
-          .json({
-            error: "DELETE/api/group/:id = Group not found in database",
-          });
+        return res.status(404).json({
+          error: "DELETE/api/group/:id = Group not found in database",
+        });
       }
 
       // only creators and super admin can edit/delete
       if (user.role === "group-admin" && group.creator !== user.username) {
-        return res
-          .status(404)
-          .json({
-            error: "DELETE/api/group/:id = Not allowed to edit this group",
-          });
+        return res.status(404).json({
+          error: "DELETE/api/group/:id = Not allowed to edit this group",
+        });
       }
 
       // remove all channels belonging to this group
       const remaining_channels = [];
       for (let i = 0; i < channels.length; i++) {
         const ch = channels[i];
-        if (!ch && ch.group_id != id) {
+        if (ch && ch.group_id !== id) {
           remaining_channels.push(ch);
         }
       }
       writeJson(channel_path, remaining_channels);
 
       // remove the group
-      const deleted_group = groups.splice(original_id, 1)[0];
+      const deleted_group = group.name;
+      groups.splice(groups.indexOf(group), 1);
       writeJson(group_path, groups);
+      return res.json({ deleted: deleted_group });
+    });
 
-      return res.json({});
+    app.delete("/api/group/:id/member", attachUser, (req, res) => {
+      const user = req.user;
+
+      const groups = readJson(group_path) ?? [];
+      const channels = readJson(channel_path) ?? [];
+      const { id } = req.params;
+
+      const username = user.username;
+      const group_index = groups.findIndex((g) => g.id === id);
+      const group = groups[group_index];
+      if (!group) {
+        return res.status(404).json({
+          error: "DELETE/api/group/:id/member = Group not found in database",
+        });
+      }
+      // remove from group member
+      group.members = group.members.filter((m) => m !== username);
+      groups[group_index] = group;
+
+      // remove from channel users and banned users
+      for (let i = 0; i < channels.length; i++) {
+        const channel = channels[i];
+        // remove only from the group's channels
+        if (channel.group_id !== id) continue;
+
+        // remove from all channels in the group
+        channel.channel_users = channel.channel_users.filter(
+          (ch_u) => ch_u !== username
+        );
+        channel.banned_users = channel.banned_users.filter(
+          (b_u) => b_u !== username
+        );
+        // replace the edited group
+        channels[i] = channel;
+      }
+
+      // save it in the Json
+      writeJson(group_path, groups);
+      writeJson(channel_path, channels);
+      return res.json({ removed: username, group_id: id });
+    });
+
+    app.patch("/api/group/:id/request", attachUser, (req, res) => {
+      const user = req.user;
+      if (!user)
+        return res.status(401).json({
+          error: "PATCH/api/group/:id/request = No user",
+        });
+
+      const groups = readJson(group_path) ?? [];
+
+      const id = req.params.id;
+      const group_index = groups.findIndex((g) => g.id === id);
+      if (group_index === -1) {
+        return res.status(404).json({
+          error: "PATCH/api/group/:id/request = Group not found in database",
+        });
+      }
+      const group = groups[group_index];
+      const username = user.username;
+
+      // dont allow request if already a member
+      if (group.members.includes(username)) {
+        return res.status(400).json({
+          error: "PATCH/api/group/:id/request = Already a member of this group",
+        });
+      }
+
+      // dont allow request again if already requested
+      if (group.requests.includes(username)) {
+        return res.json(group);
+      }
+
+      group.requests.push(username);
+      groups[group_index] = group;
+      writeJson(group_path, groups);
+      return res.json(username);
     });
   },
 };

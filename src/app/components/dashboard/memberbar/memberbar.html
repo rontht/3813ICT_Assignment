@@ -1,5 +1,5 @@
 <aside class="w-[250px] h-full m-4 overflow-auto hide-scrollbar">
-  @if (channel_users.length > 0) {
+  @if (channel_users.length > 0 || available_users.length > 0 || banned_users.length > 0) {
   <h2 class="text-lg text-white pb-3 border-t-2">Channel Members</h2>
 
   <div class="space-y-4 mb-5">
@@ -74,7 +74,7 @@
   <div class="space-y-4 mb-5">
     <div
       *ngFor="let me of banned_users"
-      class="relative flex p-3 bg-main/90 px-4 rounded-xl shadow-xl"
+      class="relative flex p-3 bg-red-950/90 px-4 rounded-xl shadow-xl"
     >
       <!-- Placeholder Avatar -->
       <div
@@ -129,7 +129,7 @@
   <div class="space-y-4 mb-5">
     <div
       *ngFor="let me of available_users"
-      class="relative flex p-3 bg-main/90 px-4 rounded-xl shadow-xl"
+      class="relative flex p-3 bg-sky-950/90 px-4 rounded-xl shadow-xl"
     >
       <!-- Placeholder Avatar -->
       <div

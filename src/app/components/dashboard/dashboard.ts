@@ -9,14 +9,13 @@ import { GroupService } from '../../services/group.service';
 import { User } from '../../models/user';
 import { Group } from '../../models/group';
 import { Channel } from '../../models/channel';
-import { Member } from '../../models/member';
+import { Groups } from '../../models/groups';
 
 // Components
 import { Groupbar } from './groupbar/groupbar';
 import { Channelbar } from './channelbar/channelbar';
 import { Memberbar } from './memberbar/memberbar';
 import { UserManager } from './user-manager/user-manager';
-import { Groups } from '../../models/groups';
 import { GroupSearch } from "./group-search/group-search";
 import { Chat } from './chat/chat';
 import { AccountSettings } from './account-settings/account-settings';
@@ -37,9 +36,9 @@ export class Dashboard {
   groups: Group[] = [];
   all_groups: Groups[] = [];
   channels: Channel[] = [];
-  members: Member[] = [];
-  requests: Member[] = [];
-  banned_users: Member[] = [];
+  members: User[] = [];
+  requests: User[] = [];
+  banned_users: User[] = [];
   all_users: User[] = [];
 
   current_group: Group | null = null;
@@ -133,7 +132,34 @@ export class Dashboard {
         if (this.current_group?.id !== group_id) return;
         this.channels = cs;
         if (!this.channels.length) return;
-        this.current_channel = this.channels[0];
+
+        if (this.canManageGroup()) {
+          this.current_channel = this.channels[0];
+          return;
+        }
+
+        if (!this.user) return;
+
+        for (let i = 0; i < this.channels.length; i++) {
+          const channel = this.channels[i];
+          const ch_u = (channel?.channel_users || []) as string[];
+          const ban_u = (channel?.banned_users || []) as string[];
+
+          let isMember = false;
+          for (let j = 0; j < ch_u.length; j++) {
+            if (ch_u[j] === this.user.username) { isMember = true; break; }
+          }
+
+          let isBanned = false;
+          for (let k = 0; k < (ban_u.length); k++) {
+            if (ban_u[k] === this.user.username) { isBanned = true; break; }
+          }
+
+          if (isMember && !isBanned) {
+            this.current_channel = channel;
+            break;
+          }
+        }
       },
       error: (e) => {
         console.log('openGroup Channel Error: ', e);
@@ -191,14 +217,38 @@ export class Dashboard {
     this.create_new_group = create_new;
   }
 
-  reloadGroups(created_group: Group) {
+  reloadGroups(input_id: string | null) {
     this.groupService.getGroups().subscribe({
       next: (groups) => {
+        // get all groups
         this.groups = groups;
 
-        // default open the first group upon log in
-        if (this.groups.length) {
-          this.openGroup(created_group);
+        //declare a target
+        let target_group: Group | null = null;
+
+        if (input_id) {
+          // find the freshly-loaded instance by id
+          for (let i = 0; i < this.groups.length; i++) {
+            const g = this.groups[i];
+            if (g && g.id === input_id) {
+              target_group = g;
+              break;
+            }
+          }
+          // fallback to first group default
+          if (!target_group && this.groups.length) {
+            target_group = this.groups[0];
+          }
+        } else {
+          // for deletion, always default to first group
+          if (this.groups.length) {
+            target_group = this.groups[0];
+          }
+        }
+        if (target_group) {
+          this.openGroup(target_group);
+        } else {
+          this.reset();
         }
       },
       error: (e) => {
@@ -266,9 +316,6 @@ export class Dashboard {
         console.log('openManageUsers Error: ', e);
       },
     });
-
-    console.log("finished");
-
     this.create_new_group = false;
     this.show_group_settings = true;
   }

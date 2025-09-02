@@ -1,48 +1,89 @@
 <div class="flex h-full items-center justify-center">
-  <div class="w-[50vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
-    <h2 class="text-2xl font-bold mb-4">Search a group</h2>
+  <div class="w-full h-full bg-secondary rounded-2xl p-8 shadow-xl">
+    <h2 class="text-2xl font-bold mb-4">Find a group</h2>
 
     @if (all_groups.length > 0) {
-    <div class="space-y-3">
+
+    <!-- Header row -->
+    <div
+      class="grid grid-cols-6 gap-4 px-3 py-2 border-b border-white/10 text-sm font-semibold text-white/70"
+    >
+      <div>Group</div>
+      <div>Creator</div>
+      <div>Members</div>
+      <div>Channels</div>
+      <div>Status</div>
+      <div class="ml-13">Action</div>
+    </div>
+
+    <!-- Data rows -->
+    <div class="space-y-2 h-[80vh] overflow-auto hide-scrollbar">
       <div
         *ngFor="let group of all_groups"
-        class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
+        class="grid grid-cols-6 gap-4 items-center p-3 rounded-lg bg-main/70 shadow h-15"
       >
+        <!-- Group Name -->
         <div>
           <p class="font-semibold">{{ group.name }}</p>
         </div>
 
-        @if (group.isAdmin) {
+        <!-- Creator / You -->
         <div>
-          <p class="font-semibold">You</p>
-        </div>
-        } @else {
-        <div>
+          @if (group.isAdmin) {
+          <p class="font-semibold text-green-400">You</p>
+          } @else {
           <p class="font-semibold">{{ group.creator }}</p>
+          }
         </div>
-        }
 
+        <!-- Member Count -->
         <div>
-          <p class="font-semibold">{{ group.memberCount }}</p>
+          <p class="font-semibold ml-5">{{ group.memberCount }}</p>
         </div>
 
-        <div class="text-sm text-gray-400 italic">
+        <!-- Channel Count -->
+        <div class="text-sm ml-5 text-gray-400 italic">
           {{ group.channelCount }}
         </div>
 
-        @if (group.isMember) {
-        <div>
-          <p class="font-semibold">Already a member</p>
+        <!-- Status -->
+        <div class="ml-3">
+          @if (group.isMember) {
+          <img src="/icons/yes.png" alt="already a member" width="20px" />
+          } @else {
+          <img src="/icons/no.png" alt="not a member" width="20px" />
+          }
         </div>
-        } @else {
-        <div class="flex gap-2">
-          <button class="px-2 py-1 bg-indigo-700 rounded">
+
+        <!-- Action -->
+        <div>
+          @if (group.isMember) {
+          <!-- <button class="px-3 py-1 mr-3 w-20 bg-green-700 rounded hover:bg-green-600">
+            Open
+          </button>
+          <button class="px-3 py-1 w-20 bg-red-800 rounded hover:bg-red-600">
+            Leave
+          </button> -->
+          <button
+            class="px-3 py-1 mr-3 w-43 bg-green-700 rounded hover:bg-green-600"
+            (click)="openGroup.emit(group)"
+          >
+            Open
+          </button>
+          } @else { @if (group.requests?.includes(user?.username)) {
+          <p class="text-gray-300 text-center italic">Request sent</p>
+          } @else {
+          <button
+            (click)="sendRequest(group.id)"
+            class="px-3 py-1 w-43 bg-indigo-700 rounded hover:bg-indigo-600"
+          >
             Request to join
           </button>
+          } }
         </div>
-        }
       </div>
     </div>
+
     } @else {
     <p class="text-gray-300">No groups found.</p>
     }

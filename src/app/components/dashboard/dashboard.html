@@ -35,10 +35,17 @@
       ></app-group-form>
 
       } @case ("users") {
-      <app-user-manager [all_users]="all_users"></app-user-manager>
+      <app-user-manager
+        [all_users]="all_users"
+        [current_user]="user"
+      ></app-user-manager>
 
       } @case ("search") {
-      <app-group-search [all_groups]="all_groups"></app-group-search>
+      <app-group-search
+        [user]="user"
+        [all_groups]="all_groups"
+        (openGroup)="openGroup($event)"
+      ></app-group-search>
 
       } @default { @if (!show_group_settings) {
       <div class="flex h-full">
@@ -47,9 +54,10 @@
           [channels]="channels"
           [current_channel]="current_channel"
           [current_group]="current_group"
-          (openChannel)="openChannel($event)"
-          (openGroupEdit)="openGroupEdit()"
           [can_manage_group]="canManageGroup()"
+          (openGroupEdit)="openGroupEdit()"
+          (openChannel)="openChannel($event)"
+          (reloadGroups)="reloadGroups($event)"
         >
         </app-channelbar>
 
@@ -57,7 +65,7 @@
           <app-chat [current_channel]="current_channel"></app-chat>
         </section>
       </div>
-      } @else {
+      } @else { 
       <app-group-form
         [all_users]="all_users"
         [current_group]="current_group"
@@ -66,7 +74,7 @@
         (reloadGroups)="reloadGroups($event)"
         (closeEdit)="closeGroupEdit($event)"
       ></app-group-form>
-      } } }
+      } } } 
     </main>
 
     <app-memberbar
