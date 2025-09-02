@@ -249,6 +249,7 @@ export class Dashboard {
           this.openGroup(target_group);
         } else {
           this.reset();
+          window.location.reload();
         }
       },
       error: (e) => {
