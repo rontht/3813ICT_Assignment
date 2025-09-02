@@ -23,7 +23,11 @@
     @if (current_group != null) {
     <main class="flex-1 overflow-y-auto p-8 bg-main/95 rounded-3xl">
       @switch (current_group.id) { @case ("account") {
-      <app-account-settings></app-account-settings>
+      <app-account-settings
+        [current_user]="user"
+        [is_super]="isSuperAdmin()"
+        (deleteAccount)="onLogout()"
+      ></app-account-settings>
 
       } @case ("create") {
       <app-group-form
@@ -65,7 +69,7 @@
           <app-chat [current_channel]="current_channel"></app-chat>
         </section>
       </div>
-      } @else { 
+      } @else {
       <app-group-form
         [all_users]="all_users"
         [current_group]="current_group"
@@ -74,7 +78,7 @@
         (reloadGroups)="reloadGroups($event)"
         (closeEdit)="closeGroupEdit($event)"
       ></app-group-form>
-      } } } 
+      } } }
     </main>
 
     <app-memberbar

@@ -298,9 +298,6 @@ export class Dashboard {
       },
     });
   }
-  promoteUser(user: User) {
-    console.log("Promoted ", user.username);
-  }
 
   // open group settings
   toggleGroupSettings() {

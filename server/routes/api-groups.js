@@ -11,9 +11,9 @@
 module.exports = {
   route: async (app) => {
     const { readJson, writeJson } = require("../db-manager.js");
-    const user_path = "../data/user.json";
-    const group_path = "../data/group.json";
-    const channel_path = "../data/channel.json";
+    const user_path = "../data/user.txt";
+    const group_path = "../data/group.txt";
+    const channel_path = "../data/channel.txt";
     const Group = require("../models/group.js");
 
     function attachUser(req, res, next) {

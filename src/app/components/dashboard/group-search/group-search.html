@@ -71,7 +71,7 @@
             Open
           </button>
           } @else { @if (group.requests?.includes(user?.username)) {
-          <p class="text-gray-300 text-center italic">Request sent</p>
+          <p class="text-gray-300 ml-8 italic">Request sent</p>
           } @else {
           <button
             (click)="sendRequest(group.id)"
