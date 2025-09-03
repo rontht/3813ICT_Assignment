@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output } from '@angular/core';
 import { User } from '../../../models/user';
-import { GroupService } from '../../../services/group.service';
+import { DataService } from '../../../services/data.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,15 +11,30 @@ import { Router } from '@angular/router';
   templateUrl: './account-settings.html',
   styleUrl: './account-settings.css'
 })
-export class AccountSettings {
-  private groupService = inject(GroupService);
-  constructor(private router: Router) { }
+export class AccountSettings implements OnInit {
+  private dataService = inject(DataService);
 
   @Input() current_user: User | null = null;
   @Input() is_super: boolean = true;
   confirm_menu_open: boolean = false;
 
+  logs: string[] = [];
+
   @Output() deleteAccount = new EventEmitter<void>();
+
+  ngOnInit(): void {
+    if (!this.current_user) return;
+    if (this.current_user.role === "super-admin") {
+      this.dataService.getLogs().subscribe({
+        next: (logs) => {
+          this.logs = logs;
+        },
+        error: (e) => {
+          console.log("log error", e);
+        }
+      });
+    }
+  }
 
   askConfirm(ev: Event) {
     // prevent the menu from instant closure
@@ -36,7 +51,7 @@ export class AccountSettings {
     if (!user) return;
     if (!user.username) return;
 
-    this.groupService.deleteUser(user.username).subscribe({
+    this.dataService.deleteUser(user.username).subscribe({
       next: (res) => {
         this.deleteAccount.emit();
       },

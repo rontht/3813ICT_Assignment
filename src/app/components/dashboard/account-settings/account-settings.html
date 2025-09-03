@@ -1,88 +1,123 @@
-<div class="flex h-full items-center justify-center">
-  <div class="w-[20vw] max-w-3xl bg-secondary rounded-2xl p-8 shadow-xl">
-    <h2 class="text-2xl font-bold mb-6">Account</h2>
+<div class="flex w-full h-full space-x-10">
+  <div class="w-[30vw]">
+    <div class="h-[45vh] bg-secondary rounded-2xl p-8 shadow-xl">
+      <!-- Account (top) -->
+      <h2 class="text-2xl font-bold mb-6">Account</h2>
 
-    @if (current_user) {
-    <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-white">
-      <div class="text-white/70">Name</div>
-      <div class="font-semibold">{{ current_user.name || "—" }}</div>
-
-      <div class="text-white/70">Username</div>
-      <div class="font-mono">{{ current_user.username || "—" }}</div>
-
-      <div class="text-white/70">Email</div>
-      <div class="">{{ current_user.email || "—" }}</div>
-
-      <div class="text-white/70">Role</div>
-      <div class="">
-        <p
-          class="px-3 py-1 rounded-full text-xs uppercase"
-          [ngClass]="{
-            'bg-blue-800 text-white': current_user.role === 'super-admin',
-            'bg-amber-700 text-white': current_user.role === 'group-admin',
-            'bg-gray-600 text-white': current_user.role === 'user'
-          }"
-        >
-          {{ current_user.role || "—" }}
-        </p>
-      </div>
-    </div>
-
-    <div class="mt-8 flex justify-end">
-      <button
-        type="button"
-        class="px-4 py-2 rounded-xl bg-red-700 text-white hover:bg-red-600"
-        (click)="askConfirm($event)"
-        aria-haspopup="menu"
-        [attr.aria-expanded]="confirm_menu_open"
-      >
-        Deactivate Account
-      </button>
-
-      <!-- Dropdown confirmation menu -->
-      @if (confirm_menu_open) {
-      <div
-        class="absolute bottom-53 z-10 mt-2 w-80 rounded-xl bg-main/95 backdrop-blur shadow-2xl border border-white/10 p-4"
-        role="menu"
-      >
-        @if (!is_super) {
-        <div class="text-sm mb-3">You sure about delete your account!</div>
-        <div class="text-sm mb-3">Are you sure?</div>
-        <div class="flex gap-2 justify-end">
-          <button
-            class="px-3 py-1 rounded bg-gray-600 hover:bg-gray-500"
-            (click)="cancel()"
-          >
-            Cancel
-          </button>
-          @if(current_user) {
-          <button
-            class="px-3 py-1 rounded bg-red-700 hover:bg-red-600 text-white"
-            (click)="deactivateAccount(current_user)"
-          >
-            Confirm
-          </button>
-          }
+      @if (current_user) {
+      <div class="grid grid-cols-1 gap-y-4 gap-x-6 text-white">
+        <div>
+          <div class="text-white/70">Name</div>
+          <div class="font-semibold">{{ current_user.name || "—" }}</div>
         </div>
 
-        } @else {
+        <div>
+          <div class="text-white/70">Username</div>
+          <div class="font-mono">{{ current_user.username || "—" }}</div>
+        </div>
 
-        <div class="text-sm mb-3">Sorry, you cannot delete your account!</div>
-        <div class="text-sm mb-3">You are a super admin.</div>
-        <div class="flex gap-2 justify-end">
-          <button
-            class="px-3 py-1 rounded bg-gray-600 hover:bg-gray-500"
-            (click)="cancel()"
-          >
-            Cancel
-          </button>
+        <div>
+          <div class="text-white/70">Email</div>
+          <div>{{ current_user.email || "—" }}</div>
+        </div>
+
+        <div>
+          <div class="text-white/70">Role</div>
+          <div>
+            <p
+              class="px-3 py-1 rounded-full text-xs uppercase inline-block"
+              [ngClass]="{
+                'bg-blue-800 text-white': current_user.role === 'super-admin',
+                'bg-amber-700 text-white': current_user.role === 'group-admin',
+                'bg-gray-600 text-white': current_user.role === 'user'
+              }"
+            >
+              {{ current_user.role || "—" }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- Deactivate -->
+      <div class="mt-8 flex justify-end">
+        <button
+          type="button"
+          class="px-4 py-2 rounded-xl bg-red-700 text-white hover:bg-red-600"
+          (click)="askConfirm($event)"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="confirm_menu_open"
+        >
+          Deactivate Account
+        </button>
+
+        @if (confirm_menu_open) {
+        <div
+          class="absolute bottom-100 z-10 mt-2 w-80 rounded-xl bg-main/95 backdrop-blur shadow-2xl border border-white/10 p-4"
+          role="menu"
+        >
+          @if (!is_super) {
+          <div class="text-sm mb-3">You sure about delete your account!</div>
+          <div class="text-sm mb-3">Are you sure?</div>
+          <div class="flex gap-2 justify-end">
+            <button
+              class="px-3 py-1 rounded bg-gray-600 hover:bg-gray-500"
+              (click)="cancel()"
+            >
+              Cancel
+            </button>
+            @if (current_user) {
+            <button
+              class="px-3 py-1 rounded bg-red-700 hover:bg-red-600 text-white"
+              (click)="deactivateAccount(current_user)"
+            >
+              Confirm
+            </button>
+            }
+          </div>
+          } @else {
+          <div class="text-sm mb-3">Sorry, you cannot delete your account!</div>
+          <div class="text-sm mb-3">You are a super admin.</div>
+          <div class="flex gap-2 justify-end">
+            <button
+              class="px-3 py-1 rounded bg-gray-600 hover:bg-gray-500"
+              (click)="cancel()"
+            >
+              Cancel
+            </button>
+          </div>
+          }
         </div>
         }
       </div>
+
+      } @else {
+      <p class="text-white/70">No user loaded.</p>
       }
     </div>
+  </div>
+
+  <div class="bg-secondary rounded-2xl p-8 w-full shadow-xl">
+    @if (is_super) {
+    <!-- Logs -->
+    <h3 class="text-2xl font-bold mb-6">Ban Logs</h3>
+
+    @if (logs.length>0) {
+    <div
+      class="max-h-[80vh] overflow-auto hide-scrollbar rounded-xl bg-main/80 border border-white/10"
+    >
+      <ul class="divide-y divide-white/10">
+        @for (line of logs; track $index) {
+        <li class="p-3 font-mono text-xs text-white/90">
+          {{ line }}
+        </li>
+        }
+      </ul>
+    </div>
     } @else {
-    <p class="text-white/70">No user loaded.</p>
-    }
+      <div class="w-full h-full flex justify-center items-center">
+        <div class="w-[200px] p-8 bg-main text-center rounded-2xl shadow mb-40">
+          No logs yet.
+        </div>
+      </div>
+    }}
   </div>
 </div>

@@ -6,9 +6,9 @@ import { Group } from '../models/group';
 import { Channel } from '../models/channel';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class GroupService {
+export class DataService {
   private httpService = inject(HttpClient);
   private server = 'http://localhost:3000/api';
 
@@ -18,7 +18,7 @@ export class GroupService {
   }
 
   getGroups() {
-    return this.httpService.get<any[]>(`${this.server}/groups`, {
+    return this.httpService.get<Group[]>(`${this.server}/groups`, {
       headers: this.attachHeader(),
     });
   }
@@ -42,7 +42,7 @@ export class GroupService {
   }
 
   getMembers(group_id: any) {
-    return this.httpService.get<any[]>(
+    return this.httpService.get<User[]>(
       `${this.server}/groups/${group_id}/members`,
       {
         headers: this.attachHeader(),
@@ -51,7 +51,7 @@ export class GroupService {
   }
 
   getRequests(group_id: any) {
-    return this.httpService.get<any[]>(
+    return this.httpService.get<User[]>(
       `${this.server}/groups/${group_id}/requests`,
       {
         headers: this.attachHeader(),
@@ -60,7 +60,7 @@ export class GroupService {
   }
 
   getBanned(channel_id: any) {
-    return this.httpService.get<any[]>(
+    return this.httpService.get<User[]>(
       `${this.server}/channels/${channel_id}/banned`,
       {
         headers: this.attachHeader(),
@@ -69,7 +69,7 @@ export class GroupService {
   }
 
   getChannelMembers(channel_id: any) {
-    return this.httpService.get<any[]>(
+    return this.httpService.get<User[]>(
       `${this.server}/channels/${channel_id}/members`,
       {
         headers: this.attachHeader(),
@@ -176,6 +176,13 @@ export class GroupService {
     return this.httpService.patch<string>(
       `${this.server}/group/${id}/request`,
       {},
+      { headers: this.attachHeader() }
+    );
+  }
+
+  getLogs() {
+    return this.httpService.get<string[]>(
+      `${this.server}/log`,
       { headers: this.attachHeader() }
     );
   }

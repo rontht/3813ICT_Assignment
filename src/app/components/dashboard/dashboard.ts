@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 // Services
-import { GroupService } from '../../services/group.service';
+import { DataService } from '../../services/data.service';
 
 // Models
 import { User } from '../../models/user';
@@ -17,9 +17,9 @@ import { Channelbar } from './channelbar/channelbar';
 import { Memberbar } from './memberbar/memberbar';
 import { UserManager } from './user-manager/user-manager';
 import { GroupSearch } from "./group-search/group-search";
-import { Chat } from './chat/chat';
 import { AccountSettings } from './account-settings/account-settings';
 import { GroupForm } from './group-form/group-form';
+import { Chat } from './chat/chat';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,7 +29,7 @@ import { GroupForm } from './group-form/group-form';
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
-  private groupService = inject(GroupService);
+  private dataService = inject(DataService);
   constructor(private router: Router) { }
 
   user: User | null = null;
@@ -90,7 +90,7 @@ export class Dashboard {
     this.user = JSON.parse(user_info);
 
     // get all groups that user is apart of
-    this.groupService.getGroups().subscribe({
+    this.dataService.getGroups().subscribe({
       next: (groups) => {
         this.groups = groups;
 
@@ -126,7 +126,7 @@ export class Dashboard {
     const group_id = group.id;
 
     // find the channels of that group and default open first channel
-    this.groupService.getChannels(group_id).subscribe({
+    this.dataService.getChannels(group_id).subscribe({
       next: (cs) => {
         // in case of mismatch during async
         if (this.current_group?.id !== group_id) return;
@@ -205,7 +205,7 @@ export class Dashboard {
     };
     this.channels = [];
 
-    this.groupService.getAllUsers().subscribe({
+    this.dataService.getAllUsers().subscribe({
       next: (users) => {
         this.all_users = users;
       },
@@ -218,7 +218,7 @@ export class Dashboard {
   }
 
   reloadGroups(input_id: string | null) {
-    this.groupService.getGroups().subscribe({
+    this.dataService.getGroups().subscribe({
       next: (groups) => {
         // get all groups
         this.groups = groups;
@@ -269,7 +269,7 @@ export class Dashboard {
       members: [],
       requests: []
     };
-    this.groupService.getAllGroupsForSearch().subscribe({
+    this.dataService.getAllGroupsForSearch().subscribe({
       next: (groups) => {
         this.all_groups = groups
       },
@@ -290,7 +290,7 @@ export class Dashboard {
       members: [],
       requests: []
     };
-    this.groupService.getAllUsers().subscribe({
+    this.dataService.getAllUsers().subscribe({
       next: (users) => {
         this.all_users = users;
       },
@@ -306,7 +306,7 @@ export class Dashboard {
   }
 
   openGroupEdit() {
-    this.groupService.getAllUsers().subscribe({
+    this.dataService.getAllUsers().subscribe({
       next: (users) => {
         this.all_users = users;
       },

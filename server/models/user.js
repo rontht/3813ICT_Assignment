@@ -5,7 +5,6 @@ class User {
     this.email = email;
     this.password = password;
     this.role = role;
-    this.groups = groups;
     this.valid = valid;
   }
 }

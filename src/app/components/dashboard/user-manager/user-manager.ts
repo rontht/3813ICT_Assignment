@@ -1,9 +1,9 @@
 import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { User } from '../../../models/user';
 import { CommonModule } from '@angular/common';
-import { GroupService } from '../../../services/group.service';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../../../services/http.service';
+import { DataService } from '../../../services/data.service';
 
 @Component({
   selector: 'app-user-manager',
@@ -13,7 +13,7 @@ import { HttpService } from '../../../services/http.service';
   styleUrl: './user-manager.css',
 })
 export class UserManager implements OnChanges {
-  private groupService = inject(GroupService);
+  private dataService = inject(DataService);
   private httpService = inject(HttpService);
 
   @Input() current_user: User | null = null;
@@ -41,7 +41,7 @@ export class UserManager implements OnChanges {
   }
 
   promote(target_username: string, role: string) {
-    this.groupService.promoteUser(target_username, role).subscribe({
+    this.dataService.promoteUser(target_username, role).subscribe({
       next: (updated_user) => {
         const index = this.all_users.findIndex(x => x.username === target_username);
         if (index !== -1) {
@@ -56,7 +56,7 @@ export class UserManager implements OnChanges {
   }
 
   delete(target_username: string) {
-    this.groupService.deleteUser(target_username).subscribe({
+    this.dataService.deleteUser(target_username).subscribe({
       next: (response) => {
         this.all_users = this.all_users.filter(x => x.username !== target_username);
         this.refresh();

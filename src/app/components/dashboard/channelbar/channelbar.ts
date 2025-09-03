@@ -3,7 +3,7 @@ import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output
 import { Channel } from '../../../models/channel';
 import { Group } from '../../../models/group';
 import { User } from '../../../models/user';
-import { GroupService } from '../../../services/group.service';
+import { DataService } from '../../../services/data.service';
 
 @Component({
   selector: 'app-channelbar',
@@ -13,7 +13,7 @@ import { GroupService } from '../../../services/group.service';
   styleUrl: './channelbar.css',
 })
 export class Channelbar implements OnChanges {
-  private groupService = inject(GroupService);
+  private dataService = inject(DataService);
 
   @Input() user: User | null = null;
   @Input() channels: Channel[] = [];
@@ -73,7 +73,7 @@ export class Channelbar implements OnChanges {
     if (!group) return;
     if (!group.id) return;
 
-    this.groupService.leaveGroup(group.id).subscribe({
+    this.dataService.leaveGroup(group.id).subscribe({
       next: (res) => {
         this.reloadGroups.emit(null);
       },

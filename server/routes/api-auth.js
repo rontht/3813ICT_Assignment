@@ -12,7 +12,7 @@ module.exports = {
     const User = require("../models/user.js");
 
     // ____________ DEBUG ____________
-    // route to display all users for testing
+    // route to display all data for testing
     app.get("/", (req, res) => {
       const users = readJson(user_path) ?? [];
       const groups = readJson(group_path) ?? [];
@@ -40,7 +40,6 @@ module.exports = {
         name: user.name,
         email: user.email,
         role: user.role,
-        groups: user.groups,
         valid: user.valid,
       });
     });
@@ -77,7 +76,6 @@ module.exports = {
         name: new_user.name,
         email: new_user.email,
         role: new_user.role,
-        groups: new_user.groups,
         valid: new_user.valid,
       });
     });

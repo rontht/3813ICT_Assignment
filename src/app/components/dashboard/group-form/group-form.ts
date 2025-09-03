@@ -3,8 +3,8 @@ import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output
 import { FormsModule } from '@angular/forms';
 import { Channel } from '../../../models/channel';
 import { User } from '../../../models/user';
-import { GroupService } from '../../../services/group.service';
 import { Group } from '../../../models/group';
+import { DataService } from '../../../services/data.service';
 
 @Component({
   selector: 'app-group-form',
@@ -14,7 +14,7 @@ import { Group } from '../../../models/group';
   styleUrl: './group-form.css'
 })
 export class GroupForm implements OnChanges {
-  private groupService = inject(GroupService);
+  private dataService = inject(DataService);
 
   @Input() current_group: Group | null = null;
   @Input() all_users: User[] = [];
@@ -289,11 +289,11 @@ export class GroupForm implements OnChanges {
     };
     
     if (this.create_new) {
-      this.groupService.createGroup(group).subscribe({
+      this.dataService.createGroup(group).subscribe({
         next: (created_group) => {
           if (created_group.id != undefined) {
             for (let ch of new_channels) {
-              this.groupService.createChannel(ch, created_group.id).subscribe({
+              this.dataService.createChannel(ch, created_group.id).subscribe({
                 next: (added_channel) => {
 
                 },
@@ -321,18 +321,18 @@ export class GroupForm implements OnChanges {
         console.log("Current Group is null while editing groups")
       }
 
-      this.groupService.editGroup(current_group_id, group).subscribe({
+      this.dataService.editGroup(current_group_id, group).subscribe({
         next: (edited_group) => {
           const group_id = edited_group?.id || current_group_id;
           for (let ch of new_channels) {
-            this.groupService.createChannel(ch, group_id).subscribe({
+            this.dataService.createChannel(ch, group_id).subscribe({
               next: (added_channel) => {
               },
               error: (e) => { }
             });
           }
           for (let ch of delete_channels) {
-            this.groupService.deleteChannel(ch).subscribe({
+            this.dataService.deleteChannel(ch).subscribe({
               next: () => { },
               error: () => { }
             });
@@ -356,7 +356,7 @@ export class GroupForm implements OnChanges {
 
   deleteGroup(group: Group) {
     if (group.id === undefined) return;
-    this.groupService.deleteGroup(group.id).subscribe({
+    this.dataService.deleteGroup(group.id).subscribe({
       next: (name) => {
         this.reloadGroups.emit(null);
         console.log(name.deleted, "Group has been successfully deleted!");

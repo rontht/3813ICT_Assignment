@@ -2,8 +2,8 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Groups } from '../../../models/groups';
 import { CommonModule } from '@angular/common';
 import { Group } from '../../../models/group';
-import { GroupService } from '../../../services/group.service';
 import { User } from '../../../models/user';
+import { DataService } from '../../../services/data.service';
 
 @Component({
   selector: 'app-group-search',
@@ -13,13 +13,13 @@ import { User } from '../../../models/user';
   styleUrl: './group-search.css'
 })
 export class GroupSearch {
-  private groupService = inject(GroupService);
+  private dataService = inject(DataService);
   @Input() all_groups: Groups[] = [];
   @Input() user: User | null = null;
   @Output() openGroup = new EventEmitter<Group>();
 
   sendRequest(id: string) {
-    this.groupService.sendRequest(id).subscribe({
+    this.dataService.sendRequest(id).subscribe({
       next: (res) => {
         const g = this.all_groups.find(gr => gr.id === id);
         if (g) {

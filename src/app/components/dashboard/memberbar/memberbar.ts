@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Channel } from '../../../models/channel';
-import { GroupService } from '../../../services/group.service';
 import { Group } from '../../../models/group';
 import { User } from '../../../models/user';
+import { DataService } from '../../../services/data.service';
 
 @Component({
   selector: 'app-memberbar',
@@ -13,7 +13,7 @@ import { User } from '../../../models/user';
   styleUrl: './memberbar.css'
 })
 export class Memberbar implements OnChanges {
-  private groupService = inject(GroupService);
+  private dataService = inject(DataService);
 
   @Input() channel: Channel | null = null;
   @Input() group: Group | null = null;
@@ -35,7 +35,7 @@ export class Memberbar implements OnChanges {
       this.available_users = [];
 
       if (this.group != null && this.channel != null) {
-        this.groupService.getMembers(this.group.id).subscribe({
+        this.dataService.getMembers(this.group.id).subscribe({
           next: (me) => {
             // set all members in this group and refresh
             this.all_members = me ?? [];
@@ -114,7 +114,7 @@ export class Memberbar implements OnChanges {
     // check if they exist
     if (this.channel == null) return;
     if (!this.channel.id) return;
-    this.groupService.addChannelMember(member.username, this.channel.id).subscribe({
+    this.dataService.addChannelMember(member.username, this.channel.id).subscribe({
       next: () => {
         // check again
         if (this.channel == null) return;
@@ -137,7 +137,7 @@ export class Memberbar implements OnChanges {
   onRemove(member: User) {
     if (!this.channel) return;
     if (!this.channel.id) return;
-    this.groupService.removeChannelMember(member.username, this.channel.id).subscribe({
+    this.dataService.removeChannelMember(member.username, this.channel.id).subscribe({
       next: () => {
         // check again
         if (this.channel == null) return;
@@ -157,7 +157,7 @@ export class Memberbar implements OnChanges {
   onBan(member: User) {
     if (!this.channel) return;
     if (!this.channel.id) return;
-    this.groupService.banMember(member.username, this.channel.id).subscribe({
+    this.dataService.banMember(member.username, this.channel.id).subscribe({
       next: () => {
         // check again
         if (this.channel == null) return;

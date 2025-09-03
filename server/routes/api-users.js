@@ -9,10 +9,12 @@
     PUT /api/channel/:channel_id/members/:username
     DELETE /api/user/:username
     PATCH /api/user/:username/role
+    GET /api/log
 */
 module.exports = {
   route: async (app) => {
     const { readJson, writeJson } = require("../db-manager.js");
+    const log_path = "../data/log.txt";
     const user_path = "../data/user.txt";
     const group_path = "../data/group.txt";
     const channel_path = "../data/channel.txt";
@@ -372,7 +374,7 @@ module.exports = {
           }
         }
 
-        // add to banned_users if not present
+        // add to banned_users if not pre xsent
         channel.banned_users = channel.banned_users || [];
         let already_banned = false;
         for (let i = 0; i < channel.banned_users.length; i++) {
@@ -384,6 +386,14 @@ module.exports = {
         if (!already_banned) channel.banned_users.push(username);
 
         writeJson(channel_path, channels);
+
+        // write log after successful ban
+        const date = new Date().toISOString();
+        const line = `[${date}] ${user.username} banned ${username} from channel ${channel.name}(${channel.id}) in group ${group.name} (${group.id}).`;
+        const logs = readJson(log_path) ?? [];
+        logs.push(line);
+        writeJson(log_path, logs);
+
         return res.json(channel);
       }
     );
@@ -608,6 +618,25 @@ module.exports = {
       users[target_index] = target_user;
       writeJson(user_path, users);
       return res.json(users[target_index]);
+    });
+
+    app.get("/api/log", attachUser, (req, res) => {
+      const user = req.user;
+      if (!user)
+        return res.status(401).json({
+          error: "GET/api/log = No user",
+        });
+
+      // only super can see the log
+      if (user.role !== "super-admin") {
+        return res.status(404).json({
+          error: "GET/api/log = Not allowed to see logs",
+        });
+      }
+
+      const logs = readJson(log_path) ?? [];
+
+      return res.json(logs);
     });
   },
 };
