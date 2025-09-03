@@ -58,6 +58,7 @@ module.exports = {
       return res.json(filtered_groups);
     });
 
+    // get all info of a group
     app.get("/api/group/:id", attachUser, (req, res) => {
       const groups = readJson(group_path) ?? [];
       // check for permission. if super, get all group
@@ -218,6 +219,7 @@ module.exports = {
       return res.json({ deleted: deleted_group });
     });
 
+    // remove self from a group
     app.delete("/api/group/:id/member", attachUser, (req, res) => {
       const user = req.user;
 
@@ -260,6 +262,7 @@ module.exports = {
       return res.json({ removed: username, group_id: id });
     });
 
+    // add self to a group's request
     app.patch("/api/group/:id/request", attachUser, (req, res) => {
       const user = req.user;
       if (!user)

@@ -151,7 +151,7 @@ module.exports = {
 
       channels.splice(channelIndex, 1);
       writeJson(channel_path, channels);
-      return res.json();
+      return res.json({deleted: channel.id});
     });
   },
 };
