@@ -9,7 +9,7 @@ async function readJson(filePath) {
     const data = JSON.parse(raw);
     return data;
   } catch (error) {
-    console.error("Error reading or parsing JSON file:", error.message);
+    console.error("~~ error reading or parsing JSON file:", error.message);
     return null;
   }
 }
@@ -37,7 +37,7 @@ export async function seed(name) {
     const db = getDB();
     await setup(db, name, schema, key); // drop and setup the collection
     await db.collection(name).insertMany(items);
-    console.log(">> collection reset with seed completed.");
+    console.log(`>> ${name} collection seeded.`);
   } catch (err) {
     console.error("~~ seed failed:", err.message);
     throw err;
@@ -61,15 +61,15 @@ export async function read(name) {
   }
 }
 
-export async function add(name, item) {
+export async function add(name, entry) {
   if (!name) throw new Error("~~ collection name is required");
   if (!PATHS[name]) throw new Error(`~~ unknown collection "${name}".`);
-  if (!item || typeof item !== "object")
-    throw new Error(`~~ ${item} is not an object.`);
+  if (!entry || typeof entry !== "object")
+    throw new Error(`~~ ${entry} is invalid.`);
   try {
     await connectDB();
     const db = getDB();
-    const result = await db.collection(name).insertOne(item);
+    const result = await db.collection(name).insertOne(entry);
     return result;
   } catch (e) {
     console.error(`~~ adding to ${name} failed:`, e.message);
@@ -78,50 +78,56 @@ export async function add(name, item) {
   }
 }
 
-export async function update() {
+export async function get(name, id) {
+  if (!name) throw new Error("~~ collection name is required");
+  if (!PATHS[name]) throw new Error(`~~ unknown collection "${name}".`);
+  if (!id || typeof id !== "object") throw new Error(`~~ ${id} is invalid`);
   try {
     await connectDB();
     const db = getDB();
-
-    const filter = { id: 2 };
-    const update = {
-      $set: {
-        price: 99.99,
-        units: 50,
-        description: "Newly updated product 2's description",
-      },
-    };
-
-    const result = await db.collection(COLLECTION).updateOne(filter, update);
-
-    if (result.matchedCount === 0) {
-      console.log("Error while trying to update.");
-    } else {
-      console.log("Update successful.");
-    }
+    const item = await db.collection(name).findOne(id);
+    return item;
   } catch (e) {
-    console.error("create product failed:", e.message);
+    console.error(`find item in ${name} failed:`, e.message);
   } finally {
     await closeDB();
   }
 }
 
-export async function remove() {
+export async function update(name, id, changes) {
+  if (!name) throw new Error("~~ collection name is required");
+  if (!PATHS[name]) throw new Error(`~~ unknown collection "${name}".`);
+  if (!id || typeof id !== "object") throw new Error(`~~ ${id} is invalid`);
+  if (!changes || typeof changes !== "object")
+    throw new Error(`~~ ${changes} is invalid`);
   try {
     await connectDB();
     const db = getDB();
+    const result = await db
+      .collection(name)
+      .replaceOne(id, changes, { upsert: false });
+    return {
+      matched: result.matchedCount,
+      modified: result.modifiedCount
+    };
+  } catch (e) {
+    console.error("~~ update failed:", e.message);
+  } finally {
+    await closeDB();
+  }
+}
 
-    const filter = { id: 3 };
-
-    const result = await db.collection(COLLECTION).deleteOne(filter);
-
-    if (result.deletedCount === 0) {
-      console.log("Error while trying to remove.");
-    } else {
-      console.log("Remove completed.");
-    }
+export async function remove(name, id) {
+  if (!name) throw new Error("~~ collection name is required");
+  if (!PATHS[name]) throw new Error(`~~ unknown collection "${name}".`);
+  if (!id || typeof id !== "object") throw new Error(`~~ ${id} is invalid`);
+  try {
+    await connectDB();
+    const db = getDB();
+    const result = await db.collection(name).deleteOne(id);
+    return result;
   } catch (err) {
-    console.error("Delete failed:", err.message);
+    console.error(`~~ error while removing in  ${name}: `, err.message);
   } finally {
     await closeDB();
   }

@@ -1,7 +1,11 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-function readJson(filePath) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export function readJson(filePath) {
   try {
     const fullPath = path.resolve(__dirname, filePath);
     const data = fs.readFileSync(fullPath, "utf8");
@@ -12,7 +16,7 @@ function readJson(filePath) {
   }
 }
 
-function writeJson(filePath, data) {
+export function writeJson(filePath, data) {
   try {
     const fullPath = path.resolve(__dirname, filePath);
     const jsonString =
@@ -24,8 +28,3 @@ function writeJson(filePath, data) {
     return false;
   }
 }
-
-module.exports = {
-  readJson,
-  writeJson
-};

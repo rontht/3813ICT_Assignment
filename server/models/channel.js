@@ -7,4 +7,5 @@ class Channel {
     this.channel_users = channel_users;
   }
 }
-module.exports = Channel;
+
+export default Channel;

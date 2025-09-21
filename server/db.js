@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
+dotenv.config({ quiet: true });
 
-dotenv.config();
 const MONGO_URL = process.env.mongo_url || "mongodb://127.0.0.1";
 const MONGO_PORT = process.env.mongo_port || 27017;
 const MONGO_DB_NAME = process.env.mongo_name || "assignment-db";
@@ -23,14 +23,14 @@ function getDB() {
 
 async function health() {
   let result = await db.command({ ping: 1 });
-  console.log(">> Connection to MongoDB is successful!");
+  // console.log(">> Connection to MongoDB is successful!");
   return result;
 }
 
 async function closeDB() {
   await client.close();
   db = null;
-  console.log(">> Database connection closed");
+  // console.log(">> Database connection closed");
 }
 
 export { connectDB, getDB, health, closeDB };

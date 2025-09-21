@@ -7,4 +7,5 @@ class Group {
     this.requests = requests;
   }
 }
-module.exports = Group;
+
+export default Group;

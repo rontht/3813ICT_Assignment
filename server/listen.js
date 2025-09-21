@@ -1,9 +1,5 @@
-module.exports = {
-  listen: (server, PORT) => {
-    server.listen(PORT, () => {
-      console.log(
-        "Server has been started on port:" + PORT
-      );
-    });
-  },
-};
+export function listen(server, PORT) {
+  server.listen(PORT, () => {
+    console.log("Server has been started on port:" + PORT);
+  });
+}
