@@ -1,0 +1,28 @@
+{
+  "bsonType": "object",
+  "required": ["id", "name", "group_id", "banned_users", "channel_users"],
+  "properties": {
+    "id": {
+      "bsonType": "string",
+      "description": "Unique channel identifier (e.g., c001)"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "Channel display name"
+    },
+    "group_id": {
+      "bsonType": "string",
+      "description": "ID of the parent group this channel belongs to"
+    },
+    "banned_users": {
+      "bsonType": "array",
+      "items": { "bsonType": "string" },
+      "description": "Usernames of users banned from the channel"
+    },
+    "channel_users": {
+      "bsonType": "array",
+      "items": { "bsonType": "string" },
+      "description": "Usernames of users who are members of the channel"
+    }
+  }
+}

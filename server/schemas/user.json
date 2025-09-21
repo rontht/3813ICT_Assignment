@@ -1,0 +1,29 @@
+{
+  "bsonType": "object",
+  "required": ["username", "name", "email", "password", "role"],
+  "properties": {
+    "username": {
+      "bsonType": "string",
+      "description": "Unique username for login"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "Display name"
+    },
+    "email": {
+      "bsonType": "string",
+      "pattern": "^[^@\\s]+@[^@\\s]+$",
+      "description": "Valid email address (TLD dot optional)"
+    },
+    "password": {
+      "bsonType": "string",
+      "minLength": 3,
+      "description": "Password string"
+    },
+    "role": {
+      "bsonType": "string",
+      "enum": ["super-admin", "group-admin", "user"],
+      "description": "Access role"
+    }
+  }
+}

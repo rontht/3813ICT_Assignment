@@ -1,36 +1,41 @@
-import { connectDB, getDB, closeDB, health } from "./db.js";
+import { connectDB, getDB, closeDB } from "./db.js";
 import { promises as fs } from "fs";
-import PATHS from ".paths.js";
+import PATHS from "./paths.js";
 
 async function readJson(filePath) {
-  const url = new URL(filePath, import.meta.url);
-  const raw = await fs.readFile(url, "utf8");
-  const data = JSON.parse(raw);
-  if (!Array.isArray(data)) {
-    throw new Error(`~~ file must contain a JSON array`);
+  try {
+    const url = new URL(filePath, import.meta.url);
+    const raw = await fs.readFile(url, "utf8");
+    const data = JSON.parse(raw);
+    return data;
+  } catch (error) {
+    console.error("Error reading or parsing JSON file:", error.message);
+    return null;
   }
-  return data;
+}
+
+async function setup(db, name, schema, key) {
+  const exists = await db.listCollections({ name: name }).hasNext();
+  if (exists) await db.collection(name).drop();
+  await db.createCollection(name, { validator: { $jsonSchema: schema } });
+  if (name === "user")
+    await db.collection(name).createIndex(key, { unique: true });
+  console.log(`>> ${name} collection created!`);
 }
 
 export async function seed(name) {
-  const path = PATHS[name];
-  if (!path) throw new Error(`~~ unknown collection "${name}".`);
-  let items;
-  try {
-    items = await readJson(path);
-  } catch (e) {
-    console.error(`~~ failed to load seed for "${name}":`, e.message);
-  }
-  if (!items.length) {
-    console.warn(`~~ no items to seed for "${name}".`);
-    return;
-  }
+  if (!PATHS[name]) throw new Error(`~~ unknown collection "${name}".`); // validate name
+  const schema = await readJson(PATHS[name].schema);
+  const items = await readJson(PATHS[name].seed);
+  const key = PATHS[name].key;
+  if (!schema) return; // check null and undefine
+  if (!items) return; // check null and undefine
+  if (!key) return; // check null and undefine
+  if (items.length === 0) return; // check if array is empty
   try {
     await connectDB();
-    await health();
     const db = getDB();
-    const exists = await db.listCollections({ name: name }).hasNext();
-    if (exists) await db.collection(name).drop();
+    await setup(db, name, schema, key); // drop and setup the collection
     await db.collection(name).insertMany(items);
     console.log(">> collection reset with seed completed.");
   } catch (err) {
