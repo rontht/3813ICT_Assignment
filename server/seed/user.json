@@ -1,0 +1,58 @@
+[
+  {
+    "username": "super",
+    "name": "Super",
+    "email": "super@com",
+    "password": "123",
+    "role": "super-admin"
+  },
+  {
+    "username": "aj",
+    "name": "AJ",
+    "email": "aj@com.au",
+    "password": "123",
+    "role": "group-admin"
+  },
+  {
+    "username": "juno",
+    "name": "Juno",
+    "email": "juno@com.au",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "momo",
+    "name": "Momo",
+    "email": "momo@com.au",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "kira",
+    "name": "Kira",
+    "email": "kira@com.au",
+    "password": "123",
+    "role": "group-admin"
+  },
+  {
+    "username": "leo",
+    "name": "Leo",
+    "email": "leo@com.au",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "zara",
+    "name": "Zara",
+    "email": "zara@com.au",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "max",
+    "name": "Max",
+    "email": "max@com.au",
+    "password": "123",
+    "role": "group-admin"
+  }
+]
