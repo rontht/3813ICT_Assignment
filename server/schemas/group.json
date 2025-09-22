@@ -1,6 +1,6 @@
 {
   "bsonType": "object",
-  "required": ["id", "name", "creator", "channels", "members", "requests"],
+  "required": ["id", "name", "creator", "members", "requests"],
   "properties": {
     "id": {
       "bsonType": "string",
@@ -13,11 +13,6 @@
     "creator": {
       "bsonType": "string",
       "description": "Username of the group creator"
-    },
-    "channels": {
-      "bsonType": "array",
-      "items": { "bsonType": "string" },
-      "description": "Array of channel IDs belonging to this group"
     },
     "members": {
       "bsonType": "array",

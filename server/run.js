@@ -5,8 +5,8 @@ import User from "./models/user.js";
 let entry = new User("testing", "Test", "test@com", "123", "user");
 let replacement = new User("testing", "Ron", "ron@com", "123", "super-admin");
 
-// await seedDefaultData();
-await readCollection("user");
+await seedDefaultData();
+// await readCollection("user");
 // await findItemFromCollection("group", { id: "g001" });
 // await addItemToCollection("user", entry);
 // await updateItemFromCollection("user", { username: "testing" }, replacement);

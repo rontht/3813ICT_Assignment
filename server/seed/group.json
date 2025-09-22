@@ -3,7 +3,6 @@
     "id": "g001",
     "name": "General",
     "creator": "super",
-    "channels": ["c001", "c002", "c010", "c011"],
     "members": ["juno", "momo", "super", "aj"],
     "requests": ["kira", "max"]
   },
@@ -11,7 +10,6 @@
     "id": "g002",
     "name": "Advance",
     "creator": "aj",
-    "channels": ["c003", "c004"],
     "members": ["aj", "momo", "max"],
     "requests": []
   },
@@ -19,7 +17,6 @@
     "id": "g003",
     "name": "Projects",
     "creator": "kira",
-    "channels": ["c005", "c006"],
     "members": ["super", "juno", "leo"],
     "requests": []
   },
@@ -27,7 +24,6 @@
     "id": "g004",
     "name": "Gaming",
     "creator": "max",
-    "channels": ["c007", "c008", "c009"],
     "members": ["super", "momo", "kira", "zara"],
     "requests": []
   },
@@ -35,7 +31,6 @@
     "id": "g005",
     "name": "Debate",
     "creator": "super",
-    "channels": ["c012", "c013", "c014"],
     "members": ["super", "kira", "leo", "aj"],
     "requests": []
   }

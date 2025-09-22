@@ -9,65 +9,48 @@
   PATCH /api/group/:id/request
 */
 
-import { readJson, writeJson } from "../db-manager.js";
+import { getDB } from "../db.js";
 import Group from "../models/group.js";
-
-const user_path = "../data/user.txt";
-const group_path = "../data/group.txt";
-const channel_path = "../data/channel.txt";
+import {
+  attachUser,
+  isGroupMember,
+  isSuper,
+  canManageGroup,
+  canCreateGroup,
+} from "./helpers.js";
 
 export function route(app) {
-  function attachUser(req, res, next) {
-    const users = readJson(user_path) ?? [];
-    // get id from header
-    const username = req.header("username");
-
-    if (!username) {
-      return res
-        .status(404)
-        .json({ error: "api-group.js: User not found in header." });
-    }
-
-    // find user
-    const user = users.find((u) => u.username === username) || null;
-    if (!user) {
-      return res
-        .status(404)
-        .json({ error: "api-group.js:User not found in database." });
-    }
-
-    // attach it to request
-    req.user = user;
-    next();
-  }
-
   // ____________ GROUPS ____________
   // get all groups for super
-  app.get("/api/groups", attachUser, (req, res) => {
-    const groups = readJson(group_path) ?? [];
-    // check for permission. if super, get all group
+  app.get("/api/groups", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-    const isSuper = user.role === "super-admin";
-    if (isSuper) {
-      return res.json(groups);
+    // 1) check for permission. if super, get all group
+    if (isSuper(user)) {
+      const all_groups = await db.collection("group").find({}).toArray();
+      return res.json(all_groups);
     }
-
-    // else, filter groups accordingly
-    const filtered_groups = groups.filter(
-      (g) => g.creator === user.username || g.members.includes(user.username)
-    );
+    // 2) else, filter groups accordingly
+    const filter = {
+      $or: [{ creator: user.username }, { members: user.username }],
+    };
+    const filtered_groups = await db.collection("group").find(filter).toArray();
     return res.json(filtered_groups);
   });
 
-  // get all info of a group
-  app.get("/api/group/:id", attachUser, (req, res) => {
-    const groups = readJson(group_path) ?? [];
-    // check for permission. if super, get all group
-    const user = req.user;
+  // get all info of a group for editing
+  app.get("/api/group/:id", attachUser, async (req, res) => {
+    const db = getDB();
     const id = req.params.id;
-    const group = groups.find((g) => g.id === id);
-    // only creators and super admin can view this
-    if (user.role === "group-admin" && group.creator !== user.username) {
+    // 1) get one group filter by id
+    const group = await db.collection("group").findOne({ id: id });
+    if (!group) {
+      return res.status(404).json({
+        error: "GET/api/group/:id = Group not found in database!",
+      });
+    }
+    // 2) check permission
+    if (!canManageGroup(req.body, group)) {
       return res.status(404).json({
         error: "GET/api/group/:id = Not allowed to view this group",
       });
@@ -75,17 +58,13 @@ export function route(app) {
     return res.json(group);
   });
 
-  // list all groups for searching
-  app.get("/api/search/groups", attachUser, (req, res) => {
-    const groups = readJson(group_path) ?? [];
-    const channels = readJson(channel_path) ?? [];
+  // list all groups for search button feature
+  app.get("/api/search/groups", attachUser, async (req, res) => {
+    const db = getDB();
+    const groups = await db.collection("group").find({}).toArray();
+    const channels = await db.collection("channel").find({}).toArray();
     const user = req.user;
-    if (!user)
-      return res
-        .status(401)
-        .json({ error: "GET/api/search/groups/ = No user found" });
-
-    // only send necessary group info
+    // 1) only send necessary group info
     const mapped_groups = groups.map((group) => {
       const groupChannels = channels.filter((c) => c.group_id === group.id);
       return {
@@ -99,37 +78,39 @@ export function route(app) {
         requests: group.requests,
       };
     });
-
     return res.json(mapped_groups);
   });
 
   // create a new group
-  app.post("/api/group/", attachUser, (req, res) => {
-    const groups = readJson(group_path) ?? [];
-
+  app.post("/api/group/", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-    if (user.role !== "super-admin" && user.role !== "group-admin") {
-      return res
-        .status(404)
-        .json({ error: "POST/api/group/ = Not allowed to create groups" });
+    // 1) check for permission
+    if (!canCreateGroup(user)) {
+      return res.status(404).json({
+        error: "POST/api/group/ = Not allowed to create groups",
+      });
     }
-
+    // 2) validate name
     const { name, members = [], requests = [] } = req.body || {};
-    if (!name)
-      return res
-        .status(404)
-        .json({ error: "POST/api/group/ = Group name required" });
-
-    let group_id;
-    if (groups.length > 0) {
-      const last_group = groups[groups.length - 1];
-      const last_num = parseInt(last_group.id.replace(/^g/, ""), 10);
-      const next_num = last_num + 1;
-      group_id = "g" + next_num.toString().padStart(3, "0");
-    } else {
-      group_id = "g001";
+    if (!name) {
+      return res.status(404).json({
+        error: "POST/api/group/ = Group name required",
+      });
     }
-
+    // 3) generate a new increament of group id
+    const last_group = await db
+      .collection("group")
+      .find({}, { projection: { id: 1 } })
+      .sort({ id: -1 })
+      .limit(1)
+      .next();
+    const last_num = last_group
+      ? parseInt(String(last_group.id).replace(/^g/, ""), 10)
+      : 0;
+    const next_num = (Number.isFinite(last_num) ? last_num : 0) + 1;
+    const group_id = "g" + String(next_num).padStart(3, "0");
+    // 4) build a new group
     const new_group = new Group(
       group_id,
       name,
@@ -137,167 +118,133 @@ export function route(app) {
       members,
       requests
     );
-
-    groups.push(new_group);
-    writeJson(group_path, groups);
+    // 5) insert to db and send it back
+    await db.collection("group").insertOne(new_group);
     return res.json(new_group);
   });
 
   // edit a group
-  app.put("/api/group/:id", attachUser, (req, res) => {
+  app.put("/api/group/:id", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-
-    const groups = readJson(group_path) ?? [];
     const { id } = req.params;
-
-    const group = groups.find((g) => g.id === id);
+    // 1) load group from db
+    const group = await db.collection("group").findOne({ id: id });
     if (!group) {
-      return res
-        .status(404)
-        .json({ error: "PUT/api/group/:id = Group not found in database" });
-    }
-    const index = groups.findIndex((g) => g.id === id);
-
-    // only creators and super admin can edit
-    if (user.role === "group-admin" && group.creator !== user.username) {
       return res.status(404).json({
+        error: "PUT/api/group/:id = Group not found in database",
+      });
+    }
+    // 2) check for permission
+    if (!canManageGroup(user, group)) {
+      return res.status(403).json({
         error: "PUT/api/group/:id = Not allowed to edit this group",
       });
     }
-
+    // 3) get info from body
     const { name, members, requests } = req.body || {};
-
-    const updated_group = new Group(
-      group.id,
-      name,
-      group.creator,
-      members,
-      requests
-    );
-
-    groups[index] = updated_group;
-
-    writeJson(group_path, groups);
-    return res.json(updated_group);
+    const result = await db
+      .collection("group")
+      .findOneAndUpdate(
+        { id },
+        { $set: { name, members, requests } },
+        { returnDocument: "after" }
+      );
+    return res.json(result.value);
   });
 
   // delete a group
-  app.delete("/api/group/:id", attachUser, (req, res) => {
+  app.delete("/api/group/:id", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-
-    const groups = readJson(group_path) ?? [];
-    const channels = readJson(channel_path) ?? [];
     const { id } = req.params;
-
-    const group = groups.find((g) => g.id === id);
+    // 1) load group from db
+    const group = await db.collection("group").findOne({ id: id });
     if (!group) {
       return res.status(404).json({
         error: "DELETE/api/group/:id = Group not found in database",
       });
     }
-
-    // only creators and super admin can edit/delete
-    if (user.role === "group-admin" && group.creator !== user.username) {
-      return res.status(404).json({
+    // 2) check permission
+    if (!canManageGroup(user, group)) {
+      return res.status(403).json({
         error: "DELETE/api/group/:id = Not allowed to edit this group",
       });
     }
-
-    // remove all channels belonging to this group
-    const remaining_channels = [];
-    for (let i = 0; i < channels.length; i++) {
-      const ch = channels[i];
-      if (ch && ch.group_id !== id) {
-        remaining_channels.push(ch);
-      }
-    }
-    writeJson(channel_path, remaining_channels);
-
-    // remove the group
-    const deleted_group = group.name;
-    groups.splice(groups.indexOf(group), 1);
-    writeJson(group_path, groups);
-    return res.json({ deleted: deleted_group });
+    // 3) delete all channels belonging to the group
+    await db.collection("channel").deleteMany({ group_id: id });
+    // 4) delete the group itself
+    await db.collection("group").deleteOne({ id });
+    return res.json({ deleted: group.name });
   });
 
   // remove self from a group
-  app.delete("/api/group/:id/member", attachUser, (req, res) => {
+  app.delete("/api/group/:id/member", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-
-    const groups = readJson(group_path) ?? [];
-    const channels = readJson(channel_path) ?? [];
     const { id } = req.params;
-
     const username = user.username;
-    const group_index = groups.findIndex((g) => g.id === id);
-    const group = groups[group_index];
+    // 1) load group by id
+    const group = await db.collection("group").findOne({ id });
     if (!group) {
       return res.status(404).json({
         error: "DELETE/api/group/:id/member = Group not found in database",
       });
     }
-    // remove from group member
-    group.members = group.members.filter((m) => m !== username);
-    groups[group_index] = group;
-
-    // remove from channel users and banned users
-    for (let i = 0; i < channels.length; i++) {
-      const channel = channels[i];
-      // remove only from the group's channels
-      if (channel.group_id !== id) continue;
-
-      // remove from all channels in the group
-      channel.channel_users = channel.channel_users.filter(
-        (ch_u) => ch_u !== username
-      );
-      channel.banned_users = channel.banned_users.filter(
-        (b_u) => b_u !== username
-      );
-      // replace the edited group
-      channels[i] = channel;
+    // 2) check if a member of the group
+    if (!isGroupMember(user, group)) {
+      return res.status(400).json({
+        error: "User is not a member of this group",
+      });
     }
-
-    // save it in the Json
-    writeJson(group_path, groups);
-    writeJson(channel_path, channels);
+    // 3) remove from group member
+    await db
+      .collection("group")
+      .updateOne({ id }, { $pull: { members: username } });
+    // 4) remove from channel users and banned users
+    await db.collection("channel").updateMany(
+      { group_id: id },
+      {
+        $pull: {
+          channel_users: username,
+          banned_users: username,
+        },
+      }
+    );
     return res.json({ removed: username, group_id: id });
   });
 
   // add self to a group's request
-  app.patch("/api/group/:id/request", attachUser, (req, res) => {
+  app.patch("/api/group/:id/request", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-    if (!user)
-      return res.status(401).json({
-        error: "PATCH/api/group/:id/request = No user",
-      });
-
-    const groups = readJson(group_path) ?? [];
-
-    const id = req.params.id;
-    const group_index = groups.findIndex((g) => g.id === id);
-    if (group_index === -1) {
+    const { id } = req.params;
+    const username = user.username;
+    // 1) load group by id
+    const group = await db.collection("group").findOne({ id });
+    if (!group) {
       return res.status(404).json({
         error: "PATCH/api/group/:id/request = Group not found in database",
       });
     }
-    const group = groups[group_index];
-    const username = user.username;
-
-    // dont allow request if already a member
-    if (group.members.includes(username)) {
+    // 2) check if a member of the group
+    if (isGroupMember(user, group)) {
       return res.status(400).json({
         error: "PATCH/api/group/:id/request = Already a member of this group",
       });
     }
-
-    // dont allow request again if already requested
+    // 3) check if already requested
     if (group.requests.includes(username)) {
-      return res.json(group);
+      return res.json(username);
     }
-
-    group.requests.push(username);
-    groups[group_index] = group;
-    writeJson(group_path, groups);
+    // 4) add to request
+    await db
+      .collection("group")
+      .findOneAndUpdate(
+        { id },
+        { $addToSet: { requests: username } },
+        { returnDocument: "after" }
+      );
     return res.json(username);
   });
 }

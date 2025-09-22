@@ -3,81 +3,84 @@
     POST /api/auth
     POST /api/auth/register
 */
-
-import { readJson, writeJson } from "../db-manager.js";
 import User from "../models/user.js";
-
-const user_path = "../data/user.txt";
-const group_path = "../data/group.txt";
-const channel_path = "../data/channel.txt";
+import { getDB } from "../db.js";
 
 export function route(app) {
   // ____________ DEBUG ____________
   // route to display all data for testing
-  app.get("/", (req, res) => {
-    const users = readJson(user_path) ?? [];
-    const groups = readJson(group_path) ?? [];
-    const channels = readJson(channel_path) ?? [];
-    res.json({ users, groups, channels });
+  app.get("/", async (req, res) => {
+    try {
+      const db = getDB();
+      const users = await db
+        .collection("user")
+        .find({})
+        .project({ password: 0 })
+        .toArray();
+      const groups = await db.collection("group").find({}).toArray();
+      const channels = await db.collection("channel").find({}).toArray();
+      res.json({ users, groups, channels });
+    } catch (e) {
+      res.status(500).json({ error: "Failed to load data for localhost:3000" });
+    }
   });
 
   // ____________ AUTH ____________
   // auth api call
-  app.post("/api/auth", (req, res) => {
-    const users = readJson(user_path) ?? [];
-    const { username, password } = req.body;
+  app.post("/api/auth", async (req, res) => {
+    try {
+      const db = getDB();
+      const { username, password } = req.body || {};
 
-    // find a matching user
-    const user = users.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (!user) {
-      return res.json({ valid: false });
+      const user = await db.collection("user").findOne({ username, password });
+      if (!user) return res.json({ valid: false });
+      return res.json({
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        valid: true,
+      });
+    } catch (e) {
+      res.status(500).json({ error: "Authentication failed" });
     }
-
-    user.valid = true;
-    return res.json({
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      valid: user.valid,
-    });
   });
 
   // register api call
-  app.post("/api/auth/register", (req, res) => {
-    const users = readJson(user_path) ?? [];
-    const { username, name, email, role, password } = req.body || {};
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const db = getDB();
+      const { username, name, email, role, password } = req.body || {};
 
-    // check if any missing
-    if (!username || !name || !email || !role || !password) {
-      return res.status(401).json({ error: "Missing fields" });
+      // check if any missing
+      if (!username || !name || !email || !role || !password) {
+        return res.status(401).json({ error: "Missing fields" });
+      }
+
+      // check if username or email already exist
+      const existing = await db.collection("user").findOne({
+        $or: [{ username }, { email }],
+      });
+      if (existing) {
+        if (existing.username === username) {
+          return res.status(402).json({ error: "Username already exists" });
+        }
+        return res.status(403).json({ error: "Email already exists" });
+      }
+
+      // fill into user model and insert
+      const new_user = new User(username, name, email, password, role);
+      await db.collection("user").insertOne({ ...new_user });
+
+      return res.json({
+        username: new_user.username,
+        name: new_user.name,
+        email: new_user.email,
+        role: new_user.role,
+        valid: true,
+      });
+    } catch (e) {
+      res.status(500).json({ error: "Registeration failed" });
     }
-
-    // check if username and email already exist
-    if (users.some((u) => u.username === username)) {
-      return res.status(402).json({ error: "Username already exists" });
-    }
-    if (users.some((u) => u.email === email)) {
-      return res.status(403).json({ error: "Email already exists" });
-    }
-
-    // fill into user model
-    const new_user = new User(username, name, email, password, role, []);
-
-    // write into Json
-    users.push(new_user);
-    writeJson(user_path, users);
-
-    //valid true to all login
-    new_user.valid = true;
-    return res.json({
-      username: new_user.username,
-      name: new_user.name,
-      email: new_user.email,
-      role: new_user.role,
-      valid: new_user.valid,
-    });
   });
 }
