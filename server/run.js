@@ -17,6 +17,7 @@ async function seedDefaultData() {
   await seed("user");
   await seed("group");
   await seed("channel");
+  await seed("log");
 }
 // read everything from collection
 async function readCollection(name) {

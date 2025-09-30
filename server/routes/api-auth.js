@@ -21,6 +21,7 @@ export function route(app) {
       const channels = await db.collection("channel").find({}).toArray();
       res.json({ users, groups, channels });
     } catch (e) {
+      console.log(e);
       res.status(500).json({ error: "Failed to load data for localhost:3000" });
     }
   });
@@ -42,6 +43,7 @@ export function route(app) {
         valid: true,
       });
     } catch (e) {
+      console.log(e);
       res.status(500).json({ error: "Authentication failed" });
     }
   });
@@ -80,6 +82,7 @@ export function route(app) {
         valid: true,
       });
     } catch (e) {
+      console.log(e);
       res.status(500).json({ error: "Registeration failed" });
     }
   });

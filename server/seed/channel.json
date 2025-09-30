@@ -1,99 +1,85 @@
 [
   {
-    "id": "c001",
+    "id": "1",
     "name": "Lobby",
-    "group_id": "g001",
+    "group_id": "1",
     "banned_users": ["juno"],
     "channel_users": ["momo", "super", "aj"]
   },
   {
-    "id": "c002",
+    "id": "2",
     "name": "Interest",
-    "group_id": "g001",
+    "group_id": "1",
     "banned_users": [],
     "channel_users": ["super", "juno"]
   },
   {
-    "id": "c003",
+    "id": "3",
     "name": "Lobby",
-    "group_id": "g002",
+    "group_id": "2",
     "banned_users": [],
     "channel_users": ["aj", "max"]
   },
   {
-    "id": "c004",
+    "id": "4",
     "name": "Research",
-    "group_id": "g002",
+    "group_id": "2",
     "banned_users": [],
     "channel_users": ["momo", "aj"]
   },
   {
-    "id": "c005",
+    "id": "5",
     "name": "Announcements",
-    "group_id": "g003",
+    "group_id": "3",
     "banned_users": [],
-    "channel_users": ["super", "juno", "leo"]
+    "channel_users": ["juno", "leo"]
   },
   {
-    "id": "c006",
+    "id": "6",
     "name": "Tasks",
-    "group_id": "g003",
+    "group_id": "3",
     "banned_users": [],
-    "channel_users": ["super", "leo"]
+    "channel_users": ["leo"]
   },
   {
-    "id": "c007",
+    "id": "7",
     "name": "Lobby",
-    "group_id": "g004",
+    "group_id": "4",
     "banned_users": [],
     "channel_users": ["super", "momo", "kira", "zara"]
   },
   {
-    "id": "c008",
+    "id": "8",
     "name": "MMO",
-    "group_id": "g004",
+    "group_id": "4",
     "banned_users": [],
     "channel_users": ["kira", "zara"]
   },
   {
-    "id": "c009",
+    "id": "9",
     "name": "FPS",
-    "group_id": "g004",
+    "group_id": "4",
     "banned_users": [],
     "channel_users": ["super", "momo"]
   },
   {
-    "id": "c010",
-    "name": "55",
-    "group_id": "g001",
-    "banned_users": [],
-    "channel_users": ["super"]
-  },
-  {
-    "id": "c011",
-    "name": "hhhhh",
-    "group_id": "g001",
-    "banned_users": [],
-    "channel_users": ["momo", "aj"]
-  },
-  {
-    "id": "c012",
+    "id": "10",
     "name": "Welcome",
-    "group_id": "g005",
+    "group_id": "5",
     "banned_users": [],
     "channel_users": ["super", "kira", "leo", "aj"]
   },
   {
-    "id": "c013",
+    "id": "11",
     "name": "General",
-    "group_id": "g005",
+    "group_id": "5",
     "banned_users": [],
     "channel_users": ["super", "kira"]
   },
   {
-    "id": "c014",
+    "id": "12",
     "name": "Discussion",
-    "group_id": "g005",
+    "group_id": "5",
     "banned_users": [],
     "channel_users": ["leo", "aj"]
   }

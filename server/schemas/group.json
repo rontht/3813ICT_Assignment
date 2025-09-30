@@ -4,25 +4,21 @@
   "properties": {
     "id": {
       "bsonType": "string",
-      "description": "Unique group identifier (e.g., g001)"
+      "description": "Auto-incrementing numeric group identifier"
     },
     "name": {
-      "bsonType": "string",
-      "description": "Display name of the group"
+      "bsonType": "string"
     },
     "creator": {
-      "bsonType": "string",
-      "description": "Username of the group creator"
+      "bsonType": "string"
     },
     "members": {
       "bsonType": "array",
-      "items": { "bsonType": "string" },
-      "description": "Array of usernames who are members of the group"
+      "items": { "bsonType": "string" }
     },
     "requests": {
       "bsonType": "array",
-      "items": { "bsonType": "string" },
-      "description": "Usernames of users requesting to join the group"
+      "items": { "bsonType": "string" }
     }
   }
 }

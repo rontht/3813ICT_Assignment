@@ -50,3 +50,7 @@ export async function canManageGroup(user, group) {
 export async function canCreateGroup(user) {
   return isSuper(user) || isGroupAdmin(user);
 }
+
+export async function isChannelMember(user, channel) {
+  return channel.channel_users.includes(user.username);
+}

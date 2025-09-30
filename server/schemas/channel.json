@@ -4,25 +4,22 @@
   "properties": {
     "id": {
       "bsonType": "string",
-      "description": "Unique channel identifier (e.g., c001)"
+      "description": "Auto-incrementing numeric channel identifier"
     },
     "name": {
-      "bsonType": "string",
-      "description": "Channel display name"
+      "bsonType": "string"
     },
     "group_id": {
       "bsonType": "string",
-      "description": "ID of the parent group this channel belongs to"
+      "description": "Numeric ID of the parent group"
     },
     "banned_users": {
       "bsonType": "array",
-      "items": { "bsonType": "string" },
-      "description": "Usernames of users banned from the channel"
+      "items": { "bsonType": "string" }
     },
     "channel_users": {
       "bsonType": "array",
-      "items": { "bsonType": "string" },
-      "description": "Usernames of users who are members of the channel"
+      "items": { "bsonType": "string" }
     }
   }
 }

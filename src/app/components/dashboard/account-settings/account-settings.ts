@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output } from '@angular/core';
 import { User } from '../../../models/user';
 import { DataService } from '../../../services/data.service';
-import { Router } from '@angular/router';
+import { Log } from '../../../models/log';
 
 @Component({
   selector: 'app-account-settings',
@@ -18,7 +18,7 @@ export class AccountSettings implements OnInit {
   @Input() is_super: boolean = true;
   confirm_menu_open: boolean = false;
 
-  logs: string[] = [];
+  logs: Log[] = [];
 
   @Output() deleteAccount = new EventEmitter<void>();
 

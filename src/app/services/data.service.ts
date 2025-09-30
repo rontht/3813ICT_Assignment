@@ -4,6 +4,7 @@ import { User } from '../models/user';
 import { Groups } from '../models/groups';
 import { Group } from '../models/group';
 import { Channel } from '../models/channel';
+import { Log } from '../models/log';
 
 @Injectable({
   providedIn: 'root'
@@ -181,7 +182,7 @@ export class DataService {
   }
 
   getLogs() {
-    return this.httpService.get<string[]>(
+    return this.httpService.get<Log[]>(
       `${this.server}/log`,
       { headers: this.attachHeader() }
     );

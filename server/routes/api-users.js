@@ -12,249 +12,197 @@
     GET /api/log
 */
 
-import { readJson, writeJson } from "../db-manager.js";
-
-const log_path = "../data/log.txt";
-const user_path = "../data/user.txt";
-const group_path = "../data/group.txt";
-const channel_path = "../data/channel.txt";
+import { getDB } from "../db.js";
+import {
+  attachUser,
+  isCreator,
+  isSuper,
+  isChannelMember,
+  isGroupMember,
+  isGroupAdmin,
+} from "./helpers.js";
+import { format } from "date-fns";
 
 export function route(app) {
-  function attachUser(req, res, next) {
-    const users = readJson(user_path) ?? [];
-
-    // get id from header
-    const username = req.header("username");
-
-    if (!username) {
-      return res
-        .status(404)
-        .json({ error: "api-user.js: User not found in header." });
-    }
-
-    // find user
-    const user = users.find((u) => u.username === username) || null;
-    if (!user) {
-      return res
-        .status(404)
-        .json({ error: "api-user.js: User not found in database." });
-    }
-
-    // attach it to request
-    req.user = user;
-    next();
-  }
-
   // ____________ USERS ____________
   // get all members from a group
-  app.get("/api/groups/:group_id/members", attachUser, (req, res) => {
-    const groups = readJson(group_path) ?? [];
-    const users = readJson(user_path) ?? [];
+  app.get("/api/groups/:group_id/members", attachUser, async (req, res) => {
+    const db = getDB();
     const { group_id } = req.params;
-
-    // find the group
-    const group = groups.find((g) => g.id === group_id);
+    // 1) find the group
+    const group = await db.collection("group").findOne({ id: group_id });
     if (!group) {
       return res.status(404).json({
         error: "GET/api/groups/:group_id/members = Group not found in database",
       });
     }
-
-    // check for permission
+    // 2) check for permission
     const user = req.user;
-    const isSuper = user.role === "super-admin";
-    const isMember = group.members.includes(user.username);
-    if (!isSuper && !isMember) {
+    if (!(isSuper(user) && isCreator(user, group))) {
       return res
-        .status(404)
+        .status(403)
         .json({ error: "GET/api/groups/:group_id/members = No permission" });
     }
-
-    // don't sent all info of users
-    // send only what's necessary
-    const members = group.members
-      .map((username) => users.find((user) => user.username === username))
-      .map((user) => ({
-        username: user.username,
-        name: user.name,
-        role: user.role,
-      }));
-
+    // 3) get all usernames from members
+    const member_usernames = group.members ? group.members : [];
+    if (member_usernames.length === 0) return res.json([]);
+    // 4) find the matches from user and filter only necessary
+    const members = await db
+      .collection("user")
+      .find(
+        { username: { $in: member_usernames } },
+        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+      )
+      .toArray();
     return res.json(members);
   });
 
   // get all requested members from a group
-  app.get("/api/groups/:group_id/requests", attachUser, (req, res) => {
-    const groups = readJson(group_path) ?? [];
-    const users = readJson(user_path) ?? [];
+  app.get("/api/groups/:group_id/requests", attachUser, async (req, res) => {
+    const db = getDB();
     const { group_id } = req.params;
-
-    // find the group
-    const group = groups.find((g) => g.id === group_id);
+    // 1) find the group
+    const group = await db.collection("group").findOne({ id: group_id });
     if (!group) {
       return res.status(404).json({
         error:
           "GET/api/groups/:group_id/requests = Group not found in database",
       });
     }
-
-    // check for permission
+    // 2) check for permission
     const user = req.user;
-    const isSuper = user.role === "super-admin";
-    const isMember = group.members.includes(user.username);
-    if (!isSuper && !isMember) {
+    if (!(isSuper(user) && isCreator(user, group))) {
       return res
         .status(404)
         .json({ error: "GET/api/groups/:group_id/requests = No permission" });
     }
-
-    // don't sent all info of users
-    // send only what's necessary
-    const requests = group.requests
-      .map((username) => users.find((user) => user.username === username))
-      .map((user) => ({
-        username: user.username,
-        name: user.name,
-        role: user.role,
-      }));
-
+    // 3) get all usernames from requests
+    const request_usernames = group.requests ? group.requests : [];
+    if (request_usernames.length === 0) return res.json([]);
+    // 4) find the matches from user and filter only necessary
+    const requests = await db
+      .collection("user")
+      .find(
+        { username: { $in: request_usernames } },
+        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+      )
+      .toArray();
     return res.json(requests);
   });
 
   // get all banned members from a group
-  app.get("/api/channels/:channel_id/banned", attachUser, (req, res) => {
-    const channels = readJson(channel_path) ?? [];
-    const groups = readJson(group_path) ?? [];
-    const users = readJson(user_path) ?? [];
+  app.get("/api/channels/:channel_id/banned", attachUser, async (req, res) => {
+    const db = getDB();
     const { channel_id } = req.params;
-
-    // find the channel
-    const channel = channels.find((g) => g.id === channel_id);
+    // 1) find the channel
+    const channel = await db.collection("channel").findOne({ id: channel_id });
     if (!channel) {
       return res.status(404).json({
         error:
           "GET/api/channels/:channel_id/banned = Channel not found in database",
       });
     }
-
-    // find the group
-    const group = groups.find((g) => g.id === channel.group_id);
+    // 2) find the group
+    const group = await db
+      .collection("group")
+      .findOne({ id: channel.group_id });
     if (!group) {
       return res.status(404).json({
         error:
           "GET/api/channels/:channel_id/banned = Group not found in database",
       });
     }
-
-    // check for permission
+    // 3) check for permission
     const user = req.user;
-    const isSuper = user.role === "super-admin";
-    const isMember = group.members.includes(user.username);
-    if (!isSuper && !isMember) {
+    if (!(isSuper(user) || isCreator(user, group))) {
       return res.status(404).json({
         error: "GET/api/channels/:channel_id/banned = No permission",
       });
     }
-
-    // don't sent all info of users
-    // send only what's necessary
-    const banned_users = channel.banned_users
-      .map((username) => users.find((user) => user.username === username))
-      .map((user) => ({
-        username: user.username,
-        name: user.name,
-        role: user.role,
-      }));
-
-    return res.json(banned_users);
+    // 4) get usernames from banned_users
+    const banned_usernames = channel.banned_users ? channel.banned_users : [];
+    if (banned_usernames.length === 0) return res.json([]);
+    // 5) find matches from user and filter only necessary
+    const bans = await db
+      .collection("user")
+      .find(
+        { username: { $in: banned_usernames } },
+        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+      )
+      .toArray();
+    res.json(bans);
   });
 
   // get all channel members from a channel
-  app.get("/api/channels/:channel_id/members", attachUser, (req, res) => {
-    const channels = readJson(channel_path) ?? [];
-    const groups = readJson(group_path) ?? [];
-    const users = readJson(user_path) ?? [];
+  app.get("/api/channels/:channel_id/members", attachUser, async (req, res) => {
+    const db = getDB();
     const { channel_id } = req.params;
-
-    // find the channel
-    const channel = channels.find((g) => g.id === channel_id);
+    // 1) find the channel
+    const channel = await db.collection("channel").findOne({ id: channel_id });
     if (!channel) {
       return res.status(404).json({
         error:
           "GET/api/channels/:channel_id/members = Channel not found in database",
       });
     }
-
-    // find the group
-    const group = groups.find((g) => g.id === channel.group_id);
+    // 2) find the group
+    const group = await db
+      .collection("group")
+      .findOne({ id: channel.group_id });
     if (!group) {
       return res.status(404).json({
         error:
           "GET/api/channels/:channel_id/members = Group not found in database",
       });
     }
-
-    // check for permission
+    // 3) check for permission
     const user = req.user;
-    const isSuper = user.role === "super-admin";
-    const isMember = group.members.includes(user.username);
-    if (!isSuper && !isMember) {
+    if (
+      !(isSuper(user), isChannelMember(user, channel), isCreator(user, group))
+    ) {
       return res.status(404).json({
         error: "GET/api/channels/:channel_id/members = No permission",
       });
     }
-
-    // don't sent all info of users
-    // send only what's necessary
-    const channel_users = channel.channel_users
-      .map((username) => users.find((user) => user.username === username))
-      .map((user) => ({
-        username: user.username,
-        name: user.name,
-        role: user.role,
-      }));
-
-    return res.json(channel_users);
+    // 4) get usernames from channel_users
+    const channel_usernames = channel.channel_users
+      ? channel.channel_users
+      : [];
+    if (channel_usernames.length === 0) return res.json([]);
+    // 5) find matches from user and filter only necessary
+    const channel_members = await db
+      .collection("user")
+      .find(
+        { username: { $in: channel_usernames } },
+        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+      )
+      .toArray();
+    res.json(channel_members);
   });
 
   // get all users in the system for admins
-  app.get("/api/users", attachUser, (req, res) => {
-    const users = readJson(user_path) ?? [];
-    const groups = readJson(group_path) ?? [];
+  app.get("/api/users", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-    if (!user)
-      return res.status(401).json({ error: "GET/api/users = not auth" });
-
-    const is_super = user.role === "super-admin";
-    const is_creator = groups.some((g) => g.creator === user.username);
-
-    if (!is_super && !is_creator)
+    if (!(isSuper(user) && isGroupAdmin(user)))
       return res.status(403).json({ error: "GET/api/users = not permission" });
-
-    return res.json(
-      users.map((user) => ({
-        username: user.username,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      }))
-    );
+    const users = await db
+      .collection("user")
+      .find(
+        {},
+        { projection: { _id: 0, username: 1, name: 1, email: 1, role: 1 } }
+      )
+      .toArray();
+    return res.json(users);
   });
 
   // remove user from channel_users
   app.delete(
     "/api/channel/:channel_id/members/:username",
     attachUser,
-    (req, res) => {
+    async (req, res) => {
+      const db = getDB();
       const user = req.user;
-      if (!user)
-        return res.status(401).json({
-          error: "DELETE/api/channel/:channel_id/members/:username = No user",
-        });
-
-      const channels = readJson(channel_path) ?? [];
-      const groups = readJson(group_path) ?? [];
-
       const channel_id = req.params.channel_id;
       const username = req.params.username;
       if (!channel_id || !username)
@@ -262,148 +210,125 @@ export function route(app) {
           error:
             "DELETE/api/channel/:channel_id/members/:username = Bad parameters",
         });
-
-      // find the channel
-      const channel = channels.find((g) => g.id === channel_id);
+      // 1) find the channel
+      const channel = await db
+        .collection("channel")
+        .findOne({ id: channel_id });
       if (!channel) {
         return res.status(404).json({
           error:
             "DELETE/api/channel/:channel_id/members/:username = Channel not found in database",
         });
       }
-
-      // check permission
-      const group = groups.find((g) => g.id === channel.group_id);
+      // 2) find the group
+      const group = await db
+        .collection("channel")
+        .findOne({ id: channel.group_id });
       if (!group) {
         return res.status(404).json({
           error:
             "DELETE/api/channel/:channel_id/members/:username = Group not found in database",
         });
       }
-      // only creators and super admin can edit
-      if (!(user.role === "super-admin" || group.creator === user.username)) {
+      // 3) check permission
+      if (!(isSuper(user) || isCreator(user, group))) {
         return res.status(404).json({
           error:
             "PUT/api/channel/:channel_id/bans/:username = Not allowed to delete in this group",
         });
       }
-
-      // remove user from channel_users
-      channel.channel_users = channel.channel_users || [];
-      for (let i = 0; i < channel.channel_users.length; i++) {
-        if (channel.channel_users[i] === username) {
-          channel.channel_users.splice(i, 1);
-          break;
-        }
-      }
-
-      writeJson(channel_path, channels);
-      return res.json(channel);
+      // 4) remove user from channel_users
+      const result = await db
+        .collection("channel")
+        .findOneAndUpdate(
+          { id: channel_id },
+          { $pull: { channel_users: username } },
+          { returnDocument: "after" }
+        );
+      return res.json(result.value);
     }
   );
 
   // add user to banned_users (also remove from channel_users if present)
-  app.put("/api/channel/:channel_id/bans/:username", attachUser, (req, res) => {
-    const user = req.user;
-    if (!user)
-      return res.status(401).json({
-        error: "PUT/api/channel/:channel_id/bans/:username = No user",
-      });
-
-    const channels = readJson(channel_path) ?? [];
-    const groups = readJson(group_path) ?? [];
-
-    const channel_id = req.params.channel_id;
-    const username = req.params.username;
-    if (!channel_id || !username)
-      return res.status(404).json({
-        error: "PUT/api/channel/:channel_id/bans/:username = Bad parameters",
-      });
-
-    // find the channel
-    const channel = channels.find((g) => g.id === channel_id);
-    if (!channel) {
-      return res.status(404).json({
-        error:
-          "PUT/api/channel/:channel_id/bans/:username = Channel not found in database",
-      });
-    }
-
-    // check permission
-    const group = groups.find((g) => g.id === channel.group_id);
-    if (!group) {
-      return res.status(404).json({
-        error:
-          "PUT/api/channel/:channel_id/bans/:username = Group not found in database",
-      });
-    }
-    // only creators and super admin can edit
-    if (!(user.role === "super-admin" || group.creator === user.username)) {
-      return res.status(404).json({
-        error:
-          "PUT/api/channel/:channel_id/bans/:username = Not allowed to edit this group",
-      });
-    }
-
-    // ensure username is a group member
-    let is_group_member = false;
-    const gm = group.members || [];
-    for (let i = 0; i < gm.length; i++)
-      if (gm[i] === username) {
-        is_group_member = true;
-        break;
+  app.put(
+    "/api/channel/:channel_id/bans/:username",
+    attachUser,
+    async (req, res) => {
+      const db = getDB();
+      const actor = req.user;
+      const channel_id = req.params.channel_id;
+      const username = req.params.username;
+      if (!channel_id || !username)
+        return res.status(404).json({
+          error: "PUT/api/channel/:channel_id/bans/:username = Bad parameters",
+        });
+      // 1) find the channel
+      const channel = await db
+        .collection("channel")
+        .findOne({ id: channel_id });
+      if (!channel) {
+        return res.status(404).json({
+          error:
+            "PUT/api/channel/:channel_id/bans/:username = Channel not found in database",
+        });
       }
-    if (!is_group_member)
-      return res.status(409).json({
-        error: "PUT/api/channel/:channel_id/bans/:username = User not in group",
+      // 2) find the group
+      const group = await db
+        .collection("group")
+        .findOne({ id: channel.group_id });
+      if (!group) {
+        return res.status(404).json({
+          error:
+            "PUT/api/channel/:channel_id/bans/:username = Group not found in database",
+        });
+      }
+      // 3) check permission
+      if (!(isSuper(actor) || isCreator(actor, group))) {
+        return res.status(404).json({
+          error:
+            "PUT/api/channel/:channel_id/bans/:username = Not allowed to edit this group",
+        });
+      }
+      // 4) ensure username is a group member
+      const target = await db
+        .collection("user")
+        .findOne({ username: username });
+      if (!isGroupMember(target, group))
+        return res.status(409).json({
+          error:
+            "PUT/api/channel/:channel_id/bans/:username = User not in group",
+        });
+      // 5) remove from channel users and add to banned users
+      const result = await db.collection("channel").findOneAndUpdate(
+        { id: channel_id },
+        {
+          $pull: { channel_users: username },
+          $addToSet: { banned_users: username },
+        },
+        { returnDocument: "after" }
+      );
+      // 6) write the log
+      await db.collection("logs").insertOne({
+        at: new Date(),
+        actor: actor.username,
+        action: "ban",
+        channel_id,
+        channel_name: channel.name,
+        group_id: group.id,
+        group_name: group.name,
+        target: username,
       });
-
-    // remove from channel_users if present
-    channel.channel_users = channel.channel_users || [];
-    for (let i = 0; i < channel.channel_users.length; i++) {
-      if (channel.channel_users[i] === username) {
-        channel.channel_users.splice(i, 1);
-        break;
-      }
+      return res.json(result.value);
     }
-
-    // add to banned_users if not pre xsent
-    channel.banned_users = channel.banned_users || [];
-    let already_banned = false;
-    for (let i = 0; i < channel.banned_users.length; i++) {
-      if (channel.banned_users[i] === username) {
-        already_banned = true;
-        break;
-      }
-    }
-    if (!already_banned) channel.banned_users.push(username);
-
-    writeJson(channel_path, channels);
-
-    // write log after successful ban
-    const date = new Date().toISOString();
-    const line = `[${date}] ${user.username} banned ${username} from channel ${channel.name}(${channel.id}) in group ${group.name} (${group.id}).`;
-    const logs = readJson(log_path) ?? [];
-    logs.push(line);
-    writeJson(log_path, logs);
-
-    return res.json(channel);
-  });
+  );
 
   // add user to channel_users and remove from banned_users
   app.put(
     "/api/channel/:channel_id/members/:username",
     attachUser,
-    (req, res) => {
+    async (req, res) => {
+      const db = getDB();
       const user = req.user;
-      if (!user)
-        return res.status(401).json({
-          error: "PUT/api/channel/:channel_id/members/:username = No user",
-        });
-
-      const channels = readJson(channel_path) ?? [];
-      const groups = readJson(group_path) ?? [];
-
       const channel_id = req.params.channel_id;
       const username = req.params.username;
       if (!channel_id || !username)
@@ -411,221 +336,192 @@ export function route(app) {
           error:
             "PUT/api/channel/:channel_id/members/:username = bad parameters",
         });
-
-      // find the channel
-      const channel = channels.find((g) => g.id === channel_id);
+      // 1) find the channel
+      const channel = await db
+        .collection("channel")
+        .findOne({ id: channel_id });
       if (!channel) {
         return res.status(404).json({
           error:
             "PUT/api/channel/:channel_id/members/:username = Channel not found in database",
         });
       }
-
-      // check permission
-      const group = groups.find((g) => g.id === channel.group_id);
+      // 2) find the group
+      const group = await db
+        .collection("group")
+        .findOne({ id: channel.group_id });
       if (!group) {
         return res.status(404).json({
           error:
             "PUT/api/channel/:channel_id/members/:username = Group not found in database",
         });
       }
-      // only creators and super admin can edit
-      if (!(user.role === "super-admin" || group.creator === user.username)) {
+      // 3) check permission
+      if (!(isSuper(user) || isCreator(user, group))) {
         return res.status(404).json({
           error:
             "PUT/api/channel/:channel_id/bans/:username = Not allowed to edit this group",
         });
       }
-
-      // must be a group member to join channel
-      let is_group_member = false;
-      const gm = group.members || [];
-      for (let i = 0; i < gm.length; i++)
-        if (gm[i] === username) {
-          is_group_member = true;
-          break;
-        }
-      if (!is_group_member)
+      // 4) must be a group member to join channel
+      const target = await db
+        .collection("user")
+        .findOne({ username: username });
+      if (!isGroupMember(target, group))
         return res.status(409).json({
           error:
-            "PUT/api/channel/:channel_id/members/:username = User not in group",
+            "PUT/api/channel/:channel_id/members/:username = Target user is not in the group",
         });
-
-      // remove from banned_users if present
-      channel.banned_users = channel.banned_users || [];
-      for (let i = 0; i < channel.banned_users.length; i++) {
-        if (channel.banned_users[i] === username) {
-          channel.banned_users.splice(i, 1);
-          break;
-        }
-      }
-
-      // add to channel_users if not present
-      channel.channel_users = channel.channel_users || [];
-      let already_member = false;
-      for (let i = 0; i < channel.channel_users.length; i++) {
-        if (channel.channel_users[i] === username) {
-          already_member = true;
-          break;
-        }
-      }
-      if (!already_member) channel.channel_users.push(username);
-      writeJson(channel_path, channels);
-      return res.json(channel);
+      // 5) remove from banned users and add to channel_users
+      const result = await db.collection("channel").findOneAndUpdate(
+        { id: channel_id },
+        {
+          $pull: { banned_users: username },
+          $addToSet: { channel_users: username },
+        },
+        { returnDocument: "after" }
+      );
+      return res.json(result.value);
     }
   );
 
   // delete user from database
-  app.delete("/api/user/:username", attachUser, (req, res) => {
-    const user = req.user;
-    if (!user)
-      return res.status(401).json({
-        error: "DELETE/api/user/:username = No user",
-      });
-
-    const channels = readJson(channel_path) ?? [];
-    const groups = readJson(group_path) ?? [];
-    const users = readJson(user_path) ?? [];
-
+  app.delete("/api/user/:username", attachUser, async (req, res) => {
+    const db = getDB();
+    const actor = req.user;
     const username = req.params.username;
-    const target_user = users.find((u) => u.username === username);
-    const target_index = users.findIndex((u) => u.username === username);
-    const super_admin = users.find((u) => u.role === "super-admin");
-
-    // users can delete themselves
-    if (user.username !== username) {
-      // only super admin can delete others
-      if (user.role !== "super-admin") {
-        return res.status(404).json({
-          error: "DELETE/api/user/:username = Not allowed to delete users",
-        });
-      }
-    }
-
-    if (target_user.role === "super-admin") {
+    // 1) get target user
+    const target = await db.collection("user").findOne({ username: username });
+    if (!target) {
       return res.status(404).json({
+        error: "DELETE/api/user/:username = User not found",
+      });
+    }
+    // 2) users can delete themselves and super can delete others
+    const isActorSuper = actor.role === "super-admin";
+    const deletingSelf = actor.username === username;
+    if (!deletingSelf && !isActorSuper) {
+      return res.status(403).json({
+        error: "DELETE/api/user/:username = Not allowed to delete users",
+      });
+    }
+    // 3) cannot delete super admins
+    if (isSuper(target)) {
+      return res.status(403).json({
         error: "DELETE/api/user/:username = Super Admins cannot be deleted",
       });
     }
-
-    for (let i = 0; i < groups.length; i++) {
-      const group = groups[i];
-      // remove from all groups they belong to
-      group.members = group.members.filter((m) => m !== target_user.username);
-      group.requests = group.requests.filter((r) => r !== target_user.username);
-      // reassign creator to the first super_admin
-      if (group.creator === target_user.username) {
-        group.creator = super_admin.creator;
+    // 4) reassign username for groups where target is creator
+    //    prefer the actor but if actor isn't super, find any super-admin
+    let newCreator = isActorSuper ? actor.username : null;
+    if (!newCreator) {
+      const superAdmin = await db
+        .collection("user")
+        .findOne(
+          { role: "super-admin" },
+          { projection: { _id: 0, username: 1 } }
+        );
+      if (!superAdmin) {
+        return res.status(409).json({
+          error:
+            "DELETE/api/user/:username = No super-admin available for reassignment",
+        });
       }
-      // replace the edited group
-      groups[i] = group;
+      newCreator = superAdmin.username;
     }
-
-    for (let j = 0; j < channels.length; j++) {
-      const channel = channels[j];
-      // remove from all channels they belong to
-      channel.channel_users = channel.channel_users.filter(
-        (b) => b !== target_user.username
-      );
-      channel.banned_users = channel.banned_users.filter(
-        (b) => b !== target_user.username
-      );
-      // replace the edited group
-      channels[j] = channel;
-    }
-
-    // finally, remove the user from users
-    if (target_index !== -1) {
-      users.splice(target_index, 1);
-    }
-
-    // save the changes
-    writeJson(group_path, groups);
-    writeJson(channel_path, channels);
-    writeJson(user_path, users);
-
+    // 5) remove from all groups
+    await db.collection("group").updateMany(
+      {},
+      {
+        $pull: { members: username, requests: username },
+      }
+    );
+    // 6) reassign creator
+    await db
+      .collection("group")
+      .updateMany({ creator: username }, { $set: { creator: newCreator } });
+    // 7) remove from all channels
+    await db.collection("channel").updateMany(
+      {},
+      {
+        $pull: {
+          channel_users: username,
+          banned_users: username,
+        },
+      }
+    );
+    // 8) delete the user
+    await db.collection("user").deleteOne({ username });
     return res.json({ deleted: username });
   });
 
   // promote user to next
-  app.patch("/api/user/:username/role", attachUser, (req, res) => {
-    const user = req.user;
-    if (!user)
-      return res.status(401).json({
-        error: "PATCH/api/user/:username/role = No user",
-      });
-
-    const users = readJson(user_path) ?? [];
+  app.patch("/api/user/:username/role", attachUser, async (req, res) => {
+    const db = getDB();
+    const actor = req.user;
     const username = req.params.username;
-    const target_role = req.body.role || "user";
-    const target_user = users.find((u) => u.username === username);
-    const target_index = users.findIndex((u) => u.username === username);
-
-    if (!target_user) {
-      return res.status(404).json({
-        error: "PATCH/api/user/:username/role = Target user not found",
-      });
-    }
-
-    // users cannot promote themselves
-    if (user.username === target_user.username) {
+    const RANK = { user: 0, "group-admin": 1, "super-admin": 2 };
+    // 1) users cannot promote themselves
+    if (actor.username === username) {
       return res.status(404).json({
         error:
           "PATCH/api/user/:username/role = You cannot promote your own role",
       });
     }
-    // only super admins can promote others
-    if (user.role !== "super-admin") {
+    // 2) only super admins can promote others
+    if (isSuper(actor)) {
       return res.status(404).json({
         error: "PATCH/api/user/:username/role = Not allowed to promote roles",
       });
     }
-    // cannot promote your own role
-    if (user.username === target_user.username) {
-      return res.status(403).json({
-        error:
-          "PATCH/api/user/:username/role = You cannot promote your own role",
+    // 3) get target user
+    const target = await db.collection("user").findOne({ username });
+    if (!target) {
+      return res.status(404).json({
+        error: "PATCH/api/user/:username/role = Target user not found",
       });
     }
-
-    // to enforce promote only
-    const rank = { user: 0, "group-admin": 1, "super-admin": 2 };
-    const current = target_user.role in rank ? target_user.role : "user";
+    // 4) enforce promote only
+    const current = target.role in RANK ? target.role : "user";
     const next = target_role;
-    if (rank[next] < rank[current]) {
+    if (RANK[next] < RANK[current]) {
       return res.status(400).json({
         error: "PATCH/api/user/:username/role = no demoting allowed",
       });
     }
-
-    // if already the same
-    if (rank[next] === rank[current]) {
-      return res.json(target_user);
+    // 5) check if same role
+    if (RANK[next] === RANK[current]) {
+      return res.json(target);
     }
-
-    // make it permanent
-    target_user.role = next;
-    users[target_index] = target_user;
-    writeJson(user_path, users);
-    return res.json(users[target_index]);
+    // 6) update the role
+    const result = await db.collection("user").findOneAndUpdate(
+      { username },
+      { $set: { role: next } },
+      {
+        returnDocument: "after",
+        projection: { _id: 0, username: 1, name: 1, email: 1, role: 1 },
+      }
+    );
+    return res.json(result.value);
   });
 
-  app.get("/api/log", attachUser, (req, res) => {
+  app.get("/api/log", attachUser, async (req, res) => {
+    const db = getDB();
     const user = req.user;
-    if (!user)
-      return res.status(401).json({
-        error: "GET/api/log = No user",
-      });
-
     // only super can see the log
-    if (user.role !== "super-admin") {
+    if (!isSuper(user)) {
       return res.status(404).json({
         error: "GET/api/log = Not allowed to see logs",
       });
     }
-
-    const logs = readJson(log_path) ?? [];
-
-    return res.json(logs);
+    const logs = await db.collection("logs").find({}).toArray();
+    const formatted_logs = logs.map((log) => ({
+      ...log,
+      at:
+        log.at instanceof Date
+          ? format(log.at, "yyyy-MM-dd HH:mm:ss")
+          : String(log.at),
+    }));
+    return res.json(formatted_logs);
   });
 }

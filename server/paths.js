@@ -18,5 +18,9 @@ const PATHS = {
     seed:   "./seed/message.json",
     schema: "./schemas/message.json",
   },
+  log: {
+    seed: "./seed/log.json",
+    schema: "./schemas/log.json",
+  }
 };
 export default PATHS;

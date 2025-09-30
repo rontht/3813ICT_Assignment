@@ -12,6 +12,7 @@
   "description": "Assessed Project for 3813ICT",
   "dependencies": {
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "mongodb": "^6.20.0",

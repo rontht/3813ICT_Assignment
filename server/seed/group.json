@@ -1,34 +1,34 @@
 [
   {
-    "id": "g001",
+    "id": "1",
     "name": "General",
     "creator": "super",
     "members": ["juno", "momo", "super", "aj"],
     "requests": ["kira", "max"]
   },
   {
-    "id": "g002",
+    "id": "2",
     "name": "Advance",
     "creator": "aj",
     "members": ["aj", "momo", "max"],
     "requests": []
   },
   {
-    "id": "g003",
+    "id": "3",
     "name": "Projects",
     "creator": "kira",
-    "members": ["super", "juno", "leo"],
+    "members": ["juno", "leo"],
     "requests": []
   },
   {
-    "id": "g004",
+    "id": "4",
     "name": "Gaming",
     "creator": "max",
     "members": ["super", "momo", "kira", "zara"],
     "requests": []
   },
   {
-    "id": "g005",
+    "id": "5",
     "name": "Debate",
     "creator": "super",
     "members": ["super", "kira", "leo", "aj"],
