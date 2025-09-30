@@ -1,5 +1,17 @@
 <div class="w-full h-full">
-  <h2 class="text-2xl font-bold mb-6">User Management</h2>
+  <div class="flex items-center mb-6">
+    <h2 class="text-2xl font-bold">User Management</h2>
+    <div
+      *ngIf="notification"
+      class="ml-4 flex-1 p-1 text-center rounded-xl text-white"
+      [ngClass]="{
+        'bg-green-600': notification.type === 'success',
+        'bg-red-600': notification.type === 'error'
+      }"
+    >
+      {{ notification.message }}
+    </div>
+  </div>
   <div class="grid grid-cols-3 gap-6 h-[88vh]">
     <!-- Left: Current User + Create New User Form -->
     <div class="flex flex-col h-full">
@@ -104,7 +116,7 @@
           <div class="flex gap-2">
             <button
               class="px-3 py-1 bg-green-700 rounded text-white hover:bg-green-600"
-              (click)="promote(u.username, 'group-admin')"
+              (click)="promote(u.username)"
             >
               Promote
             </button>
@@ -152,7 +164,7 @@
             <div class="flex gap-2">
               <button
                 class="px-3 py-1 bg-green-700 rounded text-white hover:bg-green-600"
-                (click)="promote(u.username, 'super-admin')"
+                (click)="promote(u.username)"
               >
                 Promote
               </button>

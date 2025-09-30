@@ -9,6 +9,7 @@ import { Log } from '../models/log';
 @Injectable({
   providedIn: 'root'
 })
+
 export class DataService {
   private httpService = inject(HttpClient);
   private server = 'http://localhost:3000/api';
@@ -126,7 +127,7 @@ export class DataService {
       `${this.server}/channel/${channel_id}/members/${username}`,
       {},
       { headers: this.attachHeader() }
-    )
+    );
   }
 
   banMember(username: string, channel_id: string) {
@@ -134,14 +135,14 @@ export class DataService {
       `${this.server}/channel/${channel_id}/bans/${username}`,
       {},
       { headers: this.attachHeader() }
-    )
+    );
   }
 
   removeChannelMember(username: string, channel_id: string) {
     return this.httpService.delete<any>(
       `${this.server}/channel/${channel_id}/members/${username}`,
       { headers: this.attachHeader() }
-    )
+    );
   }
 
   deleteGroup(id: string) {
@@ -158,10 +159,10 @@ export class DataService {
     );
   }
 
-  promoteUser(username: string, role: string) {
+  promoteUser(username: string) {
     return this.httpService.patch<User>(
       `${this.server}/user/${username}/role`,
-      { role },
+      {},
       { headers: this.attachHeader() }
     );
   }

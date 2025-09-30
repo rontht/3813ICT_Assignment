@@ -53,21 +53,21 @@ export function route(app) {
     try {
       const db = getDB();
       const { username, name, email, role, password } = req.body || {};
-
+      
       // check if any missing
       if (!username || !name || !email || !role || !password) {
-        return res.status(401).json({ error: "Missing fields" });
+        return res.status(400).json({ error: "Missing fields" });
       }
-
+      
       // check if username or email already exist
       const existing = await db.collection("user").findOne({
         $or: [{ username }, { email }],
       });
       if (existing) {
         if (existing.username === username) {
-          return res.status(402).json({ error: "Username already exists" });
+          return res.status(409).json({ error: "Username already exists" });
         }
-        return res.status(403).json({ error: "Email already exists" });
+        return res.status(409).json({ error: "Email already exists" });
       }
 
       // fill into user model and insert

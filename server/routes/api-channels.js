@@ -16,7 +16,7 @@ export function route(app) {
       const db = getDB();
       const { group_id } = req.params;
       // 1) load group by id
-      const group = await db.collection("group").find({ id: group_id });
+      const group = await db.collection("group").findOne({ id: group_id });
       if (!group) {
         return res.status(404).json({
           error:

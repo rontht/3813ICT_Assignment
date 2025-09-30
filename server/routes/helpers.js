@@ -19,38 +19,38 @@ export async function attachUser(req, res, next) {
   }
 }
 
-export async function isSuper(user) {
+export function isSuper(user) {
   return user.role === "super-admin";
 }
 
-export async function isGroupAdmin(user) {
+export function isGroupAdmin(user) {
   return user.role === "group-admin";
 }
 
-export async function isGroupMember(user, group) {
+export function isGroupMember(user, group) {
   return group.members.includes(user.username);
 }
 
-export async function isCreator(user, group) {
+export function isCreator(user, group) {
   return group.creator === user.username;
 }
 
-export async function canListChannel(user, group) {
-  return isSuper(user) || isMember(user, group);
+export function canListChannel(user, group) {
+  return isSuper(user) || isGroupMember(user, group);
 }
 
-export async function canManangeChannel(user, group) {
+export function canManangeChannel(user, group) {
   return isSuper(user) || isCreator(user, group);
 }
 
-export async function canManageGroup(user, group) {
+export function canManageGroup(user, group) {
   return isSuper(user) || isCreator(user, group);
 }
 
-export async function canCreateGroup(user) {
+export function canCreateGroup(user) {
   return isSuper(user) || isGroupAdmin(user);
 }
 
-export async function isChannelMember(user, channel) {
+export function isChannelMember(user, channel) {
   return channel.channel_users.includes(user.username);
 }

@@ -38,7 +38,9 @@ export function route(app) {
     }
     // 2) check for permission
     const user = req.user;
-    if (!(isSuper(user) && isCreator(user, group))) {
+    if (
+      !(isSuper(user) || isCreator(user, group) || isGroupMember(user, group))
+    ) {
       return res
         .status(403)
         .json({ error: "GET/api/groups/:group_id/members = No permission" });
@@ -71,7 +73,7 @@ export function route(app) {
     }
     // 2) check for permission
     const user = req.user;
-    if (!(isSuper(user) && isCreator(user, group))) {
+    if (!(isSuper(user) || isCreator(user, group))) {
       return res
         .status(404)
         .json({ error: "GET/api/groups/:group_id/requests = No permission" });
@@ -158,7 +160,11 @@ export function route(app) {
     // 3) check for permission
     const user = req.user;
     if (
-      !(isSuper(user), isChannelMember(user, channel), isCreator(user, group))
+      !(
+        isSuper(user) ||
+        isChannelMember(user, channel) ||
+        isCreator(user, group)
+      )
     ) {
       return res.status(404).json({
         error: "GET/api/channels/:channel_id/members = No permission",
@@ -184,8 +190,9 @@ export function route(app) {
   app.get("/api/users", attachUser, async (req, res) => {
     const db = getDB();
     const user = req.user;
-    if (!(isSuper(user) && isGroupAdmin(user)))
-      return res.status(403).json({ error: "GET/api/users = not permission" });
+    if (!(isSuper(user) || isGroupAdmin(user))) {
+      return res.status(403).json({ error: "GET/api/users = no permission" });
+    }
     const users = await db
       .collection("user")
       .find(
@@ -222,7 +229,7 @@ export function route(app) {
       }
       // 2) find the group
       const group = await db
-        .collection("channel")
+        .collection("group")
         .findOne({ id: channel.group_id });
       if (!group) {
         return res.status(404).json({
@@ -394,7 +401,7 @@ export function route(app) {
     const target = await db.collection("user").findOne({ username: username });
     if (!target) {
       return res.status(404).json({
-        error: "DELETE/api/user/:username = User not found",
+        error: "Target User not found",
       });
     }
     // 2) users can delete themselves and super can delete others
@@ -402,13 +409,13 @@ export function route(app) {
     const deletingSelf = actor.username === username;
     if (!deletingSelf && !isActorSuper) {
       return res.status(403).json({
-        error: "DELETE/api/user/:username = Not allowed to delete users",
+        error: "You are not allowed to delete users",
       });
     }
     // 3) cannot delete super admins
     if (isSuper(target)) {
       return res.status(403).json({
-        error: "DELETE/api/user/:username = Super Admins cannot be deleted",
+        error: "Super Admins cannot be deleted",
       });
     }
     // 4) reassign username for groups where target is creator
@@ -423,8 +430,7 @@ export function route(app) {
         );
       if (!superAdmin) {
         return res.status(409).json({
-          error:
-            "DELETE/api/user/:username = No super-admin available for reassignment",
+          error: "No super-admin available for reassignment",
         });
       }
       newCreator = superAdmin.username;
@@ -460,49 +466,45 @@ export function route(app) {
     const db = getDB();
     const actor = req.user;
     const username = req.params.username;
-    const RANK = { user: 0, "group-admin": 1, "super-admin": 2 };
+    const ROLE = ["user", "group-admin", "super-admin"];
     // 1) users cannot promote themselves
     if (actor.username === username) {
-      return res.status(404).json({
-        error:
-          "PATCH/api/user/:username/role = You cannot promote your own role",
+      return res.status(403).json({
+        error: "You cannot promote your own role",
       });
     }
-    // 2) only super admins can promote others
-    if (isSuper(actor)) {
-      return res.status(404).json({
-        error: "PATCH/api/user/:username/role = Not allowed to promote roles",
+    // 2) only super-admins can promote others
+    if (!isSuper(actor)) {
+      return res.status(403).json({
+        error: "Only super-admins can promote users",
       });
     }
     // 3) get target user
     const target = await db.collection("user").findOne({ username });
     if (!target) {
       return res.status(404).json({
-        error: "PATCH/api/user/:username/role = Target user not found",
+        error: "Target user not found",
       });
     }
-    // 4) enforce promote only
-    const current = target.role in RANK ? target.role : "user";
-    const next = target_role;
-    if (RANK[next] < RANK[current]) {
-      return res.status(400).json({
-        error: "PATCH/api/user/:username/role = no demoting allowed",
-      });
-    }
-    // 5) check if same role
-    if (RANK[next] === RANK[current]) {
+    const current_role = target.role || "user";
+    const current_index = ROLE.indexOf(current_role);
+    // 4) if already top role, nothing to do
+    if (current_index >= ROLE.length - 1) {
       return res.json(target);
     }
-    // 6) update the role
+    // 5) determine next role
+    const next_role = ROLE[current_index + 1];
+    // 6) update user role
     const result = await db.collection("user").findOneAndUpdate(
       { username },
-      { $set: { role: next } },
+      { $set: { role: next_role } },
       {
         returnDocument: "after",
         projection: { _id: 0, username: 1, name: 1, email: 1, role: 1 },
       }
     );
-    return res.json(result.value);
+
+    return res.json(result);
   });
 
   app.get("/api/log", attachUser, async (req, res) => {
