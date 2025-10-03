@@ -39,7 +39,6 @@ export async function getMessages(channel_id) {
         timeStyle: "short",
       }),
     }));
-    console.log(formatted);
     return formatted;
   } catch (err) {
     console.error("Error fetching messages:", err);

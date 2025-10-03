@@ -26,7 +26,6 @@ export class SocketsService {
     this.socket.emit('join', { channel_id, username });
     this.socket.once('channel_history', (history: Message[]) => {
       this.messages.set(history || []);
-      console.log("Histroy", history);
     });
   }
 

@@ -3,6 +3,7 @@ export class User {
   name: string;
   email?: string;
   role: string;
+  avatar?: string;
   valid?: boolean;
 
   constructor(
@@ -10,12 +11,14 @@ export class User {
     name: string,
     email: string,
     role: string,
+    avatar: string,
     valid: boolean = false
   ) {
     this.username = username;
     this.name = name;
     this.email = email;
     this.role = role;
+    this.avatar = avatar
     this.valid = valid;
   }
 }

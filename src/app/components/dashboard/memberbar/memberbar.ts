@@ -39,6 +39,7 @@ export class Memberbar implements OnChanges {
           next: (me) => {
             // set all members in this group and refresh
             this.all_members = me ?? [];
+            console.log(this.all_members[0]);
             this.refresh();
           },
           error: (e) => {

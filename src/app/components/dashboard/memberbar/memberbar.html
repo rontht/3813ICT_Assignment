@@ -1,5 +1,6 @@
 <aside class="w-[250px] h-full m-4 overflow-auto hide-scrollbar">
-  @if (channel_users.length > 0 || available_users.length > 0 || banned_users.length > 0) {
+  @if (channel_users.length > 0 || available_users.length > 0 ||
+  banned_users.length > 0) {
   <h2 class="text-lg text-white pb-3 border-t-2">Channel Members</h2>
 
   <div class="space-y-4 mb-5">
@@ -9,13 +10,21 @@
     >
       <!-- Placeholder Avatar -->
       <div
-        class="w-12 h-12 bg-white rounded-full flex items-center justify-center"
+        class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white"
       >
+        @if (member.avatar && member.avatar.trim() !== '') {
+        <img
+          [src]="member.avatar"
+          alt="{{ member.name }}"
+          class="w-full h-full object-cover rounded-full"
+        />
+        } @else {
         <span
           class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
         >
           {{ placeholderAvatar(member) }}
         </span>
+        }
       </div>
 
       <!-- Name and Role -->

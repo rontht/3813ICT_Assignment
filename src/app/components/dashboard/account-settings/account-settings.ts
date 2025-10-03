@@ -16,8 +16,8 @@ export class AccountSettings implements OnInit {
 
   @Input() current_user: User | null = null;
   @Input() is_super: boolean = true;
-  confirm_menu_open: boolean = false;
 
+  confirm_menu_open: boolean = false;
   logs: Log[] = [];
 
   @Output() deleteAccount = new EventEmitter<void>();
@@ -55,7 +55,7 @@ export class AccountSettings implements OnInit {
       next: (res) => {
         this.deleteAccount.emit();
       },
-      error: () => {}
+      error: () => { }
     });
   }
 }

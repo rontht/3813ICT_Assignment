@@ -10,7 +10,6 @@ export function connect(io, PORT) {
       const old_messages = await getMessages(channel_id);
       console.log(`${username} joined channel ${channel_id}`);
       socket.emit("channel_history", old_messages);
-      // console.log(old_messages);
       socket.to(channel_id).emit("user_joined", { username, channel_id });
     });
 

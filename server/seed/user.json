@@ -4,55 +4,63 @@
     "name": "Super",
     "email": "super@com",
     "password": "123",
-    "role": "super-admin"
+    "role": "super-admin",
+    "avatar": "http://localhost:3000/uploads/avatar/1759477351118-792203581.jpeg"
   },
   {
     "username": "aj",
     "name": "AJ",
     "email": "aj@com.au",
     "password": "123",
-    "role": "group-admin"
+    "role": "group-admin",
+    "avatar": ""
   },
   {
     "username": "juno",
     "name": "Juno",
     "email": "juno@com.au",
     "password": "123",
-    "role": "user"
+    "role": "user",
+    "avatar": ""
   },
   {
     "username": "momo",
     "name": "Momo",
     "email": "momo@com.au",
     "password": "123",
-    "role": "user"
+    "role": "user",
+    "avatar": ""
   },
   {
     "username": "kira",
     "name": "Kira",
     "email": "kira@com.au",
     "password": "123",
-    "role": "group-admin"
+    "role": "group-admin",
+    "avatar": ""
   },
   {
     "username": "leo",
     "name": "Leo",
     "email": "leo@com.au",
     "password": "123",
-    "role": "user"
+    "role": "user",
+    "avatar": ""
   },
   {
     "username": "zara",
     "name": "Zara",
     "email": "zara@com.au",
     "password": "123",
-    "role": "user"
+    "role": "user",
+    "avatar": ""
   },
   {
     "username": "max",
     "name": "Max",
     "email": "max@com.au",
     "password": "123",
-    "role": "group-admin"
+    "role": "group-admin",
+    "avatar": ""
   }
 ]

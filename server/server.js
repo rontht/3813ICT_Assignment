@@ -9,6 +9,7 @@ import { route as AUTH } from "./routes/api-auth.js";
 import { route as GROUP } from "./routes/api-groups.js";
 import { route as CHANNEL } from "./routes/api-channels.js";
 import { route as USER } from "./routes/api-users.js";
+import { route as FILE } from "./routes/api-file.js";
 
 import { connect as SOCKET } from "./socket.js";
 import { listen as LISTEN } from "./listen.js";
@@ -32,6 +33,7 @@ AUTH(app);
 GROUP(app);
 CHANNEL(app);
 USER(app);
+FILE(app);
 
 // socket + listen
 SOCKET(io, PORT);

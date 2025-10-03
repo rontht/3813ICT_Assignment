@@ -38,6 +38,7 @@ export function route(app) {
     }
     // 2) check for permission
     const user = req.user;
+    console.log(user.avatar);
     if (
       !(isSuper(user) || isCreator(user, group) || isGroupMember(user, group))
     ) {
@@ -53,7 +54,7 @@ export function route(app) {
       .collection("user")
       .find(
         { username: { $in: member_usernames } },
-        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+        { projection: { _id: 0, username: 1, name: 1, role: 1, avatar: 1 } }
       )
       .toArray();
     return res.json(members);

@@ -1,45 +1,108 @@
-<div
-  class="m-auto w-[50vw] h-[70vh] flex flex-col p-4 rounded-xl text-white bg-transparent"
->
+<div class="w-full h-full flex flex-col rounded-xl text-white">
   <!-- Title -->
-  <h1 class="text-2xl font-bold mb-4 flex-shrink-0">
+  <h1 class="text-2xl font-bold p-4 border-b border-white/10">
     {{ current_channel?.name }} Messages
   </h1>
 
-  <!-- Messages list -->
-  <div class="flex-1 overflow-y-auto space-y-2 mb-4 flex flex-col-reverse">
-    @for (msg of messagesin(); track msg.id) {
-    <div class="p-2 rounded-lg bg-gray-600 shadow-sm self-start">
-      <div class="text-sm text-gray-300">
-        {{ msg.sender }} — {{ msg.createdAt }}
-      </div>
-      <div class="text-base">{{ msg.body }}</div>
+  <!-- Messages -->
+  <div class="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+    @if (messagesin().length > 0) { @for (msg of messagesin(); track msg.id) {
 
-      @if (msg.attachments) {
-      <div class="mt-2">
-        <img
-          *ngFor="let a of msg.attachments"
-          [src]="a.url"
-          class="max-w-xs rounded-md mb-1"
-        />
+    <!-- If message is from current user -->
+    @if (msg.sender === current_user?.username) {
+    <div class="flex justify-end">
+      <div class="p-3 rounded-lg shadow bg-purple-800 max-w-[70%] text-white">
+        <div class="text-xs text-gray-300 mb-1">
+          {{ msg.sender }} — {{ msg.createdAt }}
+        </div>
+
+        <!-- Message text -->
+        <div class="text-base">{{ msg.body }}</div>
+
+        <!-- Attachments -->
+        @if (msg.attachments) { @if (msg.attachments.length > 0) { @for (att of
+        msg.attachments; track att.url) { @if (att.type === 'image') {
+        <img [src]="att.url" class="mt-2 rounded-lg shadow-md max-w-full" />
+        } } } }
       </div>
-      }
+    </div>
+    } @else {
+    <!-- Other users' messages -->
+    <div class="flex justify-start">
+      <div class="p-3 rounded-lg shadow bg-blue-800 max-w-[70%]">
+        <div class="text-xs text-gray-300 mb-1">
+          {{ msg.sender }} — {{ msg.createdAt }}
+        </div>
+
+        <!-- Message text -->
+        <div class="text-base">{{ msg.body }}</div>
+
+        <!-- Attachments -->
+        @if (msg.attachments) { @if (msg.attachments.length > 0) { @for (att of
+        msg.attachments; track att.url) { @if (att.type === 'image') {
+        <img [src]="att.url" class="mt-2 rounded-lg shadow-md max-w-full" />
+        } } }}
+      </div>
+    </div>
+    } } } @else {
+    <!-- If no messages yet in the channel -->
+    <div class="flex flex-col items-center justify-center mt-70 text-gray-400">
+      <img src="icons/empty_folder.png" alt="Empty" class="w-20" />
+      <p class="text-sm">No messages yet. Start the conversation!</p>
     </div>
     }
   </div>
 
-  <!-- Message input -->
-  <div class="flex gap-2 flex-shrink-0">
-    <input
-      type="text"
-      [ngModel]="messageout()"
-      (ngModelChange)="messageout.set($event)"
-      placeholder="Type a message..."
-      class="flex-1 p-2 rounded-lg text-black"
-      (keydown.enter)="send()"
-    />
-    <button (click)="send()" class="bg-blue-500 text-white px-4 rounded-lg">
-      Send
-    </button>
+  <!-- Chat Input -->
+  <div class="pt-4 flex flex-col gap-2 backdrop-blur rounded-b-xl">
+    <!-- Image preview -->
+    @if (preview_url) {
+    <div class="relative w-32 h-32">
+      <img
+        [src]="preview_url"
+        alt="preview"
+        class="w-full h-full object-cover rounded-xl shadow-md"
+      />
+      <button
+        (click)="removeSelectedFile()"
+        class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+      >
+        ✕
+      </button>
+    </div>
+    }
+
+    <!-- Input + buttons -->
+    <div class="flex gap-3 items-center">
+      <label
+        for="fileUpload"
+        class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 cursor-pointer text-white shadow-md transition-transform transform hover:scale-105"
+      >
+        📎
+      </label>
+      <input
+        type="file"
+        id="fileUpload"
+        class="hidden"
+        (change)="onFileSelected($event)"
+        accept="image/*"
+      />
+
+      <input
+        type="text"
+        [ngModel]="messageout()"
+        (ngModelChange)="messageout.set($event)"
+        placeholder="Type a message..."
+        class="flex-1 px-4 py-3 rounded-xl bg-secondary text-white placeholder-gray-400 focus:outline-none shadow-sm"
+        (keydown.enter)="send()"
+      />
+
+      <button
+        (click)="send()"
+        class="px-10 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-md transition-transform transform hover:scale-105"
+      >
+        Send
+      </button>
+    </div>
   </div>
 </div>

@@ -12,18 +12,22 @@
     },
     "email": {
       "bsonType": "string",
-      "pattern": "^[^@\\s]+@[^@\\s]+$",
-      "description": "Valid email address (TLD dot optional)"
+      "description": "Email address"
     },
     "password": {
       "bsonType": "string",
       "minLength": 3,
-      "description": "Password string"
+      "description": "Password"
     },
     "role": {
       "bsonType": "string",
       "enum": ["super-admin", "group-admin", "user"],
       "description": "Access role"
+    },
+    "avatar": {
+      "bsonType": "string",
+      "description": "URL of user avatar image",
+      "maxLength": 500
     }
   }
 }

@@ -189,4 +189,13 @@ export class DataService {
       { headers: this.attachHeader() }
     );
   }
+
+  uploadChatImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.httpService.post<{ success: boolean; url: string }>(
+      `${this.server}/upload/chat`,
+      formData
+    );
+  }
 }
