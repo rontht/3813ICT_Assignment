@@ -1,11 +1,45 @@
-<div class="m-auto w-[50vw]">
-  <h1 class="text-2xl font-bold mb-4">{{ current_channel?.name }} Messages</h1>
-  <p class="text-white mb-4">
-    Work In Progress: Chat Function coming soon!
-  </p>
-  <div class="space-y-8">
-    <div class="h-20 rounded-xl border bg-gray-600 shadow-sm"></div>
-    <div class="h-20 rounded-xl border bg-gray-600 shadow-sm"></div>
-    <div class="h-20 rounded-xl border bg-gray-600 shadow-sm"></div>
+<div
+  class="m-auto w-[50vw] h-[70vh] flex flex-col p-4 rounded-xl text-white bg-transparent"
+>
+  <!-- Title -->
+  <h1 class="text-2xl font-bold mb-4 flex-shrink-0">
+    {{ current_channel?.name }} Messages
+  </h1>
+
+  <!-- Messages list -->
+  <div class="flex-1 overflow-y-auto space-y-2 mb-4 flex flex-col-reverse">
+    @for (msg of messagesin(); track msg.id) {
+    <div class="p-2 rounded-lg bg-gray-600 shadow-sm self-start">
+      <div class="text-sm text-gray-300">
+        {{ msg.sender }} — {{ msg.createdAt }}
+      </div>
+      <div class="text-base">{{ msg.body }}</div>
+
+      @if (msg.attachments) {
+      <div class="mt-2">
+        <img
+          *ngFor="let a of msg.attachments"
+          [src]="a.url"
+          class="max-w-xs rounded-md mb-1"
+        />
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <!-- Message input -->
+  <div class="flex gap-2 flex-shrink-0">
+    <input
+      type="text"
+      [ngModel]="messageout()"
+      (ngModelChange)="messageout.set($event)"
+      placeholder="Type a message..."
+      class="flex-1 p-2 rounded-lg text-black"
+      (keydown.enter)="send()"
+    />
+    <button (click)="send()" class="bg-blue-500 text-white px-4 rounded-lg">
+      Send
+    </button>
   </div>
 </div>

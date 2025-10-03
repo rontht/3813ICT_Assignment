@@ -1,5 +1,4 @@
-import { read, add, get, update, remove } from "./functions.js";
-import { seed } from "./functions.js";
+import { read, add, get, update, remove, seed } from "./functions/seed.js";
 import User from "./models/user.js";
 
 let entry = new User("testing", "Test", "test@com", "123", "user");
@@ -17,6 +16,7 @@ async function seedDefaultData() {
   await seed("user");
   await seed("group");
   await seed("channel");
+  await seed("message");
   await seed("log");
 }
 // read everything from collection

@@ -1,12 +1,19 @@
-import { connectDB, getDB, closeDB } from "./db.js";
+import { connectDB, getDB, closeDB } from "../db.js";
 import { promises as fs } from "fs";
-import PATHS from "./paths.js";
+import PATHS from "../paths.js";
 
 async function readJson(filePath) {
   try {
     const url = new URL(filePath, import.meta.url);
     const raw = await fs.readFile(url, "utf8");
     const data = JSON.parse(raw);
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        if (item.createdAt) {
+          item.createdAt = new Date(item.createdAt);
+        }
+      });
+    }
     return data;
   } catch (error) {
     console.error("~~ error reading or parsing JSON file:", error.message);
@@ -108,7 +115,7 @@ export async function update(name, id, changes) {
       .replaceOne(id, changes, { upsert: false });
     return {
       matched: result.matchedCount,
-      modified: result.modifiedCount
+      modified: result.modifiedCount,
     };
   } catch (e) {
     console.error("~~ update failed:", e.message);

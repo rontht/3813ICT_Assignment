@@ -1,4 +1,4 @@
-import { Log } from '../model/log';
+import { Log } from "./log";
 
 describe('Log', () => {
   it('should create an instance', () => {

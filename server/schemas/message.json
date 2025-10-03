@@ -1,0 +1,45 @@
+{
+  "bsonType": "object",
+  "required": ["id", "channel_id", "sender", "createdAt"],
+  "properties": {
+    "id": {
+      "bsonType": "string",
+      "description": "Auto-incrementing numeric group identifier"
+    },
+    "channel_id": {
+      "bsonType": "string",
+      "description": "The ID of the channel this message belongs to"
+    },
+    "sender": {
+      "bsonType": "string",
+      "description": "The username of the sender"
+    },
+    "body": {
+      "bsonType": "string",
+      "description": "The text content of the message"
+    },
+    "attachments": {
+      "bsonType": "array",
+      "description": "list of attachments (images)",
+      "items": {
+        "bsonType": "object",
+        "required": ["url", "type"],
+        "properties": {
+          "url": {
+            "bsonType": "string",
+            "description": "URL of the attachment"
+          },
+          "type": {
+            "bsonType": "string",
+            "enum": ["image"],
+            "description": "Type of attachment"
+          }
+        }
+      }
+    },
+    "createdAt": {
+      "bsonType": "date",
+      "description": "Timestamp when the message was created"
+    }
+  }
+}

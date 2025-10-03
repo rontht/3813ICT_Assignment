@@ -5,6 +5,7 @@ import { Groups } from '../models/groups';
 import { Group } from '../models/group';
 import { Channel } from '../models/channel';
 import { Log } from '../models/log';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ import { Log } from '../models/log';
 
 export class DataService {
   private httpService = inject(HttpClient);
-  private server = 'http://localhost:3000/api';
+  private readonly server = environment.apiserver;
 
   private attachHeader() {
     const user = JSON.parse(localStorage.getItem('user') || 'null');

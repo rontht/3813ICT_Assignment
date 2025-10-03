@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -20,6 +20,7 @@ import { GroupSearch } from "./group-search/group-search";
 import { AccountSettings } from './account-settings/account-settings';
 import { GroupForm } from './group-form/group-form';
 import { Chat } from './chat/chat';
+import { SocketsService } from '../../services/sockets.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +31,10 @@ import { Chat } from './chat/chat';
 })
 export class Dashboard {
   private dataService = inject(DataService);
+  public socketService = inject(SocketsService);
   constructor(private router: Router) { }
+
+  @ViewChild(Chat) chatComponent!: Chat;
 
   user: User | null = null;
   groups: Group[] = [];
@@ -107,6 +111,9 @@ export class Dashboard {
 
   // ____________ Functions ____________ //
   reset() {
+    if (this.current_channel && this.user) {
+      this.socketService.leaveChannel(this.current_channel.id!, this.user.username);
+    }
     this.channels = [];
     this.members = [];
     this.requests = [];
@@ -134,7 +141,7 @@ export class Dashboard {
         if (!this.channels.length) return;
 
         if (this.canManageGroup()) {
-          this.current_channel = this.channels[0];
+          this.openChannel(this.channels[0]);
           return;
         }
 
@@ -156,7 +163,7 @@ export class Dashboard {
           }
 
           if (isMember && !isBanned) {
-            this.current_channel = channel;
+            this.openChannel(channel);
             break;
           }
         }
@@ -170,7 +177,16 @@ export class Dashboard {
   // open a channel
   openChannel(channel: Channel | null) {
     this.show_group_settings = false;
-    if (channel) this.current_channel = channel;
+    if (!channel || !this.user) return;
+    // Leave previous channel
+    if (this.current_channel) {
+      this.socketService.leaveChannel(this.current_channel.id!, this.user.username);
+    }
+    // Open the new channel
+    this.current_channel = channel;
+    this.chatComponent.clearMessages();
+    // Join new channel
+    this.socketService.joinChannel(this.current_channel.id!, this.user.username);
   }
 
   // open account settings

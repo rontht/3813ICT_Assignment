@@ -66,7 +66,11 @@
         </app-channelbar>
 
         <section class="flex-1">
-          <app-chat [current_channel]="current_channel"></app-chat>
+          <app-chat
+            [current_channel]="current_channel"
+            [current_user]="user"
+            [old_messages]="socketService.messages()"
+          ></app-chat>
         </section>
       </div>
       } @else {
