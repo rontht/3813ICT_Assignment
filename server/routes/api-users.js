@@ -38,7 +38,6 @@ export function route(app) {
     }
     // 2) check for permission
     const user = req.user;
-    console.log(user.avatar);
     if (
       !(isSuper(user) || isCreator(user, group) || isGroupMember(user, group))
     ) {

@@ -5,7 +5,9 @@ export class Message {
     body?: string;
     attachments?: any[];
     createdAt?: Date;
-
+    senderName?: string;
+    avatar?: string;
+    
     constructor(
         channel_id: string,
         sender: string,

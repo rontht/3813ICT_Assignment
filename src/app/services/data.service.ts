@@ -214,4 +214,16 @@ export class DataService {
       { headers: this.attachHeader() }
     );
   }
+
+  getChatData(username: string) {
+    return this.httpService.get<{ avatar: string, name: string }>(
+      `${this.server}/user/${username}/chat`
+    );
+  }
+
+  getPrebuiltGifs() {
+    return this.httpService.get<string[]>(
+      `${this.server}/gifs`
+    )
+  }
 }

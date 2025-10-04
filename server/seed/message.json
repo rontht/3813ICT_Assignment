@@ -2,33 +2,209 @@
   {
     "channel_id": "1",
     "sender": "super",
-    "body": "Welcome to the channel!",
+    "body": "Any plans for the weekend?",
     "attachments": [],
-    "createdAt": "2025-10-02T02:00:00.000Z",
-    "id": "1"
+    "createdAt": "2025-10-02T02:04:00.000Z",
+    "id": "5"
+  },
+  {
+    "channel_id": "1",
+    "sender": "momo",
+    "body": "I'm thinking of catching up on some reading.",
+    "attachments": [],
+    "createdAt": "2025-10-02T02:05:00.000Z",
+    "id": "6"
   },
   {
     "channel_id": "1",
     "sender": "aj",
-    "body": "Thanks! Glad to be here.",
+    "body": "Sounds relaxing!",
     "attachments": [],
-    "createdAt": "2025-10-02T02:01:00.000Z",
-    "id": "2"
+    "createdAt": "2025-10-02T02:06:00.000Z",
+    "id": "7"
   },
   {
-    "channel_id": "1",
+    "channel_id": "2",
+    "sender": "juno",
+    "body": "Hey everyone, any news about the project?",
+    "attachments": [],
+    "createdAt": "2025-10-02T03:00:00.000Z",
+    "id": "8"
+  },
+  {
+    "channel_id": "2",
     "sender": "super",
-    "body": "Feel free to share updates.",
+    "body": "We are on track for the deadline.",
     "attachments": [],
-    "createdAt": "2025-10-02T02:02:00.000Z",
-    "id": "3"
+    "createdAt": "2025-10-02T03:01:00.000Z",
+    "id": "9"
   },
   {
-    "channel_id": "1",
+    "channel_id": "3",
     "sender": "aj",
-    "body": "Will do!",
+    "body": "Welcome to the new members!",
     "attachments": [],
-    "createdAt": "2025-10-02T02:03:00.000Z",
-    "id": "4"
+    "createdAt": "2025-10-02T04:00:00.000Z",
+    "id": "10"
+  },
+  {
+    "channel_id": "3",
+    "sender": "max",
+    "body": "Thank you! Happy to be here.",
+    "attachments": [],
+    "createdAt": "2025-10-02T04:01:00.000Z",
+    "id": "11"
+  },
+  {
+    "channel_id": "4",
+    "sender": "aj",
+    "body": "Research report draft is ready for review.",
+    "attachments": [],
+    "createdAt": "2025-10-02T05:00:00.000Z",
+    "id": "12"
+  },
+  {
+    "channel_id": "4",
+    "sender": "momo",
+    "body": "I’ll check it and give feedback.",
+    "attachments": [],
+    "createdAt": "2025-10-02T05:02:00.000Z",
+    "id": "13"
+  },
+  {
+    "channel_id": "5",
+    "sender": "leo",
+    "body": "Good morning everyone!",
+    "attachments": [],
+    "createdAt": "2025-10-02T06:00:00.000Z",
+    "id": "14"
+  },
+  {
+    "channel_id": "5",
+    "sender": "juno",
+    "body": "Morning! Ready for today’s tasks?",
+    "attachments": [],
+    "createdAt": "2025-10-02T06:01:00.000Z",
+    "id": "15"
+  },
+  {
+    "channel_id": "6",
+    "sender": "leo",
+    "body": "I completed the first task.",
+    "attachments": [],
+    "createdAt": "2025-10-02T07:00:00.000Z",
+    "id": "16"
+  },
+  {
+    "channel_id": "7",
+    "sender": "super",
+    "body": "Hey team, check the new updates.",
+    "attachments": [],
+    "createdAt": "2025-10-02T08:00:00.000Z",
+    "id": "17"
+  },
+  {
+    "channel_id": "7",
+    "sender": "kira",
+    "body": "Got it! Reviewing now.",
+    "attachments": [],
+    "createdAt": "2025-10-02T08:01:00.000Z",
+    "id": "18"
+  },
+  {
+    "channel_id": "7",
+    "sender": "momo",
+    "body": "Thanks for the update.",
+    "attachments": [],
+    "createdAt": "2025-10-02T08:02:00.000Z",
+    "id": "19"
+  },
+  {
+    "channel_id": "8",
+    "sender": "kira",
+    "body": "Anyone up for a game tonight?",
+    "attachments": [],
+    "createdAt": "2025-10-02T09:00:00.000Z",
+    "id": "20"
+  },
+  {
+    "channel_id": "8",
+    "sender": "zara",
+    "body": "Count me in!",
+    "attachments": [],
+    "createdAt": "2025-10-02T09:01:00.000Z",
+    "id": "21"
+  },
+  {
+    "channel_id": "9",
+    "sender": "momo",
+    "body": "Who’s joining the FPS session?",
+    "attachments": [],
+    "createdAt": "2025-10-02T10:00:00.000Z",
+    "id": "22"
+  },
+  {
+    "channel_id": "9",
+    "sender": "super",
+    "body": "I’m in.",
+    "attachments": [],
+    "createdAt": "2025-10-02T10:01:00.000Z",
+    "id": "23"
+  },
+  {
+    "channel_id": "10",
+    "sender": "super",
+    "body": "Welcome new members to the Welcome channel!",
+    "attachments": [],
+    "createdAt": "2025-10-02T11:00:00.000Z",
+    "id": "24"
+  },
+  {
+    "channel_id": "10",
+    "sender": "kira",
+    "body": "Thanks! Excited to join.",
+    "attachments": [],
+    "createdAt": "2025-10-02T11:01:00.000Z",
+    "id": "25"
+  },
+  {
+    "channel_id": "10",
+    "sender": "leo",
+    "body": "Hello everyone!",
+    "attachments": [],
+    "createdAt": "2025-10-02T11:02:00.000Z",
+    "id": "26"
+  },
+  {
+    "channel_id": "11",
+    "sender": "super",
+    "body": "General discussion starts now.",
+    "attachments": [],
+    "createdAt": "2025-10-02T12:00:00.000Z",
+    "id": "27"
+  },
+  {
+    "channel_id": "11",
+    "sender": "kira",
+    "body": "Got it, I’m here.",
+    "attachments": [],
+    "createdAt": "2025-10-02T12:01:00.000Z",
+    "id": "28"
+  },
+  {
+    "channel_id": "12",
+    "sender": "leo",
+    "body": "Discussion topic for today: new features.",
+    "attachments": [],
+    "createdAt": "2025-10-02T13:00:00.000Z",
+    "id": "29"
+  },
+  {
+    "channel_id": "12",
+    "sender": "aj",
+    "body": "I have some ideas to share.",
+    "attachments": [],
+    "createdAt": "2025-10-02T13:01:00.000Z",
+    "id": "30"
   }
 ]

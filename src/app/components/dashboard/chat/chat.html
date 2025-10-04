@@ -1,52 +1,96 @@
 <div class="w-full h-full flex flex-col rounded-xl text-white">
   <!-- Title -->
-  <h1 class="text-2xl font-bold p-4 border-b border-white/10">
-    {{ current_channel?.name }} Messages
+  <h1 class="text-xl font-bold pb-3 border-b border-white/10">
+    {{ current_channel?.name }}
   </h1>
 
   <!-- Messages -->
-  <div class="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+  <div
+    #messages
+    class="flex-1 overflow-y-auto hide-scrollbar px-4 py-2 space-y-4"
+  >
     @if (messagesin().length > 0) { @for (msg of messagesin(); track msg.id) {
 
-    <!-- If message is from current user -->
+    <!-- Message from current user -->
     @if (msg.sender === current_user?.username) {
-    <div class="flex justify-end">
-      <div class="p-3 rounded-lg shadow bg-purple-800 max-w-[70%] text-white">
-        <div class="text-xs text-gray-300 mb-1">
-          {{ msg.sender }} — {{ msg.createdAt }}
+    <div class="flex justify-end items-start space-x-3">
+      <div class="flex flex-col items-end max-w-[70%] break-words">
+        <div class="p-3 rounded-lg shadow bg-purple-800 text-white break-words">
+          <div class="text-xs text-gray-300 mb-1">
+            {{ msg.senderName }} — {{ msg.createdAt }}
+          </div>
+          <div class="text-base break-words">{{ msg.body }}</div>
+
+          <!-- Attachments -->
+          @if (msg.attachments && msg.attachments.length > 0) { @for (att of
+          msg.attachments; track att.url) { @if (att.type === 'image') {
+          <img [src]="att.url" class="mt-2 rounded-lg shadow-md max-w-75" />
+          } } }
         </div>
+      </div>
 
-        <!-- Message text -->
-        <div class="text-base">{{ msg.body }}</div>
-
-        <!-- Attachments -->
-        @if (msg.attachments) { @if (msg.attachments.length > 0) { @for (att of
-        msg.attachments; track att.url) { @if (att.type === 'image') {
-        <img [src]="att.url" class="mt-2 rounded-lg shadow-md max-w-full" />
-        } } } }
+      <!-- Avatar -->
+      <div
+        class="w-10 h-10 rounded-full overflow-hidden flex items-start justify-center bg-white flex-shrink-0"
+      >
+        @if (msg.avatar && msg.avatar.trim() !== '') {
+        <img
+          [src]="msg.avatar"
+          alt="{{ msg.sender }}"
+          class="w-full h-full object-cover"
+        />
+        } @else {
+        <span
+          class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+        >
+          {{ placeholderAvatar(msg.sender) }}
+        </span>
+        }
       </div>
     </div>
+
     } @else {
-    <!-- Other users' messages -->
-    <div class="flex justify-start">
-      <div class="p-3 rounded-lg shadow bg-blue-800 max-w-[70%]">
-        <div class="text-xs text-gray-300 mb-1">
-          {{ msg.sender }} — {{ msg.createdAt }}
+    <!-- Message from other users -->
+    <div class="flex justify-start items-start space-x-3">
+      <!-- Avatar -->
+      <div
+        class="w-10 h-10 rounded-full overflow-hidden flex items-start justify-center bg-white flex-shrink-0"
+      >
+        @if (msg.avatar && msg.avatar.trim() !== '') {
+        <img
+          [src]="msg.avatar"
+          alt="{{ msg.sender }}"
+          class="w-full h-full object-cover"
+        />
+        } @else {
+        <span
+          class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+        >
+          {{ placeholderAvatar(msg.sender) }}
+        </span>
+        }
+      </div>
+
+      <div class="flex flex-col max-w-[70%] break-words">
+        <div class="p-3 rounded-lg shadow bg-blue-800 break-words">
+          <div class="text-xs text-gray-300 mb-1">
+            {{ msg.senderName }} — {{ msg.createdAt }}
+          </div>
+          <div class="text-base break-words">{{ msg.body }}</div>
+
+          <!-- Attachments -->
+          @if (msg.attachments && msg.attachments.length > 0) { @for (att of
+          msg.attachments; track att.url) { @if (att.type === 'image') {
+          <img [src]="att.url" class="mt-2 rounded-lg shadow-md max-w-75" />
+          } } }
         </div>
-
-        <!-- Message text -->
-        <div class="text-base">{{ msg.body }}</div>
-
-        <!-- Attachments -->
-        @if (msg.attachments) { @if (msg.attachments.length > 0) { @for (att of
-        msg.attachments; track att.url) { @if (att.type === 'image') {
-        <img [src]="att.url" class="mt-2 rounded-lg shadow-md max-w-full" />
-        } } }}
       </div>
     </div>
     } } } @else {
-    <!-- If no messages yet in the channel -->
-    <div class="flex flex-col items-center justify-center mt-70 text-gray-400">
+    <!-- No messages -->
+    <div
+      class="flex flex-col items-center justify-center mt-24 text-gray-400 space-y-2"
+    >
       <img src="icons/empty_folder.png" alt="Empty" class="w-20" />
       <p class="text-sm">No messages yet. Start the conversation!</p>
     </div>
@@ -57,11 +101,13 @@
   <div class="pt-4 flex flex-col gap-2 backdrop-blur rounded-b-xl">
     <!-- Image preview -->
     @if (preview_url) {
-    <div class="relative w-32 h-32">
+    <div
+      class="absolute bottom-full mb-2 w-32 h-32 bg-main/85 backdrop-blur rounded-xl shadow-lg flex items-center justify-center p-2 z-50"
+    >
       <img
         [src]="preview_url"
         alt="preview"
-        class="w-full h-full object-cover rounded-xl shadow-md"
+        class="w-full h-full object-cover rounded-xl"
       />
       <button
         (click)="removeSelectedFile()"
@@ -78,7 +124,7 @@
         for="fileUpload"
         class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 cursor-pointer text-white shadow-md transition-transform transform hover:scale-105"
       >
-        📎
+        <img src="icons/picture.png" class="w-6" />
       </label>
       <input
         type="file"
@@ -87,6 +133,32 @@
         (change)="onFileSelected($event)"
         accept="image/*"
       />
+
+      <div class="relative">
+        <button
+          (click)="toggleGifMenu()"
+          class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 text-white shadow-md transition-transform transform hover:scale-105"
+          title="Select a GIF"
+        >
+          GIF
+        </button>
+
+        <!-- GIF popover (hidden by default) -->
+        @if (showGifMenu) {
+        <div
+          class="absolute bottom-full mb-2 w-64 max-h-60 overflow-y-auto bg-main/85 backdrop-blur rounded-xl shadow-lg p-2 grid grid-cols-5 gap-2 z-50"
+        >
+          @for (gif of prebuiltGifs; track gif) {
+          <img
+            [src]="gif"
+            class="w-12 h-12 object-cover rounded-lg cursor-pointer hover:ring-2 hover:ring-blue-500"
+            (click)="selectGif(gif)"
+            alt="gif"
+          />
+          }
+        </div>
+        }
+      </div>
 
       <input
         type="text"

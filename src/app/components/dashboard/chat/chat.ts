@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal, OnInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, inject, Input, signal, OnInit, SimpleChanges, OnChanges, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Channel } from '../../../models/channel';
@@ -18,6 +18,8 @@ export class Chat implements OnInit, OnChanges {
   private socketService = inject(SocketsService);
   private dataService = inject(DataService);
 
+  @ViewChild('messages') private messages_container!: ElementRef;
+
   @Input() current_channel: Channel | null = null;
   @Input() current_user: User | null = null;
   @Input() old_messages: Message[] = [];
@@ -26,28 +28,68 @@ export class Chat implements OnInit, OnChanges {
   messagesin = signal<Message[]>([]);
   selected_file: File | null = null;
   preview_url: string | null = null;
+  prebuiltGifs: string[] = [];
+
+  showGifMenu: boolean = false;
+
+  private scrollToBottom() {
+    console.log("YESS");
+    setTimeout(() => {
+      const el = this.messages_container.nativeElement;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }, 0);
+  }
 
   public clearMessages() {
     this.messagesin.set([]);
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // When parent passes new history, update messages signal
     if (changes['old_messages']) {
-      this.messagesin.set(this.old_messages || []);
+      const messages: Message[] = this.old_messages || [];
+      messages.forEach(message => {
+        this.getChatUserData(message);
+      });
+      this.messagesin.set(messages);
     }
-    // Update current_channel handling (optional)
     if (changes['current_channel']) {
-      // you might want to scroll to bottom, etc.
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 500);
     }
+  }
+
+  getChatUserData(message: Message) {
+    this.dataService.getChatData(message.sender).subscribe({
+      next: (res) => {
+        message.avatar = res.avatar;
+        message.senderName = res.name;
+      },
+      error: (e) => {
+        console.error('get chat user data error', e);
+      }
+    })
+  }
+
+  placeholderAvatar(username: string) {
+    return username ? username[0].toUpperCase() : 'A';
   }
 
   ngOnInit() {
     this.socketService.onMessage().subscribe((msg: Message) => {
       if (!this.current_channel || msg.channel_id === this.current_channel.id) {
         this.messagesin.update(list => [...list, msg]);
+        this.scrollToBottom();
       }
     });
+    this.dataService.getPrebuiltGifs().subscribe({
+      next: (res) => {
+        this.prebuiltGifs = res;
+      },
+      error: (e) => {
+        console.error('Upload error', e);
+      }
+    })
   }
 
   onFileSelected(event: Event) {
@@ -75,11 +117,11 @@ export class Chat implements OnInit, OnChanges {
   }
 
   send() {
+    this.scrollToBottom();
     if (!this.current_channel?.id || !this.current_user?.username) return;
-    console.log(this.selected_file);
     const body = this.messageout().trim();
     // ensure at least body or file exists
-    if (!body && !this.selected_file) return;
+    if (!body && !this.selected_file && !this.preview_url) return;
     // if file exist, upload and retrieve the url to be save alongside body
     if (this.selected_file) {
       this.dataService.uploadChatImage(this.selected_file).subscribe({
@@ -94,13 +136,21 @@ export class Chat implements OnInit, OnChanges {
           console.error('Upload error', e);
         }
       })
+    }
+    else if (this.preview_url) {
+      this.prepAndSend(body, [{ url: this.preview_url, type: 'image' }]);
     } else {
       this.prepAndSend(body);
     }
   }
 
-  placeholderAvatar(user: User): string {
-    const username = user?.username ?? user?.username?.[0] ?? 'a';
-    return username ? username[0].toUpperCase() : 'A';
+  toggleGifMenu() {
+    this.showGifMenu = !this.showGifMenu;
+  }
+
+  selectGif(gif: string) {
+    this.showGifMenu = false;
+    this.selected_file = null;
+    this.preview_url = gif;
   }
 }
