@@ -98,4 +98,9 @@ export class Chat implements OnInit, OnChanges {
       this.prepAndSend(body);
     }
   }
+
+  placeholderAvatar(user: User): string {
+    const username = user?.username ?? user?.username?.[0] ?? 'a';
+    return username ? username[0].toUpperCase() : 'A';
+  }
 }

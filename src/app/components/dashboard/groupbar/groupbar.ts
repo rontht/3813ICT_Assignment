@@ -23,4 +23,9 @@ export class Groupbar {
   @Output() openManageUsers = new EventEmitter<void>();
   @Output() openGroupSearch = new EventEmitter<void>();
   @Output() openAccountSettings = new EventEmitter<void>();
+
+  placeholderAvatar(user: User): string {
+    const username = user?.username ?? user?.username?.[0] ?? 'a';
+    return username ? username[0].toUpperCase() : 'A';
+  }
 }

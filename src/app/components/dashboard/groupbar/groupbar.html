@@ -5,16 +5,27 @@
   <!-- Profile -->
   <div class="mb-5">
     <button
+      (click)="openAccountSettings.emit()"
+      class="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:rounded-2xl mx-auto transition-all overflow-hidden"
       [ngClass]="{
         'rounded-xl border-3 border-violet-300': current_group?.id === 'account'
       }"
-      (click)="openAccountSettings.emit()"
-      class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto"
+      title="Account"
     >
+      <!-- If user has avatar show image, otherwise show placeholder initial -->
+      @if (user.avatar && user.avatar.trim() !== '') {
+      <img
+        [src]="user.avatar"
+        alt="{{ user.name || user.username }}"
+        class="w-full h-full object-cover"
+      />
+      } @else {
       <span
         class="text-3xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
-        >{{ user.role.charAt(0).toUpperCase() }}
+      >
+        {{ placeholderAvatar(user) }}
       </span>
+      }
     </button>
     <div class="mt-1 text-md text-white text-center truncate">
       {{ user.name }}

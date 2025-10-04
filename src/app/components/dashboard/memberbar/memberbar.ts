@@ -39,7 +39,6 @@ export class Memberbar implements OnChanges {
           next: (me) => {
             // set all members in this group and refresh
             this.all_members = me ?? [];
-            console.log(this.all_members[0]);
             this.refresh();
           },
           error: (e) => {
@@ -184,8 +183,8 @@ export class Memberbar implements OnChanges {
     this.opened_user = null;
   }
 
-  placeholderAvatar(member: User): string {
-    const role = member?.role ?? member?.role?.[0] ?? 'u';
-    return role ? role[0].toUpperCase() : 'U';
+  placeholderAvatar(user: User): string {
+    const username = user?.username ?? user?.username?.[0] ?? 'a';
+    return username ? username[0].toUpperCase() : 'A';
   }
 }

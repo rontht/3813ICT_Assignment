@@ -2,9 +2,11 @@
     GET /
     POST /api/auth
     POST /api/auth/register
+    GET /api/user
 */
 import User from "../models/user.js";
 import { getDB } from "../db.js";
+import { attachUser } from "./helpers.js";
 
 export function route(app) {
   // ____________ DEBUG ____________
@@ -37,9 +39,6 @@ export function route(app) {
       if (!user) return res.json({ valid: false });
       return res.json({
         username: user.username,
-        name: user.name,
-        email: user.email,
-        role: user.role,
         valid: true,
       });
     } catch (e) {
@@ -53,12 +52,12 @@ export function route(app) {
     try {
       const db = getDB();
       const { username, name, email, role, password } = req.body || {};
-      
+
       // check if any missing
       if (!username || !name || !email || !role || !password) {
         return res.status(400).json({ error: "Missing fields" });
       }
-      
+
       // check if username or email already exist
       const existing = await db.collection("user").findOne({
         $or: [{ username }, { email }],
@@ -71,19 +70,27 @@ export function route(app) {
       }
 
       // fill into user model and insert
-      const new_user = new User(username, name, email, password, role);
+      const new_user = new User(username, name, email, password, role, "");
       await db.collection("user").insertOne({ ...new_user });
 
       return res.json({
         username: new_user.username,
-        name: new_user.name,
-        email: new_user.email,
-        role: new_user.role,
         valid: true,
       });
     } catch (e) {
       console.log(e);
       res.status(500).json({ error: "Registeration failed" });
+    }
+  });
+
+  // get current user data
+  app.get("/api/user", attachUser, async (req, res) => {
+    try {
+      const user = req.user;
+      return res.json(user);
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ error: "GET current user info failed" });
     }
   });
 }

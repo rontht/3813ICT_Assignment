@@ -76,6 +76,11 @@ export class GroupForm implements OnChanges {
     }
   }
 
+  placeholderAvatar(user: User): string {
+    const username = user?.username ?? user?.username?.[0] ?? 'a';
+    return username ? username[0].toUpperCase() : 'A';
+  }
+
   toggleMenu(id: string, ev: Event) {
     ev.stopPropagation();
     if (this.opened_channel != "") {

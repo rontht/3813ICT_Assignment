@@ -4,7 +4,6 @@
   DELETE/api/channel/:id
 */
 
-import Channel from "../models/channel.js";
 import { getDB } from "../db.js";
 import { attachUser, canListChannel, canManangeChannel } from "./helpers.js";
 

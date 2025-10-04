@@ -40,7 +40,7 @@ export class Login {
         this.user = data as User;
 
         // store info in local storage
-        localStorage.setItem("user", JSON.stringify(this.user));
+        localStorage.setItem("username", this.user.username);
         this.router.navigate(['/dashboard']);
       },
       error: (e) => {

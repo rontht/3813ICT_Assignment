@@ -86,12 +86,21 @@ export class Dashboard {
   // ____________ ngOnInit ____________ //
   ngOnInit() {
     // route back to login if unauth
-    const user_info = localStorage.getItem('user');
-    if (!user_info) {
+    const current_username = localStorage.getItem('username');
+    if (!current_username) {
       this.router.navigate(['']);
       return;
     }
-    this.user = JSON.parse(user_info);
+    this.dataService.getUserInfo().subscribe({
+      next: (user) => {
+        this.user = user;
+      },
+      error: (e) => {
+        console.error("ngOnInit Dashboard user info error: ", e);
+        this.router.navigate(['']);
+        return;
+      }
+    })
 
     // get all groups that user is apart of
     this.dataService.getGroups().subscribe({
@@ -104,7 +113,7 @@ export class Dashboard {
         }
       },
       error: (e) => {
-        console.log('ngOnInit Group Error: ', e);
+        console.error('ngOnInit Group Error: ', e);
       },
     });
   }

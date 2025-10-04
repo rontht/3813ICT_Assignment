@@ -16,8 +16,8 @@ export class DataService {
   private readonly server = environment.apiserver;
 
   private attachHeader() {
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    return new HttpHeaders({ 'username': user?.username || '' });
+    const user = localStorage.getItem('username') || 'null';
+    return new HttpHeaders({ 'username': user || '' });
   }
 
   getGroups() {
@@ -78,6 +78,12 @@ export class DataService {
         headers: this.attachHeader(),
       }
     );
+  }
+
+  getUserInfo() {
+    return this.httpService.get<User>(`${this.server}/user`, {
+      headers: this.attachHeader(),
+    });
   }
 
   getAllUsers() {
@@ -196,6 +202,16 @@ export class DataService {
     return this.httpService.post<{ success: boolean; url: string }>(
       `${this.server}/upload/chat`,
       formData
+    );
+  }
+
+  uploadAvatarImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.httpService.post<{ success: boolean; url: string }>(
+      `${this.server}/upload/avatar`,
+      formData,
+      { headers: this.attachHeader() }
     );
   }
 }

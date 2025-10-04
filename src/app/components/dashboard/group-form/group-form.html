@@ -167,14 +167,34 @@
                 *ngFor="let u of old_user_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
               >
-                <div>
-                  <p class="font-semibold">
-                    {{ u.name }},
-                    <span class="font-normal text-sm text-white/70">{{
-                      u.username
-                    }}</span>
-                  </p>
-                  <p class="text-sm text-gray-300">{{ u.email }}</p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white"
+                  >
+                    @if (u.avatar && u.avatar.trim() !== '') {
+                    <img
+                      [src]="u.avatar"
+                      alt="{{ u.name }}"
+                      class="w-full h-full object-cover"
+                    />
+                    } @else {
+                    <span
+                      class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+                    >
+                      {{ placeholderAvatar(u) }}
+                    </span>
+                    }
+                  </div>
+
+                  <div class="flex flex-col">
+                    <p class="font-semibold">
+                      {{ u.name }},
+                      <span class="font-normal text-sm text-white/70">{{
+                        u.username
+                      }}</span>
+                    </p>
+                    <p class="text-sm text-gray-300">{{ u.email }}</p>
+                  </div>
                 </div>
                 <div class="flex gap-2">
                   <button
@@ -196,14 +216,34 @@
                 *ngFor="let u of requested_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
               >
-                <div>
-                  <p class="font-semibold">
-                    {{ u.name }},
-                    <span class="font-normal text-sm text-white/70">{{
-                      u.username
-                    }}</span>
-                  </p>
-                  <p class="text-sm text-gray-300">{{ u.email }}</p>
+                                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white"
+                  >
+                    @if (u.avatar && u.avatar.trim() !== '') {
+                    <img
+                      [src]="u.avatar"
+                      alt="{{ u.name }}"
+                      class="w-full h-full object-cover"
+                    />
+                    } @else {
+                    <span
+                      class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+                    >
+                      {{ placeholderAvatar(u) }}
+                    </span>
+                    }
+                  </div>
+
+                  <div class="flex flex-col">
+                    <p class="font-semibold">
+                      {{ u.name }},
+                      <span class="font-normal text-sm text-white/70">{{
+                        u.username
+                      }}</span>
+                    </p>
+                    <p class="text-sm text-gray-300">{{ u.email }}</p>
+                  </div>
                 </div>
                 <div class="flex gap-2">
                   <button
@@ -237,14 +277,34 @@
                 *ngFor="let u of new_user_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
               >
-                <div>
-                  <p class="font-semibold">
-                    {{ u.name }},
-                    <span class="font-normal text-sm text-white/70">{{
-                      u.username
-                    }}</span>
-                  </p>
-                  <p class="text-sm text-gray-300">{{ u.email }}</p>
+                                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white"
+                  >
+                    @if (u.avatar && u.avatar.trim() !== '') {
+                    <img
+                      [src]="u.avatar"
+                      alt="{{ u.name }}"
+                      class="w-full h-full object-cover"
+                    />
+                    } @else {
+                    <span
+                      class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+                    >
+                      {{ placeholderAvatar(u) }}
+                    </span>
+                    }
+                  </div>
+
+                  <div class="flex flex-col">
+                    <p class="font-semibold">
+                      {{ u.name }},
+                      <span class="font-normal text-sm text-white/70">{{
+                        u.username
+                      }}</span>
+                    </p>
+                    <p class="text-sm text-gray-300">{{ u.email }}</p>
+                  </div>
                 </div>
                 <div class="flex gap-2">
                   <button
@@ -277,12 +337,13 @@
           } @else {
           <div class="w-full flex justify-center">
             @if (current_group) {
-              <button
-                type="button" (click)="deleteGroup(current_group)"
-                class="w-2xs py-3 rounded-lg text-white bg-red-900 border border-gray-300 hover:shadow-lg hover:bg-red-800"
-              >
-                Delete Group
-              </button>
+            <button
+              type="button"
+              (click)="deleteGroup(current_group)"
+              class="w-2xs py-3 rounded-lg text-white bg-red-900 border border-gray-300 hover:shadow-lg hover:bg-red-800"
+            >
+              Delete Group
+            </button>
             }
           </div>
           <div class="w-full flex justify-center">

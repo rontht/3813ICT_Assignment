@@ -27,7 +27,7 @@ export class UserManager implements OnChanges {
   username: string = "";
   email: string = "";
   password: string = "";
-  role: string = "";
+  role: string = "user";
 
   notification: { message: string; type: 'success' | 'error' } | null = null;
   private notificationTimeout: any;
@@ -114,5 +114,10 @@ export class UserManager implements OnChanges {
         },
         error: e => this.showNotification(`Account Creation failed: ${e.error.error}`, 'error')
       });
+  }
+
+  placeholderAvatar(user: User): string {
+    const username = user?.username ?? user?.username?.[0] ?? 'a';
+    return username ? username[0].toUpperCase() : 'A';
   }
 }

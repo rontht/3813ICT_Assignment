@@ -87,7 +87,7 @@ export function route(app) {
       .collection("user")
       .find(
         { username: { $in: request_usernames } },
-        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+        { projection: { _id: 0, username: 1, name: 1, role: 1, avatar: 1 } }
       )
       .toArray();
     return res.json(requests);
@@ -130,7 +130,7 @@ export function route(app) {
       .collection("user")
       .find(
         { username: { $in: banned_usernames } },
-        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+        { projection: { _id: 0, username: 1, name: 1, role: 1, avatar: 1 } }
       )
       .toArray();
     res.json(bans);
@@ -181,7 +181,7 @@ export function route(app) {
       .collection("user")
       .find(
         { username: { $in: channel_usernames } },
-        { projection: { _id: 0, username: 1, name: 1, role: 1 } }
+        { projection: { _id: 0, username: 1, name: 1, role: 1, avatar: 1 } }
       )
       .toArray();
     res.json(channel_members);
@@ -198,7 +198,7 @@ export function route(app) {
       .collection("user")
       .find(
         {},
-        { projection: { _id: 0, username: 1, name: 1, email: 1, role: 1 } }
+        { projection: { _id: 0, username: 1, name: 1, email: 1, role: 1, avatar: 1 } }
       )
       .toArray();
     return res.json(users);
@@ -501,7 +501,7 @@ export function route(app) {
       { $set: { role: next_role } },
       {
         returnDocument: "after",
-        projection: { _id: 0, username: 1, name: 1, email: 1, role: 1 },
+        projection: { _id: 0, username: 1, name: 1, email: 1, role: 1, avatar: 1 },
       }
     );
 

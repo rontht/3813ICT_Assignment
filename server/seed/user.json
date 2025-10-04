@@ -5,7 +5,7 @@
     "email": "super@com",
     "password": "123",
     "role": "super-admin",
-    "avatar": "http://localhost:3000/uploads/avatar/1759477351118-792203581.jpeg"
+    "avatar": "http://localhost:3000/uploads/avatar/5.png"
   },
   {
     "username": "aj",
@@ -13,7 +13,7 @@
     "email": "aj@com.au",
     "password": "123",
     "role": "group-admin",
-    "avatar": ""
+    "avatar": "http://localhost:3000/uploads/avatar/4.png"
   },
   {
     "username": "juno",
@@ -21,7 +21,7 @@
     "email": "juno@com.au",
     "password": "123",
     "role": "user",
-    "avatar": ""
+    "avatar": "http://localhost:3000/uploads/avatar/3.png"
   },
   {
     "username": "momo",
@@ -29,7 +29,7 @@
     "email": "momo@com.au",
     "password": "123",
     "role": "user",
-    "avatar": ""
+    "avatar": "http://localhost:3000/uploads/avatar/2.png"
   },
   {
     "username": "kira",
@@ -37,7 +37,7 @@
     "email": "kira@com.au",
     "password": "123",
     "role": "group-admin",
-    "avatar": ""
+    "avatar": "http://localhost:3000/uploads/avatar/1.png"
   },
   {
     "username": "leo",
