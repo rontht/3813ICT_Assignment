@@ -2,6 +2,10 @@
   <aside class="w-[300px] flex flex-col h-full">
     <div class="text-xs">Group Name:</div>
 
+    <div class="fixed top-2 left-1/2 -translate-x-1/2 z-50">
+      <noti #noti [width]="500"></noti>
+    </div>
+
     <div class="text-xl mb-3 pb-5 border-b-2 border-white/10">
       {{ group_name }}
     </div>
@@ -216,7 +220,7 @@
                 *ngFor="let u of requested_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
               >
-                                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3">
                   <div
                     class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white"
                   >
@@ -277,7 +281,7 @@
                 *ngFor="let u of new_user_array"
                 class="flex items-center justify-between p-3 rounded-lg bg-main/70 shadow"
               >
-                                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3">
                   <div
                     class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white"
                   >

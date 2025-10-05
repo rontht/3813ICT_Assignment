@@ -456,7 +456,9 @@ export function route(app) {
         },
       }
     );
-    // 8) delete the user
+    // 8) delete all messages that user has sent
+    await db.collection("message").deleteMany({ sender: username });
+    // 9) delete the user
     await db.collection("user").deleteOne({ username });
     return res.json({ deleted: username });
   });

@@ -1,20 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Channel } from '../../../models/channel';
 import { User } from '../../../models/user';
 import { Group } from '../../../models/group';
 import { DataService } from '../../../services/data.service';
+import { Notification } from '../../notification/notification';
 
 @Component({
   selector: 'app-group-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Notification],
   templateUrl: './group-form.html',
   styleUrl: './group-form.css'
 })
 export class GroupForm implements OnChanges {
   private dataService = inject(DataService);
+
+  @ViewChild('noti') noti!: Notification;
 
   @Input() current_group: Group | null = null;
   @Input() all_users: User[] = [];
@@ -34,7 +37,6 @@ export class GroupForm implements OnChanges {
 
   group_name: string | undefined = "";
 
-  error: string = "";
   show_add_channel_menu = false;
   opened_channel: string = "";
   new_channel_name = '';
@@ -101,7 +103,10 @@ export class GroupForm implements OnChanges {
 
   confirmAddChannel() {
     const name = this.new_channel_name.trim();
-    if (!name) return;
+    if (!name) {
+      this.noti.showWarning("Please add a channel name first to create a channel.")
+      return;
+    }
 
     // push a temp/new channel
     this.current_channels = [
@@ -109,6 +114,7 @@ export class GroupForm implements OnChanges {
       { name, newly_added: true } as Channel,
     ];
 
+    this.noti.showConfirm(`Channel ${this.new_channel_name} has been planned to be created.`)
     this.new_channel_name = '';
     this.show_add_channel_menu = false;
   }
@@ -153,15 +159,23 @@ export class GroupForm implements OnChanges {
     }
   }
   moveToDelete(channel_to_delete: Channel) {
-    if (!channel_to_delete) return;
+    if (!channel_to_delete) {
+      this.noti.showError("Error while adding a channel to pending deletion.");
+      return;
+    }
     this.removeFromChannels(this.current_channels, channel_to_delete);
     this.addToChannels(this.channels_to_delete, channel_to_delete);
+    this.noti.showConfirm(`Channel ${channel_to_delete.name} has been marked to delete.`);
     this.opened_channel = "";
   }
   removeFromDelete(channel_to_remove: Channel) {
-    if (!channel_to_remove) return;
+    if (!channel_to_remove) {
+      this.noti.showError("Error while removing a channel from delete.");
+      return;
+    }
     this.removeFromChannels(this.channels_to_delete, channel_to_remove);
     this.addToChannels(this.current_channels, channel_to_remove);
+    this.noti.showConfirm(`Channel ${channel_to_remove.name} has been removed from Pending Deletion.`);
     this.opened_channel = "";
   }
 
@@ -198,12 +212,18 @@ export class GroupForm implements OnChanges {
     }
   }
   addMember(member: User) {
-    if (!member) return;
+    if (!member) {
+      this.noti.showError("Error while adding member to the group.");
+      return;
+    }
     this.addToUsers(this.new_user_array, member);
     this.removeFromUsers(this.old_user_array, member);
   }
   approveMember(member: User) {
-    if (!member || !member.username) return;
+    if (!member || !member.username) {
+      this.noti.showError("Error while approving requests.");
+      return;
+    }
     // add to selected members (no dupes)
     this.addToUsers(this.new_user_array, member);
     // track temp approvals for undo-on-remove
@@ -213,7 +233,10 @@ export class GroupForm implements OnChanges {
     this.removeFromUsers(this.old_user_array, member);
   }
   removeMember(member: User) {
-    if (!member || !member.username) return;
+    if (!member || !member.username) {
+      this.noti.showError("Error while removing members from the group.");
+      return;
+    }
     // check if they are already temp approved
     let temp_approved = false;
     if (this.approved_array && this.approved_array.length) {
@@ -243,11 +266,9 @@ export class GroupForm implements OnChanges {
     const g_channels = this.current_channels ?? [];
 
     if (!g_name) {
-      this.error = 'Group name is required';
+      this.noti.showError("Error while saving: Group Name missing");
       return;
     }
-
-    // const new_channels = g_channels.filter(c => c.newly_added && !c.id).map(c => c.name);
 
     // new channels to add
     const new_channels: string[] = [];
@@ -292,7 +313,7 @@ export class GroupForm implements OnChanges {
       members: g_members,
       requests: remaining_requests
     };
-    
+
     if (this.create_new) {
       this.dataService.createGroup(group).subscribe({
         next: (created_group) => {
@@ -300,17 +321,21 @@ export class GroupForm implements OnChanges {
             for (let ch of new_channels) {
               this.dataService.createChannel(ch, created_group.id).subscribe({
                 next: (added_channel) => {
-
                 },
-                error: (e) => { }
+                error: (e) => {
+                  this.noti.showError("Error while adding a new channel. Try again later.");
+                }
               });
             }
+            this.noti.showConfirm(`${created_group.name} has been successfully created.`);
             this.reloadGroups.emit(created_group.id);
           } else {
+            this.noti.showError("Error with newly created group's id.");
             console.log("error: with newly created id")
           }
         },
         error: (e) => {
+          this.noti.showError("Error while creating a new group. Try again alter.");
           console.log('Failed to create a group', e);
         },
       });
@@ -321,30 +346,39 @@ export class GroupForm implements OnChanges {
           current_group_id = this.current_group.id;
         } else {
           console.log("Current Group id is null while editing groups")
+          this.noti.showError("Error while editing this group. Try again later.");
         }
       } else {
-        console.log("Current Group is null while editing groups")
+        console.log("Current Group is null while editing groups");
+        this.noti.showError("Error while editing this group. Try again later.");
       }
 
       this.dataService.editGroup(current_group_id, group).subscribe({
         next: (edited_group) => {
+          console.log("EDITED");
           const group_id = edited_group?.id || current_group_id;
           for (let ch of new_channels) {
             this.dataService.createChannel(ch, group_id).subscribe({
               next: (added_channel) => {
               },
-              error: (e) => { }
+              error: (e) => {
+                this.noti.showError("Error while adding new channels. Try again later.");
+              }
             });
           }
           for (let ch of delete_channels) {
             this.dataService.deleteChannel(ch).subscribe({
               next: () => { },
-              error: () => { }
+              error: () => {
+                this.noti.showError("Error while deleting the designated channels. Try again later.");
+              }
             });
           }
+          this.noti.showConfirm(`Group ${edited_group.name} has been successfully edited.`);
           this.reloadGroups.emit(group_id);
         },
         error: (e) => {
+          this.noti.showError("Error while editing this group. Try again later");
           console.log('Failed to edit a group', e);
         },
       });
@@ -364,9 +398,11 @@ export class GroupForm implements OnChanges {
     this.dataService.deleteGroup(group.id).subscribe({
       next: (name) => {
         this.reloadGroups.emit(null);
-        console.log(name.deleted, "Group has been successfully deleted!");
+        this.noti.showConfirm(`Group ${group.name} has been successfully deleted.`);
+        // console.log(name.deleted, "Group has been successfully deleted!");
       },
       error: (e) => {
+        this.noti.showError("Error while deleting this group. Try again later.");
         console.log('Failed to delete a group', e);
       },
     })

@@ -179,7 +179,7 @@ export function route(app) {
           { $set: { name, members, requests } },
           { returnDocument: "after" }
         );
-      return res.json(result.value);
+      return res.json(result);
     } catch (e) {
       console.log("PUT/api/group/:id = ", e);
       return res.status(500).json({

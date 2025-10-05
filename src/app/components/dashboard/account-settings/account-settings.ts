@@ -1,18 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { User } from '../../../models/user';
 import { DataService } from '../../../services/data.service';
 import { Log } from '../../../models/log';
+import { Notification } from '../../notification/notification';
 
 @Component({
   selector: 'app-account-settings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Notification],
   templateUrl: './account-settings.html',
   styleUrl: './account-settings.css'
 })
 export class AccountSettings implements OnInit {
   private dataService = inject(DataService);
+
+  @ViewChild('noti') noti!: Notification;
 
   @Input() current_user: User | null = null;
   @Input() is_super: boolean = true;
@@ -27,8 +30,10 @@ export class AccountSettings implements OnInit {
   @Output() deleteAccount = new EventEmitter<void>();
 
   ngOnInit(): void {
-    if (!this.current_user) return;
-    console.log("CURRENT", this.current_user);
+    if (!this.current_user) {
+      this.noti.showError("Authication error, Try again later");
+      return;
+    }
     if (this.current_user.role === "super-admin") {
       this.dataService.getLogs().subscribe({
         next: (logs) => {
@@ -36,6 +41,7 @@ export class AccountSettings implements OnInit {
         },
         error: (e) => {
           console.log("log error", e);
+          this.noti.showError("Error while loading you info, Try again later");
         }
       });
     }
@@ -58,19 +64,20 @@ export class AccountSettings implements OnInit {
 
     this.dataService.deleteUser(user.username).subscribe({
       next: (res) => {
+        this.noti.showConfirm("You have deactivated your account.");
         this.deleteAccount.emit();
       },
-      error: () => { }
+      error: () => {
+        this.noti.showError("Error while deactivating your account.");
+      }
     });
   }
 
   onAvatarSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
-
     // only keep the first file
     this.selectedAvatarFile = input.files[0];
-
     // revoke old URL if exists
     if (this.previewAvatarUrl) URL.revokeObjectURL(this.previewAvatarUrl);
     this.previewAvatarUrl = URL.createObjectURL(this.selectedAvatarFile);
@@ -84,30 +91,35 @@ export class AccountSettings implements OnInit {
     }
   }
 
-  async saveAvatar() {
-    if (!this.selectedAvatarFile) return;
+  saveAvatar() {
+    if (!this.selectedAvatarFile) {
+      this.noti.showWarning("Please make some changes first.");
+      return;
+    }
     this.uploading = true;
 
-    try {
-      // DataService returns an Observable; convert to promise for async/await simplicity
-      const res = await this.dataService.uploadAvatarImage(this.selectedAvatarFile).toPromise();
-
-      if (res?.success && res.url) {
-        // update current_user in-memory so UI shows new avatar immediately
-        if (this.current_user) {
-          this.current_user.avatar = res.url;
+    this.dataService.uploadAvatarImage(this.selectedAvatarFile).subscribe({
+      next: (res) => {
+        if (res?.success && res.url) {
+          if (this.current_user) {
+            this.current_user.avatar = res.url;
+          }
+          // clear preview on success
+          this.cancelAvatar();
+          this.noti.showConfirm("Avatar updated successfully.")
+        } else {
+          console.error('Avatar upload failed', res);
+          this.noti.showError("Error while uploading your avatar. Please try again later.");
         }
-        // clear preview
-        this.cancelAvatar();
-      } else {
-        console.error('Avatar upload failed', res);
-        // show user-friendly UI feedback here if you have a notification system
+      },
+      error: (e) => {
+        this.noti.showError("Error while uploading your avatar. Please try again later.")
+        console.error('Avatar upload error', e);
+      },
+      complete: () => {
+        this.uploading = false;
       }
-    } catch (e) {
-      console.error('Avatar upload error', e);
-    } finally {
-      this.uploading = false;
-    }
+    });
   }
 
   placeholderAvatar(user: User): string {

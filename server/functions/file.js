@@ -1,24 +1,18 @@
 import multer from "multer";
 import path from "path";
 
-// Chat images
-export const chatStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/chat"),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
+const createStorage = (folder) =>
+  multer.diskStorage({
+    // save the file in respective folders
+    destination: (req, file, callback) => {
+      callback(null, `uploads/${folder}`);
+    },
+    // make unique name by combining date + 3 random num and original file extension
+    filename: (req, file, callback) => {
+      const unique = Date.now() + Math.round(Math.random() * 1000);
+      callback(null, unique + path.extname(file.originalname));
+    },
+  });
 
-export const uploadChat = multer({ storage: chatStorage });
-
-// Avatar images
-export const avatarStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/avatar"),
-  filename: (req, file, cb) => {  
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-export const uploadAvatar = multer({ storage: avatarStorage });
+export const uploadChat = multer({ storage: createStorage("chat") });
+export const uploadAvatar = multer({ storage: createStorage("avatar") });
