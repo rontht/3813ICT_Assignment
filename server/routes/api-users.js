@@ -252,7 +252,7 @@ export function route(app) {
           { $pull: { channel_users: username } },
           { returnDocument: "after" }
         );
-      return res.json(result.value);
+      return res.json(result);
     }
   );
 
@@ -325,7 +325,7 @@ export function route(app) {
         group_name: group.name,
         target: username,
       });
-      return res.json(result.value);
+      return res.json(result);
     }
   );
 
@@ -388,7 +388,7 @@ export function route(app) {
         },
         { returnDocument: "after" }
       );
-      return res.json(result.value);
+      return res.json(result);
     }
   );
 

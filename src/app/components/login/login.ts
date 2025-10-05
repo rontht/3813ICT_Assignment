@@ -1,19 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../../services/http.service';
 import { Router } from '@angular/router';
 import { User } from '../../models/user';
+import { Notification } from '../notification/notification';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, Notification],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
   private httpService = inject(HttpService);
+
+  @ViewChild('noti') noti!: Notification;
   constructor(private router: Router) { };
 
   user: User | null = null;
@@ -21,20 +24,16 @@ export class Login {
   name = "";
   email = "";
   password = "";
-  loginError: string | null = null;
   toggle: boolean = false;
 
   onLogin() {
-    // reset the error message
-    this.loginError = null;
-
     // connect to service
     this.httpService.login(this.username, this.password).subscribe({
       next: (data) => {
 
         // if wrong input
         if ('valid' in data && !data.valid) {
-          this.loginError = "Invalid Credentials!";
+          this.noti.showError("Invalid Credentials! Please re-enter a valid username and password.");
           return;
         }
         this.user = data as User;
@@ -44,31 +43,28 @@ export class Login {
         this.router.navigate(['/dashboard']);
       },
       error: (e) => {
-        this.loginError = e.error?.error || e.message;
+        this.noti.showError("Error while logging in. Try again later.");
       }
     })
   }
 
   onSignup() {
-    // reset the error message
-    this.loginError = null;
-
     // connect to service
     this.httpService.register(this.username, this.name, this.email, this.password, "user").subscribe({
       next: (data) => {
         // if wrong input
         if ('valid' in data && !data.valid) {
-          this.loginError = "Invalid Credentials!";
+          this.noti.showError("Invalid username or email! Please enter a new one.");
           return;
         }
         this.user = data as User;
 
-        // store info in local storage
-        localStorage.setItem("user", JSON.stringify(this.user));
+        this.noti.showConfirm(`Account for ${this.user.username} has been created. Please login using the credentials.`, 10000);
+        localStorage.setItem("username", this.user.username);
         this.router.navigate(['/dashboard']);
       },
       error: (e) => {
-        this.loginError = "Error: " + e.error?.error || e.message;
+        this.noti.showError(`Error while Signing up. Reason: ${e.error.error}.`);
       }
     })
   }
