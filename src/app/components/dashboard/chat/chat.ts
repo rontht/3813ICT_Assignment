@@ -84,14 +84,15 @@ export class Chat implements OnInit, OnChanges {
         this.scrollToBottom();
       }
     });
+
     this.dataService.getPrebuiltGifs().subscribe({
       next: (res) => {
         this.prebuiltGifs = res;
       },
       error: (e) => {
-        console.error('Upload error', e);
+        console.error('Upload error', e)
       }
-    })
+    });
   }
 
   onFileSelected(event: Event) {
@@ -161,7 +162,7 @@ export class Chat implements OnInit, OnChanges {
   toggleGifMenu() {
     this.showGifMenu = !this.showGifMenu;
   }
-  
+
   selectGif(gif: string) {
     this.showGifMenu = false;
     this.selected_file = null;

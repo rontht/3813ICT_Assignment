@@ -1,19 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Channel } from '../../../models/channel';
 import { Group } from '../../../models/group';
 import { User } from '../../../models/user';
 import { DataService } from '../../../services/data.service';
+import { Notification } from '../../notification/notification';
+import { SocketsService } from '../../../services/sockets.service';
 
 @Component({
   selector: 'app-channelbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Notification],
   templateUrl: './channelbar.html',
   styleUrl: './channelbar.css',
 })
-export class Channelbar implements OnChanges {
+export class Channelbar implements OnChanges, OnInit {
   private dataService = inject(DataService);
+  private socketService = inject(SocketsService);
+
+  @ViewChild('noti') noti!: Notification;
 
   @Input() user: User | null = null;
   @Input() channels: Channel[] = [];
@@ -35,6 +40,15 @@ export class Channelbar implements OnChanges {
       const match = this.current_group.members?.includes(this.user.username);
       this.is_member = match;
     }
+  }
+
+  ngOnInit(): void {
+    // notify other user join to this user current channel
+    this.socketService.onSystemMessage().subscribe(msg => {
+      if (msg.channel_id === this.current_channel?.id) {
+        this.noti?.showConfirm(msg.message);
+      }
+    });
   }
 
   // show only channels you can see
@@ -75,10 +89,11 @@ export class Channelbar implements OnChanges {
 
     this.dataService.leaveGroup(group.id).subscribe({
       next: (res) => {
+        this.noti?.showConfirm(`You have left the ${group.name}.`);
         this.reloadGroups.emit(null);
       },
       error: (e) => {
-
+        this.noti.showError("Error while leaving the group. Try again later!");
       }
     });
   }

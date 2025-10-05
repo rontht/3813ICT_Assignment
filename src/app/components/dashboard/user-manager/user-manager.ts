@@ -1,20 +1,23 @@
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { User } from '../../../models/user';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../../../services/http.service';
 import { DataService } from '../../../services/data.service';
+import { Notification } from '../../notification/notification';
 
 @Component({
   selector: 'app-user-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Notification],
   templateUrl: './user-manager.html',
   styleUrl: './user-manager.css',
 })
 export class UserManager implements OnChanges {
   private dataService = inject(DataService);
   private httpService = inject(HttpService);
+
+  @ViewChild('noti') noti!: Notification;
 
   @Input() current_user: User | null = null;
   @Input() all_users: User[] = [];
@@ -29,22 +32,8 @@ export class UserManager implements OnChanges {
   password: string = "";
   role: string = "user";
 
-  notification: { message: string; type: 'success' | 'error' } | null = null;
-  private notificationTimeout: any;
-
   ngOnChanges(_changes: SimpleChanges) {
     this.refresh();
-  }
-
-  showNotification(message: string, type: 'success' | 'error' = 'success') {
-    if (this.notificationTimeout) {
-      clearTimeout(this.notificationTimeout);
-    }
-    this.notification = { message, type };
-    this.notificationTimeout = setTimeout(() => {
-      this.notification = null;
-      this.notificationTimeout = null;
-    }, 3000);
   }
 
   refresh() {
@@ -67,15 +56,15 @@ export class UserManager implements OnChanges {
   promote(target_username: string) {
     this.dataService.promoteUser(target_username).subscribe({
       next: updated_user => {
-        if (!updated_user) return this.showNotification('Promotion failed', 'error');
+        if (!updated_user) return this.noti.showError('Promotion failed');
 
         this.all_users = this.all_users.map(u =>
           u.username === updated_user.username ? updated_user : u
         );
         this.refresh();
-        this.showNotification(`User ${updated_user.name} has been promoted to ${updated_user.role}.`, 'success');
+        this.noti.showConfirm(`User ${updated_user.name} has been promoted to ${updated_user.role}.`);
       },
-      error: e => this.showNotification(`Promotion failed: ${e.error.error}`, 'error')
+      error: e => this.noti.showError(`Promotion failed: ${e.error.error}`)
     });
   }
 
@@ -84,9 +73,9 @@ export class UserManager implements OnChanges {
       next: () => {
         this.all_users = this.all_users.filter(u => u.username !== target_username);
         this.refresh();
-        this.showNotification(`User ${target_username} has been deleted from database.`, 'success');
+        this.noti.showConfirm(`User ${target_username} has been deleted from database.`, 10000);
       },
-      error: e => this.showNotification(`Deletion failed: ${e.error.error}`, 'error')
+      error: e => this.noti.showError(`Deletion failed: ${e.error.error}`)
     });
   }
 
@@ -95,7 +84,7 @@ export class UserManager implements OnChanges {
       .subscribe({
         next: created_user => {
           if ('valid' in created_user && !created_user.valid) {
-            return this.showNotification('Invalid credentials!', 'error');
+            return this.noti.showError('Invalid credentials!');
           }
 
           const exists = this.all_users.find(x => x.username === created_user.username);
@@ -110,9 +99,9 @@ export class UserManager implements OnChanges {
           this.password = '';
           this.role = 'user';
 
-          this.showNotification(`User ${created_user.username} has been created.`, 'success');
+          this.noti.showConfirm(`User ${created_user.username} has been created.`);
         },
-        error: e => this.showNotification(`Account Creation failed: ${e.error.error}`, 'error')
+        error: e => this.noti.showError(`Account Creation failed: ${e.error.error}`)
       });
   }
 

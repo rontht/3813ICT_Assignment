@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Message } from '../models/message';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -10,15 +10,24 @@ import { environment } from '../../environments/environment';
 export class SocketsService {
   private socket: Socket;
   messages = signal<Message[]>([]);
+  private messageSubject = new Subject<Message>();
+  private systemSubject = new Subject<{ channel_id: string, message: string }>();
   private readonly server = environment.socket;
 
   constructor() {
-    this.socket = io(this.server, {
-      transports: ['websocket'],
-      reconnectionAttempts: 5
-    });
+    this.socket = io(this.server);
     this.socket.on('connect_error', (err) => console.warn('socket connect_error', err));
     this.socket.on('disconnect', (reason) => console.log('socket disconnected', reason));
+    this.socket.on('new_message', (msg: Message) => {
+      this.messages.update(list => [...list, msg]);
+      this.messageSubject.next(msg);
+    });
+    this.socket.on('user_joined', (data: { username: string; channel_id: string }) => {
+      this.systemSubject.next({
+        channel_id: data.channel_id,
+        message: `${data.username} joined the channel`
+      });
+    });
   }
 
   joinChannel(channel_id: string, username?: string) {
@@ -39,16 +48,11 @@ export class SocketsService {
   }
 
   onMessage(): Observable<Message> {
-    return new Observable<Message>((observer) => {
-      const handler = (msg: Message) => {
-        this.messages.update(list => [...list, msg]);
-        observer.next(msg);
-      };
-      this.socket.on('new_message', handler);
-      return () => {
-        this.socket.off('new_message', handler);
-      };
-    });
+    return this.messageSubject.asObservable();
+  }
+
+  onSystemMessage(): Observable<{ channel_id: string, message: string }> {
+    return this.systemSubject.asObservable();
   }
 
   disconnect() {

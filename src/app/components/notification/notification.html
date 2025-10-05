@@ -7,7 +7,8 @@
   }"
 >
   <div
-    class="max-w-xs w-72 rounded-xl shadow-lg p-3 backdrop-blur text-black flex items-start gap-3 pointer-events-auto"
+    [style.width.px]="width"
+    class="rounded-xl shadow-lg p-3 backdrop-blur text-black flex items-start gap-3 pointer-events-auto"
     [ngClass]="{
       'bg-red-100 border-l-4 border-red-500': noti_type === 'error',
       'bg-yellow-100 border-l-4 border-yellow-500': noti_type === 'warning',

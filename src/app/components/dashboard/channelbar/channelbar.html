@@ -8,16 +8,21 @@
       </div>
       }
     </div>
+
+    <div class="fixed top-2 left-1/2 -translate-x-1/2 z-50">
+      <noti #noti [width]="500"></noti>
+    </div>
+
     <div class="flex justify-center items-start h-full">
       @if (is_member) {
-        <button
-          class="ml-auto"
-          (click)="askConfirm($event)"
-          aria-haspopup="menu"
-          [attr.aria-expanded]="confirm_menu_open"
-        >
-          <img src="/icons/leave.png" alt="Leave" class="w-6 h-6" />
-        </button>
+      <button
+        class="ml-auto"
+        (click)="askConfirm($event)"
+        aria-haspopup="menu"
+        [attr.aria-expanded]="confirm_menu_open"
+      >
+        <img src="/icons/leave.png" alt="Leave" class="w-6 h-6" />
+      </button>
       }
 
       <!-- Dropdown confirmation menu -->
@@ -27,7 +32,8 @@
         role="menu"
       >
         <div class="text-sm mb-3">
-          Are you sure about leaving <span class="font-semibold">{{ current_group?.name }}</span
+          Are you sure about leaving
+          <span class="font-semibold">{{ current_group?.name }}</span
           >?
         </div>
         <div class="flex gap-2 justify-end">
@@ -38,12 +44,12 @@
             Cancel
           </button>
           @if(current_group) {
-            <button
-              class="px-3 py-1 rounded bg-red-700 hover:bg-red-600 text-white"
-              (click)="confirm(current_group)"
-            >
-              Confirm
-            </button>
+          <button
+            class="px-3 py-1 rounded bg-red-700 hover:bg-red-600 text-white"
+            (click)="confirm(current_group)"
+          >
+            Confirm
+          </button>
           }
         </div>
       </div>

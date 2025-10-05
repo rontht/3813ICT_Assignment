@@ -1,17 +1,12 @@
 <div class="w-full h-full">
   <div class="flex items-center mb-6">
     <h2 class="text-2xl font-bold">User Management</h2>
-    <div
-      *ngIf="notification"
-      class="ml-4 flex-1 p-1 text-center rounded-xl text-white"
-      [ngClass]="{
-        'bg-green-600': notification.type === 'success',
-        'bg-red-600': notification.type === 'error'
-      }"
-    >
-      {{ notification.message }}
-    </div>
   </div>
+
+  <div class="fixed top-2 left-1/2 -translate-x-1/2 z-50">
+    <noti #noti [width]="500"></noti>
+  </div>
+
   <div class="grid grid-cols-3 gap-6 h-[88vh]">
     <!-- Left: Current User + Create New User Form -->
     <div class="flex flex-col h-full">

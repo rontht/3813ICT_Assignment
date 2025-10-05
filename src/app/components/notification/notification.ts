@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'noti',
@@ -9,6 +9,8 @@ import { Component } from '@angular/core';
   styleUrl: './notification.css'
 })
 export class Notification {
+
+  @Input() width: number = 300;
 
   message: string = "";
   show_noti = false;
