@@ -1,19 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, HostListener, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { Channel } from '../../../models/channel';
 import { Group } from '../../../models/group';
 import { User } from '../../../models/user';
 import { DataService } from '../../../services/data.service';
+import { Notification } from '../../notification/notification';
 
 @Component({
   selector: 'app-memberbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Notification],
   templateUrl: './memberbar.html',
   styleUrl: './memberbar.css'
 })
 export class Memberbar implements OnChanges {
   private dataService = inject(DataService);
+  @ViewChild('noti') noti!: Notification;
 
   @Input() channel: Channel | null = null;
   @Input() group: Group | null = null;
@@ -43,6 +45,7 @@ export class Memberbar implements OnChanges {
           },
           error: (e) => {
             console.log('member bar Error: ', e);
+            this.noti.showError("Error occured while retrieving member list.");
           },
         });
       }
@@ -120,16 +123,15 @@ export class Memberbar implements OnChanges {
         if (this.channel == null) return;
         if (!this.channel.channel_users) return;
         if (!this.channel.banned_users) return;
-
         // this is adding member so put it on true
         this.channel.channel_users = this.setMembership(this.channel.channel_users, member.username, true);
         // this is removing bans so put it on false
         this.channel.banned_users = this.setMembership(this.channel.banned_users, member.username, false);
-
+        this.noti.showConfirm(`${member.name} has been added!`);
         // refresh the variables
         this.refresh();
       }, error: () => {
-
+        this.noti.showError("Error while adding member to channel!");
       },
     })
   }
@@ -142,14 +144,13 @@ export class Memberbar implements OnChanges {
         // check again
         if (this.channel == null) return;
         if (!this.channel.channel_users) return;
-
         // this is removing member so put it on false
         this.channel.channel_users = this.setMembership(this.channel.channel_users, member.username, false);
-
+        this.noti.showConfirm(`${member.name} has been removed!`);
         // refresh the variables
         this.refresh();
       }, error: () => {
-
+        this.noti.showError("Error while removing member from channel!");
       },
     })
   }
@@ -163,16 +164,15 @@ export class Memberbar implements OnChanges {
         if (this.channel == null) return;
         if (!this.channel.channel_users) return;
         if (!this.channel.banned_users) return;
-
         // this is removing member so put it on false
         this.channel.channel_users = this.setMembership(this.channel.channel_users, member.username, false);
         // this is adding bans so put it on true
         this.channel.banned_users = this.setMembership(this.channel.banned_users, member.username, true);
-
+        this.noti.showConfirm(`${member.name} has been banned!`);
         // refresh the variables
         this.refresh();
       }, error: () => {
-
+        this.noti.showError("Error while banning member from channel!");
       },
     })
   }
