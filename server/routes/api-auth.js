@@ -34,9 +34,23 @@ export function route(app) {
     try {
       const db = getDB();
       const { username, password } = req.body || {};
-
+      if (!username) {
+        return res
+          .status(400)
+          .json({ error: "Please enter a valid username." });
+      }
+      if (!password) {
+        return res
+          .status(400)
+          .json({ error: "Please enter a valid password." });
+      }
       const user = await db.collection("user").findOne({ username, password });
-      if (!user) return res.json({ valid: false });
+      if (!user) {
+        return res.status(400).json({
+          error:
+            "The email or password you entered doesn't match our records. Please double-check and try again",
+        });
+      }
       return res.json({
         username: user.username,
         valid: true,
@@ -55,7 +69,15 @@ export function route(app) {
 
       // check if any missing
       if (!username || !name || !email || !role || !password) {
-        return res.status(400).json({ error: "Missing fields" });
+        return res
+          .status(400)
+          .json({ error: "Please fill in all the fields to sign up." });
+      }
+
+      if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/.test(email)) {
+        return res
+          .status(400)
+          .json({ error: "Please enter a valid email address." });
       }
 
       // check if username or email already exist
@@ -64,9 +86,13 @@ export function route(app) {
       });
       if (existing) {
         if (existing.username === username) {
-          return res.status(409).json({ error: "Username already exists" });
+          return res.status(409).json({
+            error: "This username already exists. Please choose a new one.",
+          });
         }
-        return res.status(409).json({ error: "Email already exists" });
+        return res.status(409).json({
+          error: "This email already in used. Please choose a new one.",
+        });
       }
 
       // fill into user model and insert

@@ -33,7 +33,7 @@ export class Login {
 
         // if wrong input
         if ('valid' in data && !data.valid) {
-          this.noti.showError("Invalid Credentials! Please re-enter a valid username and password.");
+          this.noti.showError("Invalid Credentials!");
           return;
         }
         this.user = data as User;
@@ -43,7 +43,7 @@ export class Login {
         this.router.navigate(['/dashboard']);
       },
       error: (e) => {
-        this.noti.showError("Error while logging in. Try again later.");
+        this.noti.showError(`Error: ${e.error.error}`, 10000);
       }
     })
   }
@@ -64,7 +64,7 @@ export class Login {
         this.router.navigate(['/dashboard']);
       },
       error: (e) => {
-        this.noti.showError(`Error while Signing up. Reason: ${e.error.error}.`);
+        this.noti.showError(`Error: ${e.error.error}.`, 10000);
       }
     })
   }
