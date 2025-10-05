@@ -6,11 +6,12 @@ import { User } from '../../../models/user';
 import { Message } from '../../../models/message';
 import { SocketsService } from '../../../services/sockets.service';
 import { DataService } from '../../../services/data.service';
+import { Notification } from '../../notification/notification';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, Notification],
   templateUrl: './chat.html',
   styleUrl: './chat.css'
 })
@@ -19,6 +20,7 @@ export class Chat implements OnInit, OnChanges {
   private dataService = inject(DataService);
 
   @ViewChild('messages') private messages_container!: ElementRef;
+  @ViewChild('noti') noti!: Notification;
 
   @Input() current_channel: Channel | null = null;
   @Input() current_user: User | null = null;
@@ -33,7 +35,6 @@ export class Chat implements OnInit, OnChanges {
   showGifMenu: boolean = false;
 
   private scrollToBottom() {
-    console.log("YESS");
     setTimeout(() => {
       const el = this.messages_container.nativeElement;
       el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
@@ -66,6 +67,7 @@ export class Chat implements OnInit, OnChanges {
         message.senderName = res.name;
       },
       error: (e) => {
+        this.noti.showError("Error while getting chat data");
         console.error('get chat user data error', e);
       }
     })
@@ -118,10 +120,20 @@ export class Chat implements OnInit, OnChanges {
 
   send() {
     this.scrollToBottom();
-    if (!this.current_channel?.id || !this.current_user?.username) return;
+    if (!this.current_channel?.id) {
+      this.noti.showWarning('Please select a channel first!');
+      return;
+    };
+    if (!this.current_user?.username) {
+      this.noti.showError('No user detected!');
+      return;
+    };
     const body = this.messageout().trim();
     // ensure at least body or file exists
-    if (!body && !this.selected_file && !this.preview_url) return;
+    if (!body && !this.selected_file && !this.preview_url) {
+      this.noti.showWarning('Type something first!');
+      return;
+    }
     // if file exist, upload and retrieve the url to be save alongside body
     if (this.selected_file) {
       this.dataService.uploadChatImage(this.selected_file).subscribe({
@@ -129,10 +141,12 @@ export class Chat implements OnInit, OnChanges {
           if (res.success) {
             this.prepAndSend(body, [{ url: res.url, type: 'image' }]);
           } else {
-            console.error('File upload failed');
+            this.noti.showError('File upload failed', 3000);
+            // console.error('File upload failed');
           }
         },
         error: (e) => {
+          this.noti.showError('Upload server error', 3000);
           console.error('Upload error', e);
         }
       })
@@ -147,7 +161,7 @@ export class Chat implements OnInit, OnChanges {
   toggleGifMenu() {
     this.showGifMenu = !this.showGifMenu;
   }
-
+  
   selectGif(gif: string) {
     this.showGifMenu = false;
     this.selected_file = null;

@@ -1,0 +1,41 @@
+<div
+  aria-live="assertive"
+  class="pointer-events-none transition-all duration-300 ease-out transform"
+  [ngClass]="{
+    'opacity-100 translate-y-0': show_noti,
+    'opacity-0 translate-y-6': !show_noti
+  }"
+>
+  <div
+    class="max-w-xs w-72 rounded-xl shadow-lg p-3 backdrop-blur text-black flex items-start gap-3 pointer-events-auto"
+    [ngClass]="{
+      'bg-red-100 border-l-4 border-red-500': noti_type === 'error',
+      'bg-yellow-100 border-l-4 border-yellow-500': noti_type === 'warning',
+      'bg-green-100 border-l-4 border-green-500': noti_type === 'confirm'
+    }"
+    role="alert"
+  >
+    <div class="flex items-start gap-3">
+      @switch (noti_type) { @case ("error") {
+      <img src="icons/error.png" width="30" height="30" />
+      } @case ("warning") {
+      <img src="icons/warning.png" width="30" height="30" />
+      } @case ("confirm") {
+      <img src="icons/check.png" width="30" height="30" />
+      } @default {
+      <img src="icons/error.png" width="30" height="30" />
+      } }
+
+      <div class="flex-1 pt-1 w-full text-center">
+        <div class="text-sm font-medium">{{ message }}</div>
+      </div>
+
+      <button
+        (click)="hideNoti()"
+        class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+</div>

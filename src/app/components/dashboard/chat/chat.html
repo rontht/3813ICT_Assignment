@@ -16,10 +16,11 @@
     <div class="flex justify-end items-start space-x-3">
       <div class="flex flex-col items-end max-w-[70%] break-words">
         <div class="p-3 rounded-lg shadow bg-purple-800 text-white break-words">
-          <div class="text-xs text-gray-300 mb-1">
-            {{ msg.senderName }} — {{ msg.createdAt }}
+          <div class="mb-1">
+            <span class="text-sm text-pink-300">{{ msg.senderName }} </span>
+            <span class="text-[10px] text-gray-300">{{ msg.createdAt }}</span>
           </div>
-          <div class="text-base break-words">{{ msg.body }}</div>
+          <div class="text-sm break-words">{{ msg.body }}</div>
 
           <!-- Attachments -->
           @if (msg.attachments && msg.attachments.length > 0) { @for (att of
@@ -41,7 +42,7 @@
         />
         } @else {
         <span
-          class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+          class="text-xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent pt-1"
         >
           {{ placeholderAvatar(msg.sender) }}
         </span>
@@ -64,7 +65,7 @@
         />
         } @else {
         <span
-          class="text-2xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent"
+          class="text-xl bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 font-semibold bg-clip-text text-transparent pt-1"
         >
           {{ placeholderAvatar(msg.sender) }}
         </span>
@@ -73,10 +74,11 @@
 
       <div class="flex flex-col max-w-[70%] break-words">
         <div class="p-3 rounded-lg shadow bg-blue-800 break-words">
-          <div class="text-xs text-gray-300 mb-1">
-            {{ msg.senderName }} — {{ msg.createdAt }}
+          <div class="mb-1">
+            <span class="text-sm text-pink-300">{{ msg.senderName }} </span>
+            <span class="text-[10px] text-gray-300">{{ msg.createdAt }}</span>
           </div>
-          <div class="text-base break-words">{{ msg.body }}</div>
+          <div class="text-sm break-words">{{ msg.body }}</div>
 
           <!-- Attachments -->
           @if (msg.attachments && msg.attachments.length > 0) { @for (att of
@@ -95,6 +97,10 @@
       <p class="text-sm">No messages yet. Start the conversation!</p>
     </div>
     }
+  </div>
+
+  <div class="fixed bottom-25 left-1/2 -translate-x-1/2 z-50">
+    <noti #noti></noti>
   </div>
 
   <!-- Chat Input -->
