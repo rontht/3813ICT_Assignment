@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a project developed as an assessment for 3813 ICT named Cloud Connect. The frontend is developed using Angular (v20.1.3) in typescript and html while the backend is developed using Node.js (v22.17.0) and Express. In the current phase, the data stored in the txt.file in JSON format.
+This is a project developed as an assessment for 3813 ICT named Cloud Connect. The frontend is developed using Angular (v20.1.3) in typescript and html while the backend is developed using Node.js (v22.17.0) and Express. All of the data will be saved in mongo db and it can be seeded with initial server by running node `run.js` in terminal.
 
 To start a local development server for frontend, from root folder run:
 
