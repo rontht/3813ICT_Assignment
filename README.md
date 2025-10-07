@@ -15,6 +15,7 @@ To start the server backend, from server folder run:
 
 ```bash
 npm install
+node run.js
 npm start
 ```
 
@@ -31,7 +32,7 @@ Package folder such as node_modules and server/node_modules were added into giti
 
 ![alt text](./public/readme/ERD.png)<br>
 
-I used the minimal and clean data model to structure the project. There are 4 main entities in the project ERD namely user, group, channel and message. User has username as unique primary key and the other necessary fields. Group has id as primary key along with foreign keys of User such as creator, members and requests. For Channel, id act as primary key with group_id foreign key from Group, banned_users and channel_users from User. For Message, id as primary key with channel_id as foreign key from Channel and sender from User. Outside of these 4 main entity, I also have Log which has id as primary key and actor from User as foreign key.
+I used the minimal and clean data model to structure the project. There are 4 main entities in the project ERD namely user, group, channel and message. User has username as unique primary key and the other necessary fields. Group has id as primary key along with foreign keys of User such as creator, members and requests. For Channel, id act as primary key with group_id foreign key from Group, banned_users and channel_users from User. For Message, id as primary key with channel_id as foreign key from Channel and sender from User. Outside of these 4 main entities, I also have Log which has id as primary key and actor from User as foreign key.
 
 ## Server-side Classes
 
@@ -170,11 +171,12 @@ The following are the models based on the ERD entities. Some fields in these mod
 User: This is the model of User entity used for login, group membership display, user management, group management and channel management.
 
 export class User {
-username: string;
-name: string;
-email?: string;
-role: string;
-valid?: boolean;
+  username: string;
+  name: string;
+  email?: string;
+  role: string;
+  avatar: string;
+  valid?: boolean;
 }
 
 **Group**: This is the model of Group entity used for group management and basic group display.
